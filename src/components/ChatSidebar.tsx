@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, Plus, Settings, Trash2, Server } from "lucide-react";
+import { MessageSquare, Pencil, Plus, Settings, Trash2, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
@@ -59,6 +59,16 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
     if (activeId === id) navigate({ to: "/" });
   };
 
+  const renameConv = async (c: Conv, e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const nextTitle = prompt("Nouveau nom de la conversation :", c.title);
+    if (nextTitle === null) return;
+    const title = nextTitle.trim();
+    if (!title || title === c.title) return;
+    await supabase.from("conversations").update({ title }).eq("id", c.id);
+  };
+
   return (
     <aside className="w-64 shrink-0 border-r border-border bg-sidebar text-sidebar-foreground flex flex-col h-screen">
       <div className="p-3 border-b border-sidebar-border">
@@ -97,6 +107,13 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
           >
             <MessageSquare className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             <span className="truncate flex-1">{c.title}</span>
+            <button
+              onClick={(e) => renameConv(c, e)}
+              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-sidebar-accent transition"
+              aria-label="Renommer"
+            >
+              <Pencil className="h-3 w-3" />
+            </button>
             <button
               onClick={(e) => deleteConv(c.id, e)}
               className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/20 hover:text-destructive transition"

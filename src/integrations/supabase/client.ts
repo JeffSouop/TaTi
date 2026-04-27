@@ -43,11 +43,14 @@ interface DbResult<T = any> {
 }
 
 async function postOp(payload: unknown): Promise<DbResult> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 12_000);
   try {
     const res = await fetch(DB_ENDPOINT, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
+      signal: controller.signal,
     });
     const json = (await res.json()) as DbResult;
     if (!res.ok && !json.error) {
@@ -55,11 +58,19 @@ async function postOp(payload: unknown): Promise<DbResult> {
     }
     return json;
   } catch (e) {
+    const message =
+      e instanceof DOMException && e.name === "AbortError"
+        ? "La requête a expiré (timeout). Vérifie le serveur /api/db."
+        : e instanceof Error
+          ? e.message
+          : "Network error";
     return {
       data: null,
-      error: { message: e instanceof Error ? e.message : "Network error" },
+      error: { message },
       count: null,
     };
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
