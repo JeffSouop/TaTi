@@ -1,0 +1,91 @@
+# =============================================================================
+# docker-compose pour faire tourner le projet en self-hosted local.
+#
+# Profils :
+#   - dev  : `docker compose --profile dev  up`  -> postgres + app (hot reload)
+#   - prod : `docker compose --profile prod up`  -> postgres + app (build SSR)
+#
+# Le service mcp-openmetadata est toujours lancé (profil par défaut).
+# Adapte les variables d'env dans .env (cf. .env.example).
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Postgres : remplace Supabase Cloud
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: tati-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tati}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tati_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-tati}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tati} -d ${POSTGRES_DB:-tati}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ---------------------------------------------------------------------------
+  # App TanStack Start - mode DEV (hot reload)
+  # ---------------------------------------------------------------------------
+  app-dev:
+    build:
+      context: .
+      target: dev
+    container_name: tati-app-dev
+    profiles: ["dev"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}
+      NODE_ENV: development
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    command: ["bun", "run", "dev", "--host", "0.0.0.0"]
+
+  # ---------------------------------------------------------------------------
+  # App TanStack Start - mode PROD (build + preview SSR)
+  # ---------------------------------------------------------------------------
+  app-prod:
+    build:
+      context: .
+      target: prod
+    container_name: tati-app-prod
+    profiles: ["prod"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+
+  # ---------------------------------------------------------------------------
+  # Pont MCP -> OpenMetadata (toujours lancé)
+  # Suppose que tu as un dossier ./mcp-openmetadata/ avec son Dockerfile + server.py
+  # ---------------------------------------------------------------------------
+  mcp-openmetadata:
+    build:
+      context: ./mcp-openmetadata
+    container_name: mcp-openmetadata
+    restart: unless-stopped
+    environment:
+      OPENMETADATA_URL: ${OPENMETADATA_URL}
+      OPENMETADATA_JWT: ${OPENMETADATA_JWT}
+    ports:
+      - "8001:8001"
+
+volumes:
+  postgres_data:

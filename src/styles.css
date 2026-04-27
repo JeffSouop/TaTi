@@ -1,0 +1,224 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+/* TaTi typography — Inter (UI) + JetBrains Mono (code), per cahier des charges §4.3 */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/*
+ * TaTi official brand palette (cahier des charges §4.3) — converted to oklch:
+ *   #7C3AED → primary violet
+ *   #A78BFA → primary glow / secondary violet
+ *   #0A0A0F → background
+ *   #12062A → surface 1 (sidebar / card raised)
+ *   #1E0A3C → surface 2 (popover / accent)
+ */
+:root {
+  --radius: 0.625rem;
+
+  /* Brand tokens (also exposed for gradients & shadows) */
+  --brand-violet: oklch(0.554 0.247 295.7);          /* #7C3AED */
+  --brand-violet-glow: oklch(0.737 0.149 295.0);     /* #A78BFA */
+  --brand-bg: oklch(0.084 0.018 286);                /* #0A0A0F */
+  --brand-surface-1: oklch(0.165 0.067 296);         /* #12062A */
+  --brand-surface-2: oklch(0.225 0.108 296);         /* #1E0A3C */
+
+  --gradient-primary: linear-gradient(135deg, var(--brand-violet) 0%, var(--brand-violet-glow) 100%);
+  --gradient-surface: linear-gradient(180deg, var(--brand-surface-2), var(--brand-surface-1));
+  --shadow-glow: 0 0 32px -8px color-mix(in oklab, var(--brand-violet) 55%, transparent);
+  --shadow-elegant: 0 12px 40px -12px color-mix(in oklab, var(--brand-violet) 35%, transparent);
+
+  /* Light theme — kept as a soft, paper-like alternative with violet accents */
+  --background: oklch(0.99 0.005 295);
+  --foreground: oklch(0.18 0.04 295);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.04 295);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.04 295);
+  --primary: var(--brand-violet);
+  --primary-foreground: oklch(0.985 0.005 295);
+  --secondary: oklch(0.96 0.02 295);
+  --secondary-foreground: oklch(0.22 0.06 295);
+  --muted: oklch(0.96 0.015 295);
+  --muted-foreground: oklch(0.5 0.04 295);
+  --accent: oklch(0.93 0.05 295);
+  --accent-foreground: oklch(0.25 0.1 295);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(0.92 0.02 295);
+  --input: oklch(0.92 0.02 295);
+  --ring: var(--brand-violet);
+  --chart-1: oklch(0.554 0.247 295.7);
+  --chart-2: oklch(0.737 0.149 295);
+  --chart-3: oklch(0.6 0.118 184.704);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.65 0.21 22);
+  --sidebar: oklch(0.985 0.005 295);
+  --sidebar-foreground: oklch(0.129 0.04 295);
+  --sidebar-primary: var(--brand-violet);
+  --sidebar-primary-foreground: oklch(0.985 0.005 295);
+  --sidebar-accent: oklch(0.95 0.02 295);
+  --sidebar-accent-foreground: oklch(0.22 0.06 295);
+  --sidebar-border: oklch(0.92 0.02 295);
+  --sidebar-ring: var(--brand-violet);
+}
+
+.dark {
+  /* TaTi official dark theme */
+  --background: var(--brand-bg);
+  --foreground: oklch(0.97 0.01 295);
+  --card: var(--brand-surface-1);
+  --card-foreground: oklch(0.97 0.01 295);
+  --popover: var(--brand-surface-2);
+  --popover-foreground: oklch(0.97 0.01 295);
+  --primary: var(--brand-violet);
+  --primary-foreground: oklch(0.99 0.005 295);
+  --secondary: var(--brand-surface-2);
+  --secondary-foreground: oklch(0.97 0.01 295);
+  --muted: var(--brand-surface-1);
+  --muted-foreground: oklch(0.7 0.03 295);
+  --accent: var(--brand-surface-2);
+  --accent-foreground: oklch(0.97 0.01 295);
+  --destructive: oklch(0.65 0.21 22);
+  --destructive-foreground: oklch(0.99 0.005 295);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 12%);
+  --ring: var(--brand-violet);
+  --chart-1: oklch(0.554 0.247 295.7);
+  --chart-2: oklch(0.737 0.149 295);
+  --chart-3: oklch(0.696 0.17 162.48);
+  --chart-4: oklch(0.769 0.188 70.08);
+  --chart-5: oklch(0.65 0.21 22);
+  --sidebar: var(--brand-surface-1);
+  --sidebar-foreground: oklch(0.97 0.01 295);
+  --sidebar-primary: var(--brand-violet);
+  --sidebar-primary-foreground: oklch(0.99 0.005 295);
+  --sidebar-accent: var(--brand-surface-2);
+  --sidebar-accent-foreground: oklch(0.97 0.01 295);
+  --sidebar-border: oklch(1 0 0 / 8%);
+  --sidebar-ring: var(--brand-violet);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code, pre, kbd, samp, .font-mono {
+    font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  /* Markdown rendering */
+  .prose-msg p { margin: 0.4rem 0; line-height: 1.55; }
+  .prose-msg p:first-child { margin-top: 0; }
+  .prose-msg p:last-child { margin-bottom: 0; }
+  .prose-msg ul, .prose-msg ol { margin: 0.4rem 0; padding-left: 1.4rem; }
+  .prose-msg li { margin: 0.15rem 0; }
+  .prose-msg code {
+    background: var(--color-muted);
+    padding: 0.1rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.875em;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .prose-msg pre {
+    background: var(--color-muted);
+    color: var(--color-foreground);
+    padding: 0.85rem 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin: 0.6rem 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  .prose-msg pre code { background: transparent; padding: 0; }
+  .prose-msg h1, .prose-msg h2, .prose-msg h3 {
+    font-weight: 600;
+    margin: 0.8rem 0 0.4rem;
+    line-height: 1.3;
+  }
+  .prose-msg h1 { font-size: 1.25rem; }
+  .prose-msg h2 { font-size: 1.1rem; }
+  .prose-msg h3 { font-size: 1rem; }
+  .prose-msg a { color: var(--color-primary); text-decoration: underline; }
+  .prose-msg blockquote {
+    border-left: 3px solid var(--color-border);
+    padding-left: 0.8rem;
+    color: var(--color-muted-foreground);
+    margin: 0.5rem 0;
+  }
+  .prose-msg table { border-collapse: collapse; margin: 0.5rem 0; }
+  .prose-msg th, .prose-msg td {
+    border: 1px solid var(--color-border);
+    padding: 0.3rem 0.6rem;
+    text-align: left;
+  }
+}
