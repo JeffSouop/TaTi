@@ -24,8 +24,27 @@ type SseEvent =
   | { type: 'done' };
 
 function compactToolsForAnthropic(tools: LlmTool[]): LlmTool[] {
-  const MAX_TOOLS = 8;
-  return tools.slice(0, MAX_TOOLS).map((t) => ({
+  const MAX_TOOLS = 16;
+  const MAX_PER_SERVER = 3;
+
+  const byServer = new Map<string, LlmTool[]>();
+  for (const t of tools) {
+    const m = /^\[([^\]]+)\]/.exec(t.description ?? '');
+    const server = m?.[1] ?? 'unknown';
+    const arr = byServer.get(server) ?? [];
+    arr.push(t);
+    byServer.set(server, arr);
+  }
+
+  const selected: LlmTool[] = [];
+  // First pass: ensure each server contributes tools (avoids hiding Slack/Notion/etc.)
+  for (const [, arr] of byServer) {
+    selected.push(...arr.slice(0, MAX_PER_SERVER));
+  }
+  // Second pass: trim global size.
+  const trimmed = selected.slice(0, MAX_TOOLS);
+
+  return trimmed.map((t) => ({
     name: t.name,
     description: (t.description ?? '').slice(0, 160),
     // Keep schema intentionally minimal to reduce input tokens/minute pressure.
