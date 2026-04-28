@@ -21,23 +21,35 @@ cp .env.example .env
 #    dans ./mcp-openmetadata/server.py
 #    (cf. mcp-openmetadata/Dockerfile + requirements.txt déjà fournis)
 
-# 4. Lance la stack en mode dev (hot reload)
-docker compose --profile dev up --build
+# 4. Lance toute la stack (app dev + postgres + MCP)
+docker compose up --build
 
 # ou en mode prod (build SSR)
 docker compose --profile prod up --build
 ```
 
 Services :
-- App      → http://localhost:5173 (dev) ou :3000 (prod)
+- App (dev)→ http://localhost:5173
 - Postgres → localhost:5432 (user/pass dans .env)
 - MCP-OM   → http://localhost:8001/mcp
 - MCP-PG   → http://localhost:8002/mcp
+- MCP-PDF  → http://localhost:8003/mcp
 
-Le service MCP-PG est optionnel (profil `mcp-postgres`) :
+Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
+- PostgreSQL → `http://mcp-postgres:8002/mcp` (car l'app tourne dans Docker)
+- PDF Generator → `http://mcp-pdf:8003/mcp`
+
+Par défaut, le MCP PostgreSQL tourne en lecture seule.
+Pour autoriser les modifications (INSERT/UPDATE/DELETE), mets dans `.env` :
 
 ```bash
-docker compose --profile mcp-postgres up -d mcp-postgres
+MCP_POSTGRES_READ_ONLY=false
+```
+
+puis redémarre le service :
+
+```bash
+docker compose up -d --build mcp-postgres
 ```
 
 ## Architecture
@@ -71,7 +83,7 @@ Pour repartir de zéro :
 
 ```bash
 docker compose down -v
-docker compose --profile dev up --build
+docker compose up --build
 ```
 
 ## Restaurer les données depuis Lovable Cloud

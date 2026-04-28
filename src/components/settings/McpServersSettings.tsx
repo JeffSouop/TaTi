@@ -19,7 +19,8 @@ interface McpServer {
 }
 
 const PRESETS: Array<{ label: string; name: string; url: string; hint: string }> = [
-  { label: "PostgreSQL", name: "PostgreSQL", url: "https://YOUR-TUNNEL/postgres/mcp", hint: "Sert via mcp-server-postgres" },
+  { label: "PostgreSQL", name: "PostgreSQL", url: "http://mcp-postgres:8002/mcp", hint: "Service docker local mcp-postgres" },
+  { label: "PDF", name: "PDF Generator", url: "http://mcp-pdf:8003/mcp", hint: "Génération de PDF (service docker local)" },
   { label: "MySQL", name: "MySQL", url: "https://YOUR-TUNNEL/mysql/mcp", hint: "Sert via mcp-server-mysql" },
   { label: "Dagster", name: "Dagster", url: "https://YOUR-TUNNEL/dagster/mcp", hint: "Sert via mcp-server-dagster" },
   { label: "Moodle", name: "Moodle", url: "https://YOUR-TUNNEL/moodle/mcp", hint: "Projet open source moodle-mcp" },
