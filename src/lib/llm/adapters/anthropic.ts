@@ -2,53 +2,85 @@
 import type { LlmAdapter } from "../types";
 
 export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
+  const DEFAULT_KEEP_LAST_NON_SYSTEM = 4;
+  const RETRY_KEEP_LAST_NON_SYSTEM = 2;
+  const MAX_SYSTEM_CHARS = 1200;
+  const MAX_TEXT_CHARS = 1500;
+  const MAX_TOOL_RESULT_CHARS = 800;
+
+  function truncateText(value: string, maxChars: number): string {
+    if (value.length <= maxChars) return value;
+    return `${value.slice(0, maxChars)}\n\n[...contenu tronque automatiquement pour eviter un depassement de quota...]`;
+  }
+
+  function normalizeContent(content: unknown, maxChars: number): unknown {
+    if (typeof content === "string") return truncateText(content, maxChars);
+    try {
+      const json = JSON.stringify(content);
+      return truncateText(json, maxChars);
+    } catch {
+      return truncateText(String(content ?? ""), maxChars);
+    }
+  }
+
+  function normalizeToolInput(input: unknown): Record<string, unknown> {
+    if (!input || typeof input !== "object" || Array.isArray(input)) return {};
+    return input as Record<string, unknown>;
+  }
+
+  function toAnthropicMessages(
+    messages: Parameters<LlmAdapter["streamChat"]>[0]["messages"],
+    keepLastNonSystem: number,
+  ) {
+    const systemMsgs = messages.filter((m) => m.role === "system");
+    const rawSystem = systemMsgs.map((m) => (m as { content: string }).content).join("\n\n");
+    const system = rawSystem ? truncateText(rawSystem, MAX_SYSTEM_CHARS) : undefined;
+
+    const base = messages.filter((m) => m.role !== "system").slice(-keepLastNonSystem);
+
+    const aMessages: Array<{ role: "user" | "assistant"; content: unknown }> = [];
+    const knownToolUseIds = new Set<string>();
+    for (const m of base) {
+      if (m.role === "user") {
+        aMessages.push({ role: "user", content: normalizeContent(m.content, MAX_TEXT_CHARS) });
+      } else if (m.role === "assistant") {
+        const blocks: Array<Record<string, unknown>> = [];
+        if (m.content) blocks.push({ type: "text", text: normalizeContent(m.content, MAX_TEXT_CHARS) });
+        if (m.toolCalls) {
+          for (const tc of m.toolCalls) {
+            knownToolUseIds.add(tc.id);
+            blocks.push({
+              type: "tool_use",
+              id: tc.id,
+              name: tc.name,
+              input: normalizeToolInput(tc.arguments),
+            });
+          }
+        }
+        aMessages.push({ role: "assistant", content: blocks });
+      } else if (m.role === "tool") {
+        // Anthropic exige qu'un tool_result référence un tool_use
+        // présent dans le message assistant précédent. On ignore les
+        // entrées historiques incohérentes pour éviter une erreur 400.
+        if (!m.toolCallId || !knownToolUseIds.has(m.toolCallId)) continue;
+        // Anthropic represents tool results as user messages with tool_result blocks
+        aMessages.push({
+          role: "user",
+          content: [
+            {
+              type: "tool_result",
+              tool_use_id: m.toolCallId,
+                content: normalizeContent(m.content, MAX_TOOL_RESULT_CHARS),
+            },
+          ],
+        });
+      }
+    }
+    return { system, aMessages };
+  }
+
   return {
     async *streamChat({ model, messages, tools, temperature, signal }) {
-      // Extract system message (Anthropic uses a separate `system` field)
-      const systemMsgs = messages.filter((m) => m.role === "system");
-      const system = systemMsgs.map((m) => (m as { content: string }).content).join("\n\n") || undefined;
-
-      // Convert messages to Anthropic format
-      const aMessages: Array<{ role: "user" | "assistant"; content: unknown }> = [];
-      const knownToolUseIds = new Set<string>();
-      for (const m of messages) {
-        if (m.role === "system") continue;
-        if (m.role === "user") {
-          aMessages.push({ role: "user", content: m.content });
-        } else if (m.role === "assistant") {
-          const blocks: Array<Record<string, unknown>> = [];
-          if (m.content) blocks.push({ type: "text", text: m.content });
-          if (m.toolCalls) {
-            for (const tc of m.toolCalls) {
-              knownToolUseIds.add(tc.id);
-              blocks.push({
-                type: "tool_use",
-                id: tc.id,
-                name: tc.name,
-                input: tc.arguments,
-              });
-            }
-          }
-          aMessages.push({ role: "assistant", content: blocks });
-        } else if (m.role === "tool") {
-          // Anthropic exige qu'un tool_result référence un tool_use
-          // présent dans le message assistant précédent. On ignore les
-          // entrées historiques incohérentes pour éviter une erreur 400.
-          if (!m.toolCallId || !knownToolUseIds.has(m.toolCallId)) continue;
-          // Anthropic represents tool results as user messages with tool_result blocks
-          aMessages.push({
-            role: "user",
-            content: [
-              {
-                type: "tool_result",
-                tool_use_id: m.toolCallId,
-                content: m.content,
-              },
-            ],
-          });
-        }
-      }
-
       const aTools =
         tools.length > 0
           ? tools.map((t) => ({
@@ -58,27 +90,61 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
             }))
           : undefined;
 
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
+      const fullPayload = toAnthropicMessages(messages, DEFAULT_KEEP_LAST_NON_SYSTEM);
+      let payload = {
+        model,
+        max_tokens: 8192,
+        temperature,
+        system: fullPayload.system,
+        messages: fullPayload.aMessages,
+        tools: aTools,
+        stream: true,
+      };
+
+      let res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "x-api-key": opts.apiKey,
           "anthropic-version": "2023-06-01",
         },
-        body: JSON.stringify({
-          model,
-          max_tokens: 8192,
-          temperature,
-          system,
-          messages: aMessages,
-          tools: aTools,
-          stream: true,
-        }),
+        body: JSON.stringify(payload),
         signal,
       });
 
+      // Fallback: en cas de rate-limit d'entrée, on retente avec un contexte plus court.
+      if (res.status === 429) {
+        const reduced = toAnthropicMessages(messages, RETRY_KEEP_LAST_NON_SYSTEM);
+        payload = {
+          ...payload,
+          max_tokens: 2048,
+          system: reduced.system,
+          messages: reduced.aMessages,
+          tools: undefined,
+        };
+        res = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": opts.apiKey,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify(payload),
+          signal,
+        });
+      }
+
       if (!res.ok || !res.body) {
         const txt = await res.text().catch(() => "");
+        if (res.status === 429) {
+          yield {
+            type: "error",
+            error:
+              "Anthropic rate limit atteint (tokens/min). Réessaie dans ~60s, " +
+              "ou envoie un message plus court / nouvelle conversation.",
+          };
+          return;
+        }
         yield { type: "error", error: `Anthropic HTTP ${res.status}: ${txt.slice(0, 400)}` };
         return;
       }
