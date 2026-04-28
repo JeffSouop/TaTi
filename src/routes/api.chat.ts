@@ -23,6 +23,16 @@ type SseEvent =
   | { type: 'error'; message: string }
   | { type: 'done' };
 
+function compactToolsForAnthropic(tools: LlmTool[]): LlmTool[] {
+  const MAX_TOOLS = 8;
+  return tools.slice(0, MAX_TOOLS).map((t) => ({
+    name: t.name,
+    description: (t.description ?? '').slice(0, 160),
+    // Keep schema intentionally minimal to reduce input tokens/minute pressure.
+    parameters: { type: 'object', properties: {} },
+  }));
+}
+
 function sseLine(event: SseEvent): string {
   return `data: ${JSON.stringify(event)}\n\n`;
 }
@@ -134,6 +144,7 @@ export const Route = createFileRoute('/api/chat')({
               // 5. Connect to MCP servers + gather tools
               const sessions = new Map<string, { session: Awaited<ReturnType<typeof mcpInitialize>>; serverName: string; serverId: string }>();
               const allTools: LlmTool[] = [];
+              const originalToolNameByEncoded = new Map<string, string>();
 
               for (const srv of servers ?? []) {
                 try {
@@ -142,8 +153,10 @@ export const Route = createFileRoute('/api/chat')({
                   const tools = await mcpListTools(session);
                   sessions.set(shortServerId(srv.id), { session, serverName: srv.name, serverId: srv.id });
                   for (const t of tools) {
+                    const encoded = encodeToolName(srv.id, t.name);
+                    originalToolNameByEncoded.set(encoded, t.name);
                     allTools.push({
-                      name: encodeToolName(srv.id, t.name),
+                      name: encoded,
                       description: `[${srv.name}] ${t.description ?? t.name}`,
                       parameters: (t.inputSchema as Record<string, unknown>) ?? { type: 'object', properties: {} },
                     });
@@ -206,11 +219,13 @@ export const Route = createFileRoute('/api/chat')({
                 let assistantContent = '';
                 const assistantToolCalls: LlmToolCall[] = [];
                 let streamErrored = false;
+                const toolsForCall =
+                  providerConfig.kind === 'anthropic' ? compactToolsForAnthropic(allTools) : allTools;
 
                 const generator = adapter.streamChat({
                   model,
                   messages,
-                  tools: allTools,
+                  tools: toolsForCall,
                   temperature: providerConfig.temperature,
                 });
 
@@ -286,7 +301,8 @@ export const Route = createFileRoute('/api/chat')({
                     toolResultText = JSON.stringify({ error: toolError });
                   } else {
                     try {
-                      const result = await mcpCallTool(sessionEntry.session, decoded.toolName, tc.arguments);
+                      const originalToolName = originalToolNameByEncoded.get(tc.name) ?? decoded.toolName;
+                      const result = await mcpCallTool(sessionEntry.session, originalToolName, tc.arguments);
                       toolResultText = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
                     } catch (e) {
                       toolError = e instanceof Error ? e.message : 'Tool execution failed';
