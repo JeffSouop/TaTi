@@ -32,6 +32,13 @@ Services :
 - App      → http://localhost:5173 (dev) ou :3000 (prod)
 - Postgres → localhost:5432 (user/pass dans .env)
 - MCP-OM   → http://localhost:8001/mcp
+- MCP-PG   → http://localhost:8002/mcp
+
+Le service MCP-PG est optionnel (profil `mcp-postgres`) :
+
+```bash
+docker compose --profile mcp-postgres up -d mcp-postgres
+```
 
 ## Architecture
 
