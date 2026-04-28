@@ -76,6 +76,14 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
         });
       }
     }
+    if (aMessages.length === 0) {
+      // Anthropic requires at least one non-system message.
+      aMessages.push({
+        role: "user",
+        content: "Reponds brievement en francais.",
+      });
+    }
+
     return { system, aMessages };
   }
 
