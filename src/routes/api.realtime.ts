@@ -10,6 +10,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { pool } from "@/lib/db.server";
+import { Client } from "pg";
 
 const ALLOWED_TABLES = new Set([
   "app_settings",
@@ -45,8 +46,18 @@ export const Route = createFileRoute("/api/realtime")({
               }
             };
 
-            // Connexion dédiée pour LISTEN
-            const client = await pool.connect();
+            // Connexion dédiée hors pool pour éviter d'épuiser le pool principal.
+            const cfg = pool.options;
+            const client = new Client({
+              connectionString: typeof cfg.connectionString === "string" ? cfg.connectionString : undefined,
+              host: typeof cfg.host === "string" ? cfg.host : undefined,
+              port: typeof cfg.port === "number" ? cfg.port : undefined,
+              user: typeof cfg.user === "string" ? cfg.user : undefined,
+              password: typeof cfg.password === "string" ? cfg.password : undefined,
+              database: typeof cfg.database === "string" ? cfg.database : undefined,
+              ssl: cfg.ssl,
+            });
+            await client.connect();
             const onNotify = (msg: { channel: string; payload?: string }) => {
               if (msg.channel !== CHANNEL || !msg.payload) return;
               try {
@@ -84,7 +95,7 @@ export const Route = createFileRoute("/api/realtime")({
               } catch {
                 /* ignore */
               }
-              client.release();
+              await client.end();
               try {
                 controller.close();
               } catch {
