@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ThemeProvider";
 
 import appCss from "../styles.css?url";
+import tatiLogoUrl from "@/assets/tati-logo.png?url";
 
 // Inline script that runs before React hydration to apply the saved theme
 // (or default to dark) and prevent a light-mode flash on first paint.
@@ -53,6 +54,11 @@ export const Route = createRootRoute({
       {
         rel: "stylesheet",
         href: appCss,
+      },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: tatiLogoUrl,
       },
     ],
   }),
