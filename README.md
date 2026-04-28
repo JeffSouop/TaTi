@@ -34,10 +34,41 @@ Services :
 - MCP-OM   → http://localhost:8001/mcp
 - MCP-PG   → http://localhost:8002/mcp
 - MCP-PDF  → http://localhost:8003/mcp
+- MCP-Notion → http://localhost:8004/mcp
+- MCP-Slack  → http://localhost:8006/mcp
 
 Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - PostgreSQL → `http://mcp-postgres:8002/mcp` (car l'app tourne dans Docker)
 - PDF Generator → `http://mcp-pdf:8003/mcp`
+- Notion → `http://mcp-notion:8004/mcp`
+- Slack → `http://mcp-slack:8006/mcp`
+
+## Configuration Slack et Notion
+
+Dans `.env`, renseigne :
+
+```bash
+MCP_NOTION_TOKEN=secret_xxx
+MCP_SLACK_BOT_TOKEN=xoxb-xxx
+MCP_SLACK_TEAM_ID=T01234567
+# optionnel (restriction de sécurité)
+MCP_SLACK_CHANNEL_IDS=C01234567,C07654321
+```
+
+Puis relance :
+
+```bash
+docker compose up -d --build mcp-notion mcp-slack
+```
+
+### Scopes Slack recommandés
+
+- `channels:read`
+- `channels:history`
+- `chat:write`
+- `users:read`
+- `users.profile:read`
+- `reactions:write` (optionnel)
 
 Par défaut, le MCP PostgreSQL tourne en lecture seule.
 Pour autoriser les modifications (INSERT/UPDATE/DELETE), mets dans `.env` :

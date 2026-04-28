@@ -21,6 +21,8 @@ interface McpServer {
 const PRESETS: Array<{ label: string; name: string; url: string; hint: string }> = [
   { label: "PostgreSQL", name: "PostgreSQL", url: "http://mcp-postgres:8002/mcp", hint: "Service docker local mcp-postgres" },
   { label: "PDF", name: "PDF Generator", url: "http://mcp-pdf:8003/mcp", hint: "Génération de PDF (service docker local)" },
+  { label: "Notion", name: "Notion", url: "http://mcp-notion:8004/mcp", hint: "Service officiel Notion MCP" },
+  { label: "Slack", name: "Slack", url: "http://mcp-slack:8006/mcp", hint: "Bridge Slack MCP local (messages + channels)" },
   { label: "MySQL", name: "MySQL", url: "https://YOUR-TUNNEL/mysql/mcp", hint: "Sert via mcp-server-mysql" },
   { label: "Dagster", name: "Dagster", url: "https://YOUR-TUNNEL/dagster/mcp", hint: "Sert via mcp-server-dagster" },
   { label: "Moodle", name: "Moodle", url: "https://YOUR-TUNNEL/moodle/mcp", hint: "Projet open source moodle-mcp" },
