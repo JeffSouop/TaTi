@@ -10,6 +10,7 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
 
       // Convert messages to Anthropic format
       const aMessages: Array<{ role: "user" | "assistant"; content: unknown }> = [];
+      const knownToolUseIds = new Set<string>();
       for (const m of messages) {
         if (m.role === "system") continue;
         if (m.role === "user") {
@@ -19,6 +20,7 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
           if (m.content) blocks.push({ type: "text", text: m.content });
           if (m.toolCalls) {
             for (const tc of m.toolCalls) {
+              knownToolUseIds.add(tc.id);
               blocks.push({
                 type: "tool_use",
                 id: tc.id,
@@ -29,6 +31,10 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
           }
           aMessages.push({ role: "assistant", content: blocks });
         } else if (m.role === "tool") {
+          // Anthropic exige qu'un tool_result référence un tool_use
+          // présent dans le message assistant précédent. On ignore les
+          // entrées historiques incohérentes pour éviter une erreur 400.
+          if (!m.toolCallId || !knownToolUseIds.has(m.toolCallId)) continue;
           // Anthropic represents tool results as user messages with tool_result blocks
           aMessages.push({
             role: "user",

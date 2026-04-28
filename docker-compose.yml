@@ -1,9 +1,9 @@
 # =============================================================================
 # docker-compose pour faire tourner le projet en self-hosted local.
 #
-# Profils :
-#   - dev  : `docker compose --profile dev  up`  -> postgres + app (hot reload)
-#   - prod : `docker compose --profile prod up`  -> postgres + app (build SSR)
+# Modes :
+#   - défaut : `docker compose up` -> postgres + app-dev + MCP
+#   - prod   : `docker compose --profile prod up` -> postgres + app-prod + MCP
 #
 # Le service mcp-openmetadata est toujours lancé (profil par défaut).
 # Adapte les variables d'env dans .env (cf. .env.example).
@@ -40,7 +40,6 @@ services:
       context: .
       target: dev
     container_name: tati-app-dev
-    profiles: ["dev"]
     depends_on:
       postgres:
         condition: service_healthy
@@ -93,24 +92,36 @@ services:
   #   http://localhost:${MCP_POSTGRES_PORT:-8002}/mcp
   # ---------------------------------------------------------------------------
   mcp-postgres:
-    image: ghcr.io/modelcontextprotocol/servers/postgres:latest
+    build:
+      context: ./mcp-postgres
     container_name: mcp-postgres
-    profiles: ["mcp-postgres"]
     restart: unless-stopped
     environment:
       DATABASE_URL: ${MCP_POSTGRES_DATABASE_URL:-postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}}
-    command:
-      - --transport
-      - streamable-http
-      - --host
-      - 0.0.0.0
-      - --port
-      - "8002"
+      MCP_POSTGRES_READ_ONLY: ${MCP_POSTGRES_READ_ONLY:-true}
     depends_on:
       postgres:
         condition: service_healthy
     ports:
       - "${MCP_POSTGRES_PORT:-8002}:8002"
+
+  # ---------------------------------------------------------------------------
+  # Pont MCP -> PDF (toujours lancé)
+  # Expose un endpoint Streamable HTTP utilisable dans TaTi:
+  #   http://mcp-pdf:8003/mcp
+  # Et des fichiers téléchargeables:
+  #   http://localhost:${MCP_PDF_PORT:-8003}/files/<nom>.pdf
+  # ---------------------------------------------------------------------------
+  mcp-pdf:
+    build:
+      context: ./mcp-pdf
+    container_name: mcp-pdf
+    restart: unless-stopped
+    environment:
+      PDF_OUTPUT_DIR: /app/output
+      PDF_PUBLIC_BASE_URL: ${MCP_PDF_PUBLIC_BASE_URL:-http://localhost:8003}
+    ports:
+      - "${MCP_PDF_PORT:-8003}:8003"
 
 volumes:
   postgres_data:
