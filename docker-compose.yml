@@ -87,5 +87,30 @@ services:
     ports:
       - "8001:8001"
 
+  # ---------------------------------------------------------------------------
+  # Pont MCP -> PostgreSQL (toujours lancé)
+  # Expose un endpoint Streamable HTTP utilisable dans TaTi:
+  #   http://localhost:${MCP_POSTGRES_PORT:-8002}/mcp
+  # ---------------------------------------------------------------------------
+  mcp-postgres:
+    image: ghcr.io/modelcontextprotocol/servers/postgres:latest
+    container_name: mcp-postgres
+    profiles: ["mcp-postgres"]
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${MCP_POSTGRES_DATABASE_URL:-postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}}
+    command:
+      - --transport
+      - streamable-http
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${MCP_POSTGRES_PORT:-8002}:8002"
+
 volumes:
   postgres_data:
