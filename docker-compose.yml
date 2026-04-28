@@ -123,5 +123,38 @@ services:
     ports:
       - "${MCP_PDF_PORT:-8003}:8003"
 
+  # ---------------------------------------------------------------------------
+  # MCP Notion (serveur officiel)
+  # ---------------------------------------------------------------------------
+  mcp-notion:
+    image: mcp/notion:latest
+    container_name: mcp-notion
+    restart: unless-stopped
+    environment:
+      NOTION_TOKEN: ${MCP_NOTION_TOKEN}
+    command:
+      - --transport
+      - http
+      - --port
+      - "8004"
+      - --disable-auth
+    ports:
+      - "${MCP_NOTION_PORT:-8004}:8004"
+
+  # ---------------------------------------------------------------------------
+  # MCP Slack (bridge local HTTP pour TaTi)
+  # ---------------------------------------------------------------------------
+  mcp-slack:
+    build:
+      context: ./mcp-slack
+    container_name: mcp-slack
+    restart: unless-stopped
+    environment:
+      SLACK_BOT_TOKEN: ${MCP_SLACK_BOT_TOKEN}
+      SLACK_TEAM_ID: ${MCP_SLACK_TEAM_ID}
+      SLACK_CHANNEL_IDS: ${MCP_SLACK_CHANNEL_IDS:-}
+    ports:
+      - "${MCP_SLACK_PORT:-8006}:8006"
+
 volumes:
   postgres_data:
