@@ -204,6 +204,23 @@ services:
       - "${MCP_AWS_PORT:-8012}:8012"
 
   # ---------------------------------------------------------------------------
+  # MCP Azure (bridge local HTTP, principalement read-only ops/debug)
+  # ---------------------------------------------------------------------------
+  mcp-azure:
+    build:
+      context: ./mcp-azure
+    container_name: mcp-azure
+    restart: unless-stopped
+    environment:
+      AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID:-}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID:-}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID:-}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET:-}
+      AZURE_ACCESS_TOKEN: ${AZURE_ACCESS_TOKEN:-}
+    ports:
+      - "${MCP_AZURE_PORT:-8013}:8013"
+
+  # ---------------------------------------------------------------------------
   # MCP GitHub (optionnel)
   # ---------------------------------------------------------------------------
   mcp-github:
