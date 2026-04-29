@@ -24,6 +24,7 @@ const PRESETS: Array<{ label: string; name: string; url: string; hint: string }>
   { label: "Notion", name: "Notion", url: "http://mcp-notion:8004/mcp", hint: "Service officiel Notion MCP" },
   { label: "Slack", name: "Slack", url: "http://mcp-slack:8006/mcp", hint: "Bridge Slack MCP local (messages + channels)" },
   { label: "Discord", name: "Discord", url: "http://mcp-discord:8010/mcp", hint: "Bridge Discord MCP local (messages + channels)" },
+  { label: "Filesystem", name: "Filesystem", url: "http://mcp-filesystem:8011/mcp", hint: "Bridge fichiers local (liste/lit/ecrit sous FILESYSTEM_ROOT)" },
   { label: "GitHub", name: "GitHub", url: "http://mcp-github:8007/mcp", hint: "Bridge local GitHub MCP (issues + PR)" },
   { label: "GitLab", name: "GitLab", url: "http://mcp-gitlab:8008/mcp", hint: "Bridge local GitLab MCP (projects + issues + MR)" },
   { label: "Elasticsearch", name: "Elasticsearch", url: "http://mcp-elasticsearch:8080/mcp", hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)" },
