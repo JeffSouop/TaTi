@@ -172,6 +172,21 @@ services:
       - "${MCP_DISCORD_PORT:-8010}:8010"
 
   # ---------------------------------------------------------------------------
+  # MCP Filesystem (bridge local HTTP, limite a FILESYSTEM_ROOT)
+  # ---------------------------------------------------------------------------
+  mcp-filesystem:
+    build:
+      context: ./mcp-filesystem
+    container_name: mcp-filesystem
+    restart: unless-stopped
+    environment:
+      FILESYSTEM_ROOT: ${MCP_FILESYSTEM_ROOT:-/workspace}
+    volumes:
+      - ./:/workspace
+    ports:
+      - "${MCP_FILESYSTEM_PORT:-8011}:8011"
+
+  # ---------------------------------------------------------------------------
   # MCP GitHub (optionnel)
   # ---------------------------------------------------------------------------
   mcp-github:

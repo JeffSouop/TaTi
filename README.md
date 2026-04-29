@@ -37,6 +37,7 @@ Services :
 - MCP-Notion → http://localhost:8004/mcp
 - MCP-Slack  → http://localhost:8006/mcp
 - MCP-Discord → http://localhost:8010/mcp
+- MCP-Filesystem → http://localhost:8011/mcp
 - MCP-GitHub → http://localhost:8007/mcp
 - MCP-GitLab → http://localhost:8008/mcp
 - MCP-Elastic → http://localhost:8009/mcp
@@ -47,6 +48,7 @@ Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - Notion → `http://mcp-notion:8004/mcp`
 - Slack → `http://mcp-slack:8006/mcp`
 - Discord → `http://mcp-discord:8010/mcp`
+- Filesystem → `http://mcp-filesystem:8011/mcp`
 - GitHub → `http://mcp-github:8007/mcp`
 - GitLab → `http://mcp-gitlab:8008/mcp`
 - Elasticsearch → `http://mcp-elasticsearch:8080/mcp`
@@ -98,6 +100,26 @@ docker compose up -d --build mcp-discord
 Configuration TaTi :
 - URL serveur MCP Discord : `http://mcp-discord:8010/mcp`
 - outils exposés : `discord_list_channels`, `discord_post_message`, `discord_get_channel_history`
+
+## Configuration Filesystem
+
+Dans `.env`, ajuste si besoin :
+
+```bash
+MCP_FILESYSTEM_ROOT=/workspace
+MCP_FILESYSTEM_PORT=8011
+```
+
+Puis relance :
+
+```bash
+docker compose up -d --build mcp-filesystem
+```
+
+Configuration TaTi :
+- URL serveur MCP Filesystem : `http://mcp-filesystem:8011/mcp`
+- outils exposés : `filesystem_list_directory`, `filesystem_read_file`,
+  `filesystem_write_file`, `filesystem_make_directory`
 
 ## Intégrer GitHub / GitLab (MCP)
 
