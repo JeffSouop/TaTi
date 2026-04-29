@@ -187,6 +187,23 @@ services:
       - "${MCP_FILESYSTEM_PORT:-8011}:8011"
 
   # ---------------------------------------------------------------------------
+  # MCP AWS (bridge local HTTP, principalement read-only ops/debug)
+  # ---------------------------------------------------------------------------
+  mcp-aws:
+    build:
+      context: ./mcp-aws
+    container_name: mcp-aws
+    restart: unless-stopped
+    environment:
+      AWS_REGION: ${AWS_REGION:-eu-west-3}
+      AWS_PROFILE: ${AWS_PROFILE:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+    ports:
+      - "${MCP_AWS_PORT:-8012}:8012"
+
+  # ---------------------------------------------------------------------------
   # MCP GitHub (optionnel)
   # ---------------------------------------------------------------------------
   mcp-github:
