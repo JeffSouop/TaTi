@@ -36,16 +36,20 @@ Services :
 - MCP-PDF  → http://localhost:8003/mcp
 - MCP-Notion → http://localhost:8004/mcp
 - MCP-Slack  → http://localhost:8006/mcp
+- MCP-Discord → http://localhost:8010/mcp
 - MCP-GitHub → http://localhost:8007/mcp
 - MCP-GitLab → http://localhost:8008/mcp
+- MCP-Elastic → http://localhost:8009/mcp
 
 Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - PostgreSQL → `http://mcp-postgres:8002/mcp` (car l'app tourne dans Docker)
 - PDF Generator → `http://mcp-pdf:8003/mcp`
 - Notion → `http://mcp-notion:8004/mcp`
 - Slack → `http://mcp-slack:8006/mcp`
+- Discord → `http://mcp-discord:8010/mcp`
 - GitHub → `http://mcp-github:8007/mcp`
 - GitLab → `http://mcp-gitlab:8008/mcp`
+- Elasticsearch → `http://mcp-elasticsearch:8080/mcp`
 
 ## Configuration Slack et Notion
 
@@ -73,6 +77,27 @@ docker compose up -d --build mcp-notion mcp-slack
 - `users:read`
 - `users.profile:read`
 - `reactions:write` (optionnel)
+
+## Configuration Discord
+
+Dans `.env`, renseigne :
+
+```bash
+MCP_DISCORD_BOT_TOKEN=xxxxxxxx
+MCP_DISCORD_GUILD_ID=123456789012345678
+# optionnel (restriction de sécurité)
+MCP_DISCORD_CHANNEL_IDS=123456789012345678,234567890123456789
+```
+
+Puis relance :
+
+```bash
+docker compose up -d --build mcp-discord
+```
+
+Configuration TaTi :
+- URL serveur MCP Discord : `http://mcp-discord:8010/mcp`
+- outils exposés : `discord_list_channels`, `discord_post_message`, `discord_get_channel_history`
 
 ## Intégrer GitHub / GitLab (MCP)
 
@@ -105,6 +130,36 @@ Notes:
 - Évite de committer des tokens dans des fichiers versionnés.
 - Les actions d'écriture (create issue / comment) exigent `confirm=CONFIRM`
   (ou la valeur de `MCP_WRITE_CONFIRM_TOKEN`) pour éviter les actions accidentelles.
+
+## Intégrer Elasticsearch (MCP)
+
+Le serveur MCP Elasticsearch est configuré en mode `streamable-http` dans le compose.
+
+Dans `.env`, renseigne au minimum:
+
+```bash
+MCP_ELASTICSEARCH_URL=https://ton-cluster:9200
+MCP_ELASTICSEARCH_API_KEY=<api_key>
+# ou username/password a la place
+MCP_ELASTICSEARCH_PORT=8009
+```
+
+Puis relance:
+
+```bash
+docker compose up -d --build mcp-elasticsearch
+```
+
+Dans TaTi -> Paramètres -> Serveurs MCP:
+- preset `Elasticsearch`
+- URL: `http://mcp-elasticsearch:8080/mcp`
+- Tester -> Enregistrer
+
+Healthcheck HTTP:
+
+```bash
+curl http://localhost:8009/ping
+```
 
 Par défaut, le MCP PostgreSQL tourne en lecture seule.
 Pour autoriser les modifications (INSERT/UPDATE/DELETE), mets dans `.env` :
