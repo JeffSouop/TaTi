@@ -42,6 +42,8 @@ Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - PDF Generator → `http://mcp-pdf:8003/mcp`
 - Notion → `http://mcp-notion:8004/mcp`
 - Slack → `http://mcp-slack:8006/mcp`
+- GitHub → `https://<ton-endpoint-mcp-github>/mcp` (ou preset GitHub)
+- GitLab → `https://<ton-endpoint-mcp-gitlab>/mcp` (ou preset GitLab)
 
 ## Configuration Slack et Notion
 
@@ -69,6 +71,27 @@ docker compose up -d --build mcp-notion mcp-slack
 - `users:read`
 - `users.profile:read`
 - `reactions:write` (optionnel)
+
+## Intégrer GitHub / GitLab (MCP)
+
+Objectif: lier incidents/données aux tickets, PR, MR et issues depuis TaTi.
+
+1. Déploie (ou utilise) un serveur MCP GitHub et/ou GitLab exposé en HTTPS.
+2. Dans TaTi -> Paramètres -> Serveurs MCP -> Ajouter un serveur:
+   - utilise le preset `GitHub` ou `GitLab`,
+   - remplace l'URL par ton endpoint réel si nécessaire.
+3. Renseigne `Headers (JSON)` avec ton token:
+
+```json
+{"Authorization":"Bearer <TOKEN>"}
+```
+
+4. Clique `Tester`, puis `Enregistrer`.
+
+Notes:
+- GitHub: préfère un token finement scoped (repo/issues/pull requests).
+- GitLab: utilise un PAT avec scopes API requis sur les projets visés.
+- Évite de committer des tokens dans des fichiers versionnés.
 
 Par défaut, le MCP PostgreSQL tourne en lecture seule.
 Pour autoriser les modifications (INSERT/UPDATE/DELETE), mets dans `.env` :
