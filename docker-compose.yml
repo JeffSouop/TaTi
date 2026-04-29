@@ -236,6 +236,25 @@ services:
       - "${MCP_GCP_PORT:-8014}:8014"
 
   # ---------------------------------------------------------------------------
+  # MCP Email (SMTP bridge local HTTP)
+  # ---------------------------------------------------------------------------
+  mcp-email:
+    build:
+      context: ./mcp-email
+    container_name: mcp-email
+    restart: unless-stopped
+    environment:
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_ALLOWED_RECIPIENTS: ${SMTP_ALLOWED_RECIPIENTS:-}
+    ports:
+      - "${MCP_EMAIL_PORT:-8015}:8015"
+
+  # ---------------------------------------------------------------------------
   # MCP GitHub (optionnel)
   # ---------------------------------------------------------------------------
   mcp-github:
