@@ -11,6 +11,8 @@ app = FastAPI(title="MCP OpenMetadata Bridge", version="0.2.0")
 SESSION_ID = secrets.token_hex(16)
 OPENMETADATA_URL = os.getenv("OPENMETADATA_URL", "http://host.docker.internal:8585").rstrip("/")
 OPENMETADATA_JWT = os.getenv("OPENMETADATA_JWT", "")
+OPENMETADATA_ALLOW_MUTATIONS = os.getenv("OPENMETADATA_ALLOW_MUTATIONS", "false").strip().lower() in ("1", "true", "yes", "on")
+OPENMETADATA_WRITE_CONFIRM_TOKEN = os.getenv("OPENMETADATA_WRITE_CONFIRM_TOKEN", "").strip()
 
 
 def _jsonrpc_result(req_id: Any, result: Any) -> dict[str, Any]:
@@ -39,9 +41,32 @@ async def _om_get(path: str, params: dict[str, Any] | None = None) -> Any:
         return res.json()
 
 
+async def _om_patch(path: str, body: Any) -> Any:
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        headers = _headers()
+        headers["Content-Type"] = "application/json-patch+json"
+        res = await client.patch(f"{OPENMETADATA_URL}{path}", headers=headers, json=body)
+        res.raise_for_status()
+        return res.json()
+
+
+def _ensure_write_confirmation(confirm_value: str | None) -> None:
+    if not OPENMETADATA_ALLOW_MUTATIONS:
+        raise ValueError("Mutations desactivees. Definir OPENMETADATA_ALLOW_MUTATIONS=true")
+    if not OPENMETADATA_WRITE_CONFIRM_TOKEN:
+        raise ValueError("OPENMETADATA_WRITE_CONFIRM_TOKEN manquant")
+    if (confirm_value or "").strip() != OPENMETADATA_WRITE_CONFIRM_TOKEN:
+        raise ValueError("Confirmation invalide pour operation d'ecriture")
+
+
 @app.get("/health")
 async def health() -> dict[str, Any]:
-    status: dict[str, Any] = {"status": "ok", "openmetadata_url": OPENMETADATA_URL, "token_configured": bool(OPENMETADATA_JWT)}
+    status: dict[str, Any] = {
+        "status": "ok",
+        "openmetadata_url": OPENMETADATA_URL,
+        "token_configured": bool(OPENMETADATA_JWT),
+        "mutations_enabled": OPENMETADATA_ALLOW_MUTATIONS,
+    }
     try:
         await _om_get("/api/v1/system/version")
         status["openmetadata_reachable"] = True
@@ -127,6 +152,70 @@ async def mcp_endpoint(request: Request) -> dict[str, Any]:
                             "additionalProperties": False,
                         },
                     },
+                    {
+                        "name": "om_update_entity_description",
+                        "description": "Update description for an OpenMetadata entity (requires confirm token)",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "entity_type": {"type": "string", "default": "tables"},
+                                "id": {"type": "string"},
+                                "description": {"type": "string"},
+                                "confirm": {"type": "string"},
+                            },
+                            "required": ["id", "description", "confirm"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    {
+                        "name": "om_update_entity_owner",
+                        "description": "Update owner for an OpenMetadata entity (requires confirm token)",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "entity_type": {"type": "string", "default": "tables"},
+                                "id": {"type": "string"},
+                                "owner_id": {"type": "string"},
+                                "owner_type": {"type": "string", "default": "user"},
+                                "confirm": {"type": "string"},
+                            },
+                            "required": ["id", "owner_id", "confirm"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    {
+                        "name": "om_add_entity_tag",
+                        "description": "Add a tag to an OpenMetadata entity (requires confirm token)",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "entity_type": {"type": "string", "default": "tables"},
+                                "id": {"type": "string"},
+                                "tag_fqn": {"type": "string"},
+                                "label_type": {"type": "string", "default": "Manual"},
+                                "state": {"type": "string", "default": "Confirmed"},
+                                "source": {"type": "string", "default": "Classification"},
+                                "confirm": {"type": "string"},
+                            },
+                            "required": ["id", "tag_fqn", "confirm"],
+                            "additionalProperties": False,
+                        },
+                    },
+                    {
+                        "name": "om_remove_entity_tag",
+                        "description": "Remove a tag from an OpenMetadata entity (requires confirm token)",
+                        "inputSchema": {
+                            "type": "object",
+                            "properties": {
+                                "entity_type": {"type": "string", "default": "tables"},
+                                "id": {"type": "string"},
+                                "tag_fqn": {"type": "string"},
+                                "confirm": {"type": "string"},
+                            },
+                            "required": ["id", "tag_fqn", "confirm"],
+                            "additionalProperties": False,
+                        },
+                    },
                 ]
             },
         )
@@ -169,6 +258,59 @@ async def mcp_endpoint(request: Request) -> dict[str, Any]:
                 "/api/v1/pipelines",
                 {"limit": int(args.get("limit", 20)), "include": str(args.get("include", "non-deleted"))},
             )
+            return _text_result(req_id, data)
+
+        if tool_name == "om_update_entity_description":
+            _ensure_write_confirmation(str(args.get("confirm", "")))
+            entity_type = str(args.get("entity_type", "tables"))
+            entity_id = str(args.get("id", "")).strip()
+            description = str(args.get("description", "")).strip()
+            if not entity_id or not description:
+                return _jsonrpc_error(req_id, -32602, "id and description are required")
+            patch = [{"op": "add", "path": "/description", "value": description}]
+            data = await _om_patch(f"/api/v1/{entity_type}/{entity_id}", patch)
+            return _text_result(req_id, data)
+
+        if tool_name == "om_update_entity_owner":
+            _ensure_write_confirmation(str(args.get("confirm", "")))
+            entity_type = str(args.get("entity_type", "tables"))
+            entity_id = str(args.get("id", "")).strip()
+            owner_id = str(args.get("owner_id", "")).strip()
+            owner_type = str(args.get("owner_type", "user")).strip()
+            if not entity_id or not owner_id:
+                return _jsonrpc_error(req_id, -32602, "id and owner_id are required")
+            patch = [{"op": "add", "path": "/owner", "value": {"id": owner_id, "type": owner_type}}]
+            data = await _om_patch(f"/api/v1/{entity_type}/{entity_id}", patch)
+            return _text_result(req_id, data)
+
+        if tool_name in ("om_add_entity_tag", "om_remove_entity_tag"):
+            _ensure_write_confirmation(str(args.get("confirm", "")))
+            entity_type = str(args.get("entity_type", "tables"))
+            entity_id = str(args.get("id", "")).strip()
+            tag_fqn = str(args.get("tag_fqn", "")).strip()
+            if not entity_id or not tag_fqn:
+                return _jsonrpc_error(req_id, -32602, "id and tag_fqn are required")
+
+            entity = await _om_get(f"/api/v1/{entity_type}/{entity_id}")
+            tags = list(entity.get("tags") or [])
+            existing = {str((t.get("tagFQN") or "").strip()).lower(): t for t in tags}
+            key = tag_fqn.lower()
+
+            if tool_name == "om_add_entity_tag":
+                if key not in existing:
+                    tags.append(
+                        {
+                            "tagFQN": tag_fqn,
+                            "labelType": str(args.get("label_type", "Manual")),
+                            "state": str(args.get("state", "Confirmed")),
+                            "source": str(args.get("source", "Classification")),
+                        }
+                    )
+            else:
+                tags = [t for t in tags if str((t.get("tagFQN") or "").strip()).lower() != key]
+
+            patch = [{"op": "add", "path": "/tags", "value": tags}]
+            data = await _om_patch(f"/api/v1/{entity_type}/{entity_id}", patch)
             return _text_result(req_id, data)
 
         return _jsonrpc_error(req_id, -32602, f"Unsupported tool: {tool_name}")
