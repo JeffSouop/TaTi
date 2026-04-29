@@ -39,6 +39,7 @@ Services :
 - MCP-Discord → http://localhost:8010/mcp
 - MCP-Filesystem → http://localhost:8011/mcp
 - MCP-AWS → http://localhost:8012/mcp
+- MCP-Azure → http://localhost:8013/mcp
 - MCP-GitHub → http://localhost:8007/mcp
 - MCP-GitLab → http://localhost:8008/mcp
 - MCP-Elastic → http://localhost:8009/mcp
@@ -51,6 +52,7 @@ Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - Discord → `http://mcp-discord:8010/mcp`
 - Filesystem → `http://mcp-filesystem:8011/mcp`
 - AWS → `http://mcp-aws:8012/mcp`
+- Azure → `http://mcp-azure:8013/mcp`
 - GitHub → `http://mcp-github:8007/mcp`
 - GitLab → `http://mcp-gitlab:8008/mcp`
 - Elasticsearch → `http://mcp-elasticsearch:8080/mcp`
@@ -154,6 +156,37 @@ Configuration TaTi :
   - `aws_cloudtrail_lookup_events`
   - `aws_iam_get_role_summary`
   - `aws_secretsmanager_list_secrets`
+
+## Configuration Azure
+
+Dans `.env`, renseigne soit un Service Principal, soit un access token ARM:
+
+```bash
+AZURE_SUBSCRIPTION_ID=
+AZURE_TENANT_ID=
+AZURE_CLIENT_ID=
+AZURE_CLIENT_SECRET=
+# ou token direct
+AZURE_ACCESS_TOKEN=
+MCP_AZURE_PORT=8013
+```
+
+Puis relance :
+
+```bash
+docker compose up -d --build mcp-azure
+```
+
+Configuration TaTi :
+- URL serveur MCP Azure : `http://mcp-azure:8013/mcp`
+- outils exposés :
+  - `azure_list_resource_groups`
+  - `azure_list_virtual_machines`
+  - `azure_get_network_security_group`
+  - `azure_list_web_apps`
+  - `azure_list_storage_accounts`
+  - `azure_list_key_vaults`
+  - `azure_activity_log_recent_events`
 
 ## Intégrer GitHub / GitLab (MCP)
 
