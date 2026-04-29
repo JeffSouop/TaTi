@@ -41,6 +41,7 @@ Services :
 - MCP-AWS → http://localhost:8012/mcp
 - MCP-Azure → http://localhost:8013/mcp
 - MCP-GCP → http://localhost:8014/mcp
+- MCP-Email → http://localhost:8015/mcp
 - MCP-GitHub → http://localhost:8007/mcp
 - MCP-GitLab → http://localhost:8008/mcp
 - MCP-Elastic → http://localhost:8009/mcp
@@ -55,6 +56,7 @@ Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - AWS → `http://mcp-aws:8012/mcp`
 - Azure → `http://mcp-azure:8013/mcp`
 - GCP → `http://mcp-gcp:8014/mcp`
+- Email (SMTP) → `http://mcp-email:8015/mcp`
 - GitHub → `http://mcp-github:8007/mcp`
 - GitLab → `http://mcp-gitlab:8008/mcp`
 - Elasticsearch → `http://mcp-elasticsearch:8080/mcp`
@@ -215,6 +217,32 @@ Configuration TaTi :
   - `gcp_list_gke_clusters`
   - `gcp_list_storage_buckets`
   - `gcp_recent_log_entries`
+
+## Configuration Email (SMTP)
+
+Dans `.env`, renseigne :
+
+```bash
+SMTP_HOST=smtp.provider.com
+SMTP_PORT=587
+SMTP_USERNAME=...
+SMTP_PASSWORD=...
+SMTP_USE_TLS=true
+SMTP_FROM_EMAIL=reports@ton-domaine.com
+# optionnel
+SMTP_ALLOWED_RECIPIENTS=ops@ton-domaine.com,cto@ton-domaine.com
+MCP_EMAIL_PORT=8015
+```
+
+Puis relance :
+
+```bash
+docker compose up -d --build mcp-email
+```
+
+Configuration TaTi :
+- URL serveur MCP Email : `http://mcp-email:8015/mcp`
+- outil exposé : `email_send_report`
 
 ## Intégrer GitHub / GitLab (MCP)
 
