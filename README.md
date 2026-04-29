@@ -42,6 +42,7 @@ Services :
 - MCP-Azure → http://localhost:8013/mcp
 - MCP-GCP → http://localhost:8014/mcp
 - MCP-Email → http://localhost:8015/mcp
+- MCP-Dagster → http://localhost:8016/mcp
 - MCP-GitHub → http://localhost:8007/mcp
 - MCP-GitLab → http://localhost:8008/mcp
 - MCP-Elastic → http://localhost:8009/mcp
@@ -57,6 +58,7 @@ Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - Azure → `http://mcp-azure:8013/mcp`
 - GCP → `http://mcp-gcp:8014/mcp`
 - Email (SMTP) → `http://mcp-email:8015/mcp`
+- Dagster → `http://mcp-dagster:8016/mcp`
 - GitHub → `http://mcp-github:8007/mcp`
 - GitLab → `http://mcp-gitlab:8008/mcp`
 - Elasticsearch → `http://mcp-elasticsearch:8080/mcp`
@@ -243,6 +245,33 @@ docker compose up -d --build mcp-email
 Configuration TaTi :
 - URL serveur MCP Email : `http://mcp-email:8015/mcp`
 - outil exposé : `email_send_report`
+
+## Configuration Dagster
+
+Dans `.env`, renseigne :
+
+```bash
+DAGSTER_GRAPHQL_URL=http://host.docker.internal:3000/graphql
+DAGSTER_API_TOKEN=
+DAGSTER_ALLOW_MUTATIONS=false
+MCP_DAGSTER_PORT=8016
+```
+
+Puis relance :
+
+```bash
+docker compose up -d --build mcp-dagster
+```
+
+Configuration TaTi :
+- URL serveur MCP Dagster : `http://mcp-dagster:8016/mcp`
+- outils exposés :
+  - `dagster_list_repositories`
+  - `dagster_list_jobs`
+  - `dagster_recent_runs`
+  - `dagster_get_run_info`
+  - `dagster_launch_run` (si `DAGSTER_ALLOW_MUTATIONS=true`)
+  - `dagster_terminate_run` (si `DAGSTER_ALLOW_MUTATIONS=true`)
 
 ## Intégrer GitHub / GitLab (MCP)
 

@@ -33,7 +33,7 @@ const PRESETS: Array<{ label: string; name: string; url: string; hint: string; i
   { label: "GitLab", name: "GitLab", url: "http://mcp-gitlab:8008/mcp", hint: "Bridge local GitLab MCP (projects + issues + MR)", icon: <GitBranch className="h-3.5 w-3.5 text-orange-500" /> },
   { label: "Elasticsearch", name: "Elasticsearch", url: "http://mcp-elasticsearch:8080/mcp", hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)", icon: <Search className="h-3.5 w-3.5 text-teal-600" /> },
   { label: "MySQL", name: "MySQL", url: "https://YOUR-TUNNEL/mysql/mcp", hint: "Sert via mcp-server-mysql", icon: <HardDrive className="h-3.5 w-3.5 text-blue-700" /> },
-  { label: "Dagster", name: "Dagster", url: "https://YOUR-TUNNEL/dagster/mcp", hint: "Sert via mcp-server-dagster", icon: <Workflow className="h-3.5 w-3.5 text-violet-700" /> },
+  { label: "Dagster", name: "Dagster", url: "http://mcp-dagster:8016/mcp", hint: "Bridge local Dagster MCP (GraphQL runs/jobs)", icon: <Workflow className="h-3.5 w-3.5 text-violet-700" /> },
   { label: "Moodle", name: "Moodle", url: "https://YOUR-TUNNEL/moodle/mcp", hint: "Projet open source moodle-mcp", icon: <GraduationCap className="h-3.5 w-3.5 text-orange-600" /> },
   { label: "OpenMetadata", name: "OpenMetadata", url: "https://YOUR-OM-INSTANCE/mcp", hint: "Serveur MCP intégré à OpenMetadata", icon: <Tags className="h-3.5 w-3.5 text-cyan-700" /> },
   { label: "Fetch (universel)", name: "Fetch", url: "https://YOUR-TUNNEL/fetch/mcp", hint: "Pour APIs sans serveur MCP dédié (ex. Hyperplanning)", icon: <Globe className="h-3.5 w-3.5 text-green-700" /> },

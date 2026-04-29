@@ -255,6 +255,21 @@ services:
       - "${MCP_EMAIL_PORT:-8015}:8015"
 
   # ---------------------------------------------------------------------------
+  # MCP Dagster (bridge local HTTP vers Dagster GraphQL)
+  # ---------------------------------------------------------------------------
+  mcp-dagster:
+    build:
+      context: ./mcp-dagster
+    container_name: mcp-dagster
+    restart: unless-stopped
+    environment:
+      DAGSTER_GRAPHQL_URL: ${DAGSTER_GRAPHQL_URL:-http://host.docker.internal:3000/graphql}
+      DAGSTER_API_TOKEN: ${DAGSTER_API_TOKEN:-}
+      DAGSTER_ALLOW_MUTATIONS: ${DAGSTER_ALLOW_MUTATIONS:-false}
+    ports:
+      - "${MCP_DAGSTER_PORT:-8016}:8016"
+
+  # ---------------------------------------------------------------------------
   # MCP GitHub (optionnel)
   # ---------------------------------------------------------------------------
   mcp-github:
