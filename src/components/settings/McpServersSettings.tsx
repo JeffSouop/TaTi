@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Server, Wrench, RefreshCw } from "lucide-react";
+import { Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Server, Wrench, RefreshCw, Database, FileText, Folder, Tags, Globe, Workflow, MessageSquare, Gamepad2, Cloud, Mail, GitBranch, Search, GraduationCap, Notebook, HardDrive } from "lucide-react";
 import { toast } from "sonner";
 
 interface McpServer {
@@ -18,26 +18,49 @@ interface McpServer {
   enabled: boolean;
 }
 
-const PRESETS: Array<{ label: string; name: string; url: string; hint: string }> = [
-  { label: "PostgreSQL", name: "PostgreSQL", url: "http://mcp-postgres:8002/mcp", hint: "Service docker local mcp-postgres" },
-  { label: "PDF", name: "PDF Generator", url: "http://mcp-pdf:8003/mcp", hint: "Génération de PDF (service docker local)" },
-  { label: "Notion", name: "Notion", url: "http://mcp-notion:8004/mcp", hint: "Service officiel Notion MCP" },
-  { label: "Slack", name: "Slack", url: "http://mcp-slack:8006/mcp", hint: "Bridge Slack MCP local (messages + channels)" },
-  { label: "Discord", name: "Discord", url: "http://mcp-discord:8010/mcp", hint: "Bridge Discord MCP local (messages + channels)" },
-  { label: "Filesystem", name: "Filesystem", url: "http://mcp-filesystem:8011/mcp", hint: "Bridge fichiers local (liste/lit/ecrit sous FILESYSTEM_ROOT)" },
-  { label: "AWS", name: "AWS", url: "http://mcp-aws:8012/mcp", hint: "Bridge AWS ops (EC2, Lambda, ECS/EKS, S3, DynamoDB, CloudWatch, CloudTrail, IAM, Secrets)" },
-  { label: "Azure", name: "Azure", url: "http://mcp-azure:8013/mcp", hint: "Bridge Azure ops (VM, RG, NSG, App Service, Storage, Key Vault, Activity Log)" },
-  { label: "GCP", name: "GCP", url: "http://mcp-gcp:8014/mcp", hint: "Bridge GCP ops (Projects, Compute, GKE, GCS, Logging)" },
-  { label: "Email (SMTP)", name: "Email", url: "http://mcp-email:8015/mcp", hint: "Bridge Email SMTP (envoi de rapports)" },
-  { label: "GitHub", name: "GitHub", url: "http://mcp-github:8007/mcp", hint: "Bridge local GitHub MCP (issues + PR)" },
-  { label: "GitLab", name: "GitLab", url: "http://mcp-gitlab:8008/mcp", hint: "Bridge local GitLab MCP (projects + issues + MR)" },
-  { label: "Elasticsearch", name: "Elasticsearch", url: "http://mcp-elasticsearch:8080/mcp", hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)" },
-  { label: "MySQL", name: "MySQL", url: "https://YOUR-TUNNEL/mysql/mcp", hint: "Sert via mcp-server-mysql" },
-  { label: "Dagster", name: "Dagster", url: "https://YOUR-TUNNEL/dagster/mcp", hint: "Sert via mcp-server-dagster" },
-  { label: "Moodle", name: "Moodle", url: "https://YOUR-TUNNEL/moodle/mcp", hint: "Projet open source moodle-mcp" },
-  { label: "OpenMetadata", name: "OpenMetadata", url: "https://YOUR-OM-INSTANCE/mcp", hint: "Serveur MCP intégré à OpenMetadata" },
-  { label: "Fetch (universel)", name: "Fetch", url: "https://YOUR-TUNNEL/fetch/mcp", hint: "Pour APIs sans serveur MCP dédié (ex. Hyperplanning)" },
+const PRESETS: Array<{ label: string; name: string; url: string; hint: string; icon: ReactNode }> = [
+  { label: "PostgreSQL", name: "PostgreSQL", url: "http://mcp-postgres:8002/mcp", hint: "Service docker local mcp-postgres", icon: <Database className="h-3.5 w-3.5 text-sky-700" /> },
+  { label: "PDF", name: "PDF Generator", url: "http://mcp-pdf:8003/mcp", hint: "Génération de PDF (service docker local)", icon: <FileText className="h-3.5 w-3.5 text-red-600" /> },
+  { label: "Notion", name: "Notion", url: "http://mcp-notion:8004/mcp", hint: "Service officiel Notion MCP", icon: <Notebook className="h-3.5 w-3.5" /> },
+  { label: "Slack", name: "Slack", url: "http://mcp-slack:8006/mcp", hint: "Bridge Slack MCP local (messages + channels)", icon: <MessageSquare className="h-3.5 w-3.5 text-fuchsia-600" /> },
+  { label: "Discord", name: "Discord", url: "http://mcp-discord:8010/mcp", hint: "Bridge Discord MCP local (messages + channels)", icon: <Gamepad2 className="h-3.5 w-3.5 text-indigo-600" /> },
+  { label: "Filesystem", name: "Filesystem", url: "http://mcp-filesystem:8011/mcp", hint: "Bridge fichiers local (liste/lit/ecrit sous FILESYSTEM_ROOT)", icon: <Folder className="h-3.5 w-3.5 text-amber-600" /> },
+  { label: "AWS", name: "AWS", url: "http://mcp-aws:8012/mcp", hint: "Bridge AWS ops (EC2, Lambda, ECS/EKS, S3, DynamoDB, CloudWatch, CloudTrail, IAM, Secrets)", icon: <Cloud className="h-3.5 w-3.5 text-orange-500" /> },
+  { label: "Azure", name: "Azure", url: "http://mcp-azure:8013/mcp", hint: "Bridge Azure ops (VM, RG, NSG, App Service, Storage, Key Vault, Activity Log)", icon: <Cloud className="h-3.5 w-3.5 text-blue-600" /> },
+  { label: "GCP", name: "GCP", url: "http://mcp-gcp:8014/mcp", hint: "Bridge GCP ops (Projects, Compute, GKE, GCS, Logging)", icon: <Cloud className="h-3.5 w-3.5 text-sky-500" /> },
+  { label: "Email (SMTP)", name: "Email", url: "http://mcp-email:8015/mcp", hint: "Bridge Email SMTP (envoi de rapports)", icon: <Mail className="h-3.5 w-3.5 text-purple-600" /> },
+  { label: "GitHub", name: "GitHub", url: "http://mcp-github:8007/mcp", hint: "Bridge local GitHub MCP (issues + PR)", icon: <GitBranch className="h-3.5 w-3.5" /> },
+  { label: "GitLab", name: "GitLab", url: "http://mcp-gitlab:8008/mcp", hint: "Bridge local GitLab MCP (projects + issues + MR)", icon: <GitBranch className="h-3.5 w-3.5 text-orange-500" /> },
+  { label: "Elasticsearch", name: "Elasticsearch", url: "http://mcp-elasticsearch:8080/mcp", hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)", icon: <Search className="h-3.5 w-3.5 text-teal-600" /> },
+  { label: "MySQL", name: "MySQL", url: "https://YOUR-TUNNEL/mysql/mcp", hint: "Sert via mcp-server-mysql", icon: <HardDrive className="h-3.5 w-3.5 text-blue-700" /> },
+  { label: "Dagster", name: "Dagster", url: "https://YOUR-TUNNEL/dagster/mcp", hint: "Sert via mcp-server-dagster", icon: <Workflow className="h-3.5 w-3.5 text-violet-700" /> },
+  { label: "Moodle", name: "Moodle", url: "https://YOUR-TUNNEL/moodle/mcp", hint: "Projet open source moodle-mcp", icon: <GraduationCap className="h-3.5 w-3.5 text-orange-600" /> },
+  { label: "OpenMetadata", name: "OpenMetadata", url: "https://YOUR-OM-INSTANCE/mcp", hint: "Serveur MCP intégré à OpenMetadata", icon: <Tags className="h-3.5 w-3.5 text-cyan-700" /> },
+  { label: "Fetch (universel)", name: "Fetch", url: "https://YOUR-TUNNEL/fetch/mcp", hint: "Pour APIs sans serveur MCP dédié (ex. Hyperplanning)", icon: <Globe className="h-3.5 w-3.5 text-green-700" /> },
 ];
+
+function getServerIcon(name: string): ReactNode {
+  const key = name.trim().toLowerCase();
+  const preset = PRESETS.find((p) => p.name.toLowerCase() === key || p.label.toLowerCase() === key);
+  if (preset) return preset.icon;
+
+  if (key.includes("postgres")) return <Database className="h-3.5 w-3.5 text-sky-700" />;
+  if (key.includes("mysql")) return <HardDrive className="h-3.5 w-3.5 text-blue-700" />;
+  if (key.includes("pdf")) return <FileText className="h-3.5 w-3.5 text-red-600" />;
+  if (key.includes("notion")) return <Notebook className="h-3.5 w-3.5" />;
+  if (key.includes("slack")) return <MessageSquare className="h-3.5 w-3.5 text-fuchsia-600" />;
+  if (key.includes("discord")) return <Gamepad2 className="h-3.5 w-3.5 text-indigo-600" />;
+  if (key.includes("aws") || key.includes("azure") || key.includes("gcp")) return <Cloud className="h-3.5 w-3.5 text-sky-600" />;
+  if (key.includes("github") || key.includes("gitlab")) return <GitBranch className="h-3.5 w-3.5" />;
+  if (key.includes("elastic")) return <Search className="h-3.5 w-3.5 text-teal-600" />;
+  if (key.includes("filesystem") || key.includes("file")) return <Folder className="h-3.5 w-3.5 text-amber-600" />;
+  if (key.includes("email") || key.includes("smtp")) return <Mail className="h-3.5 w-3.5 text-purple-600" />;
+  if (key.includes("moodle")) return <GraduationCap className="h-3.5 w-3.5 text-orange-600" />;
+  if (key.includes("openmetadata")) return <Tags className="h-3.5 w-3.5 text-cyan-700" />;
+  if (key.includes("fetch")) return <Globe className="h-3.5 w-3.5 text-green-700" />;
+
+  return <Server className="h-3.5 w-3.5 text-muted-foreground" />;
+}
 
 export function McpServersSettings() {
   const [servers, setServers] = useState<McpServer[]>([]);
@@ -114,6 +137,7 @@ export function McpServersSettings() {
             <Switch checked={s.enabled} onCheckedChange={(v) => toggle(s.id, v)} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
+                <span className="inline-flex items-center justify-center">{getServerIcon(s.name)}</span>
                 <h3 className="font-medium text-sm">{s.name}</h3>
                 {!s.enabled && (
                   <span className="text-[10px] uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
@@ -247,10 +271,11 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
                 <button
                   key={p.label}
                   onClick={() => usePreset(p)}
-                  className="text-xs border border-border rounded px-2 py-1 hover:bg-muted transition"
+                  className="text-xs border border-border rounded px-2 py-1 hover:bg-muted transition inline-flex items-center gap-1"
                   title={p.hint}
                 >
-                  {p.label}
+                  <span aria-hidden>{p.icon}</span>
+                  <span>{p.label}</span>
                 </button>
               ))}
             </div>
