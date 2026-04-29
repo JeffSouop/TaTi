@@ -85,6 +85,8 @@ MCP_GITHUB_TOKEN=github_pat_xxx
 MCP_GITLAB_TOKEN=glpat_xxx
 # optionnel si GitLab self-hosted
 MCP_GITLAB_URL=https://gitlab.com
+# garde-fou d'ecriture (issue/comment)
+MCP_WRITE_CONFIRM_TOKEN=CONFIRM
 ```
 
 2. Lance les services:
@@ -101,6 +103,8 @@ Notes:
 - GitHub: préfère un token finement scoped (repo/issues/pull requests).
 - GitLab: utilise un PAT avec scopes API requis sur les projets visés.
 - Évite de committer des tokens dans des fichiers versionnés.
+- Les actions d'écriture (create issue / comment) exigent `confirm=CONFIRM`
+  (ou la valeur de `MCP_WRITE_CONFIRM_TOKEN`) pour éviter les actions accidentelles.
 
 Par défaut, le MCP PostgreSQL tourne en lecture seule.
 Pour autoriser les modifications (INSERT/UPDATE/DELETE), mets dans `.env` :
