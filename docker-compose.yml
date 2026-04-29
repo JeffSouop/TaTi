@@ -160,17 +160,12 @@ services:
   # MCP GitHub (optionnel)
   # ---------------------------------------------------------------------------
   mcp-github:
-    image: ${MCP_GITHUB_IMAGE:-mcp/github:latest}
+    build:
+      context: ./mcp-github
     container_name: mcp-github
     restart: unless-stopped
     environment:
       GITHUB_TOKEN: ${MCP_GITHUB_TOKEN:-}
-    command:
-      - --transport
-      - http
-      - --port
-      - "8007"
-      - --disable-auth
     ports:
       - "${MCP_GITHUB_PORT:-8007}:8007"
 
@@ -178,18 +173,13 @@ services:
   # MCP GitLab (optionnel)
   # ---------------------------------------------------------------------------
   mcp-gitlab:
-    image: ${MCP_GITLAB_IMAGE:-mcp/gitlab:latest}
+    build:
+      context: ./mcp-gitlab
     container_name: mcp-gitlab
     restart: unless-stopped
     environment:
       GITLAB_TOKEN: ${MCP_GITLAB_TOKEN:-}
       GITLAB_URL: ${MCP_GITLAB_URL:-https://gitlab.com}
-    command:
-      - --transport
-      - http
-      - --port
-      - "8008"
-      - --disable-auth
     ports:
       - "${MCP_GITLAB_PORT:-8008}:8008"
 
