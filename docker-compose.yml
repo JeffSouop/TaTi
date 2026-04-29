@@ -221,6 +221,21 @@ services:
       - "${MCP_AZURE_PORT:-8013}:8013"
 
   # ---------------------------------------------------------------------------
+  # MCP GCP (bridge local HTTP, principalement read-only ops/debug)
+  # ---------------------------------------------------------------------------
+  mcp-gcp:
+    build:
+      context: ./mcp-gcp
+    container_name: mcp-gcp
+    restart: unless-stopped
+    environment:
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID:-}
+      GCP_REGION: ${GCP_REGION:-europe-west1}
+      GCP_SERVICE_ACCOUNT_JSON: ${GCP_SERVICE_ACCOUNT_JSON:-}
+    ports:
+      - "${MCP_GCP_PORT:-8014}:8014"
+
+  # ---------------------------------------------------------------------------
   # MCP GitHub (optionnel)
   # ---------------------------------------------------------------------------
   mcp-github:

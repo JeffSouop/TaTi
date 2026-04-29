@@ -40,6 +40,7 @@ Services :
 - MCP-Filesystem → http://localhost:8011/mcp
 - MCP-AWS → http://localhost:8012/mcp
 - MCP-Azure → http://localhost:8013/mcp
+- MCP-GCP → http://localhost:8014/mcp
 - MCP-GitHub → http://localhost:8007/mcp
 - MCP-GitLab → http://localhost:8008/mcp
 - MCP-Elastic → http://localhost:8009/mcp
@@ -53,6 +54,7 @@ Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - Filesystem → `http://mcp-filesystem:8011/mcp`
 - AWS → `http://mcp-aws:8012/mcp`
 - Azure → `http://mcp-azure:8013/mcp`
+- GCP → `http://mcp-gcp:8014/mcp`
 - GitHub → `http://mcp-github:8007/mcp`
 - GitLab → `http://mcp-gitlab:8008/mcp`
 - Elasticsearch → `http://mcp-elasticsearch:8080/mcp`
@@ -187,6 +189,32 @@ Configuration TaTi :
   - `azure_list_storage_accounts`
   - `azure_list_key_vaults`
   - `azure_activity_log_recent_events`
+
+## Configuration GCP
+
+Dans `.env`, renseigne :
+
+```bash
+GCP_PROJECT_ID=mon-projet
+GCP_REGION=europe-west1
+GCP_SERVICE_ACCOUNT_JSON='{"type":"service_account",...}'
+MCP_GCP_PORT=8014
+```
+
+Puis relance :
+
+```bash
+docker compose up -d --build mcp-gcp
+```
+
+Configuration TaTi :
+- URL serveur MCP GCP : `http://mcp-gcp:8014/mcp`
+- outils exposés :
+  - `gcp_list_projects`
+  - `gcp_list_compute_instances`
+  - `gcp_list_gke_clusters`
+  - `gcp_list_storage_buckets`
+  - `gcp_recent_log_entries`
 
 ## Intégrer GitHub / GitLab (MCP)
 

@@ -1,0 +1,4 @@
+fastapi==0.115.5
+uvicorn==0.32.1
+google-api-python-client==2.154.0
+google-auth==2.37.0
