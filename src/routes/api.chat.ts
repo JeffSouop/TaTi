@@ -37,14 +37,30 @@ function compactToolsForAnthropic(tools: LlmTool[]): LlmTool[] {
   }
 
   const selected: LlmTool[] = [];
-  // First pass: ensure each server contributes tools (avoids hiding Slack/Notion/etc.)
-  for (const [, arr] of byServer) {
-    selected.push(...arr.slice(0, MAX_PER_SERVER));
-  }
-  // Second pass: trim global size.
-  const trimmed = selected.slice(0, MAX_TOOLS);
+  const groups = Array.from(byServer.values()).map((arr) => arr.slice(0, MAX_PER_SERVER));
 
-  return trimmed.map((t) => ({
+  // Pass 1: guarantee at least one tool per server when possible.
+  for (const arr of groups) {
+    if (selected.length >= MAX_TOOLS) break;
+    if (arr.length > 0) selected.push(arr[0]);
+  }
+
+  // Pass 2: round-robin fill remaining slots to stay fair across servers.
+  let cursor = 1;
+  while (selected.length < MAX_TOOLS) {
+    let addedInRound = false;
+    for (const arr of groups) {
+      if (selected.length >= MAX_TOOLS) break;
+      if (cursor < arr.length) {
+        selected.push(arr[cursor]);
+        addedInRound = true;
+      }
+    }
+    if (!addedInRound) break;
+    cursor += 1;
+  }
+
+  return selected.map((t) => ({
     name: t.name,
     description: (t.description ?? '').slice(0, 160),
     // Keep schema intentionally minimal to reduce input tokens/minute pressure.
