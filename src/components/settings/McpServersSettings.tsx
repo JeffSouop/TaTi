@@ -140,13 +140,11 @@ export function McpServersSettings() {
                 <span className="inline-flex items-center justify-center">{getServerIcon(s.name)}</span>
                 <h3 className="font-medium text-sm">{s.name}</h3>
                 {!s.enabled && (
-                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                  <span className="text-[10px] uppercase tracking-wide text-red-700 bg-red-100 px-1.5 py-0.5 rounded">
                     désactivé
                   </span>
                 )}
               </div>
-              <code className="text-xs text-muted-foreground break-all">{s.url}</code>
-
               {tools[s.id] && tools[s.id].length > 0 && (
                 <div className="mt-3 space-y-1">
                   <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
