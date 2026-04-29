@@ -38,6 +38,7 @@ Services :
 - MCP-Slack  → http://localhost:8006/mcp
 - MCP-Discord → http://localhost:8010/mcp
 - MCP-Filesystem → http://localhost:8011/mcp
+- MCP-AWS → http://localhost:8012/mcp
 - MCP-GitHub → http://localhost:8007/mcp
 - MCP-GitLab → http://localhost:8008/mcp
 - MCP-Elastic → http://localhost:8009/mcp
@@ -49,6 +50,7 @@ Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - Slack → `http://mcp-slack:8006/mcp`
 - Discord → `http://mcp-discord:8010/mcp`
 - Filesystem → `http://mcp-filesystem:8011/mcp`
+- AWS → `http://mcp-aws:8012/mcp`
 - GitHub → `http://mcp-github:8007/mcp`
 - GitLab → `http://mcp-gitlab:8008/mcp`
 - Elasticsearch → `http://mcp-elasticsearch:8080/mcp`
@@ -120,6 +122,38 @@ Configuration TaTi :
 - URL serveur MCP Filesystem : `http://mcp-filesystem:8011/mcp`
 - outils exposés : `filesystem_list_directory`, `filesystem_read_file`,
   `filesystem_write_file`, `filesystem_make_directory`
+
+## Configuration AWS
+
+Dans `.env`, renseigne soit un profil AWS, soit des credentials:
+
+```bash
+AWS_REGION=eu-west-3
+AWS_PROFILE=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_SESSION_TOKEN=
+MCP_AWS_PORT=8012
+```
+
+Puis relance :
+
+```bash
+docker compose up -d --build mcp-aws
+```
+
+Configuration TaTi :
+- URL serveur MCP AWS : `http://mcp-aws:8012/mcp`
+- outils exposés :
+  - `aws_ec2_list_instances`, `aws_ec2_describe_security_group`
+  - `aws_lambda_list_functions`
+  - `aws_ecs_list_services`, `aws_eks_list_clusters`
+  - `aws_s3_list_buckets`, `aws_s3_get_public_access_block`
+  - `aws_dynamodb_list_tables`
+  - `aws_cloudwatch_recent_log_events`
+  - `aws_cloudtrail_lookup_events`
+  - `aws_iam_get_role_summary`
+  - `aws_secretsmanager_list_secrets`
 
 ## Intégrer GitHub / GitLab (MCP)
 
