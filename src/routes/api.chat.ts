@@ -24,8 +24,8 @@ type SseEvent =
   | { type: 'done' };
 
 function compactToolsForAnthropic(tools: LlmTool[]): LlmTool[] {
-  const MAX_TOOLS = 16;
-  const MAX_PER_SERVER = 3;
+  const MAX_TOOLS = 24;
+  const MAX_PER_SERVER = 6;
 
   const byServer = new Map<string, LlmTool[]>();
   for (const t of tools) {
