@@ -1,26 +1,73 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
 
 permissions:
   contents: write
 
 jobs:
   release:
-    name: Create GitHub Release
+    name: Create automatic release
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Compute next release tag
+        id: semver
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+
+          # Avoid duplicate release creation when CI is re-run on the same commit.
+          existing_tag="$(git tag --points-at "${{ github.event.workflow_run.head_sha }}" | rg '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1 || true)"
+          if [ -n "$existing_tag" ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "tag=$existing_tag" >> "$GITHUB_OUTPUT"
+            echo "A SemVer tag already points to this commit: $existing_tag"
+            exit 0
+          fi
+
+          latest_tag="$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)"
+          if [ -z "$latest_tag" ]; then
+            latest_tag="v0.0.0"
+          fi
+
+          version="${latest_tag#v}"
+          IFS='.' read -r major minor patch <<< "$version"
+          patch=$((patch + 1))
+          next_tag="v${major}.${minor}.${patch}"
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "tag=$next_tag" >> "$GITHUB_OUTPUT"
+          echo "Latest: $latest_tag"
+          echo "Next: $next_tag"
+
+      - name: Create and push tag
+        if: steps.semver.outputs.skip != 'true'
+        run: |
+          git tag "${{ steps.semver.outputs.tag }}" "${{ github.event.workflow_run.head_sha }}"
+          git push origin "${{ steps.semver.outputs.tag }}"
 
       - name: Create release
+        if: steps.semver.outputs.skip != 'true'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.semver.outputs.tag }}
+          target_commitish: ${{ github.event.workflow_run.head_sha }}
           generate_release_notes: true
