@@ -21,6 +21,7 @@
  */
 import { createFileRoute } from "@tanstack/react-router";
 import { pool } from "@/lib/db.server";
+import { getUserFromRequest, isAuthRequired } from "@/lib/auth.server";
 
 interface OpRequest {
   table: string;
@@ -43,6 +44,12 @@ const ALLOWED_TABLES = new Set([
   "conversations",
   "messages",
 ]);
+
+const USER_SCOPED_TABLES = new Set([
+  "conversations",
+  "messages",
+]);
+const ADMIN_ONLY_TABLES = new Set(["mcp_servers"]);
 
 function whereClause(filters: OpRequest["filters"], startIndex = 1) {
   if (!filters || filters.length === 0) return { sql: "", params: [] as unknown[] };
@@ -72,9 +79,30 @@ export const Route = createFileRoute("/api/db")({
           return Response.json({ error: { message: `Table not allowed: ${body.table}` } }, { status: 400 });
         }
 
+        const authRequired = isAuthRequired();
+        const user = await getUserFromRequest(request);
+        if (authRequired && !user) {
+          return Response.json({ error: { message: "Authentication required" } }, { status: 401 });
+        }
+        if (
+          authRequired &&
+          user &&
+          user.role !== "admin" &&
+          ((ADMIN_ONLY_TABLES.has(body.table) && body.op !== "select") ||
+            (body.table === "llm_providers" && body.op !== "select"))
+        ) {
+          return Response.json({ error: { message: "Forbidden" } }, { status: 403 });
+        }
+
+        const applyUserScope = Boolean(user) && USER_SCOPED_TABLES.has(body.table);
+        const scopedFilters = [...(body.filters ?? [])];
+        if (applyUserScope) {
+          scopedFilters.push({ col: "user_id", op: "eq", val: user!.id });
+        }
+
         try {
           if (body.op === "select") {
-            const where = whereClause(body.filters);
+            const where = whereClause(scopedFilters);
             let count: number | null = null;
             if (body.count === "exact") {
               const cRes = await pool.query<{ c: string }>(
@@ -102,6 +130,11 @@ export const Route = createFileRoute("/api/db")({
             if (rowsArr.length === 0) {
               return Response.json({ data: null, error: { message: "No rows to insert" } }, { status: 400 });
             }
+            if (applyUserScope) {
+              for (const row of rowsArr) {
+                row.user_id = user!.id;
+              }
+            }
             const cols = Object.keys(rowsArr[0]);
             const valuesSql: string[] = [];
             const params: unknown[] = [];
@@ -127,7 +160,7 @@ export const Route = createFileRoute("/api/db")({
             let i = 1;
             const setSql = setCols.map((c) => `"${c}" = $${i++}`).join(", ");
             const params: unknown[] = setCols.map((c) => v[c]);
-            const where = whereClause(body.filters, i);
+            const where = whereClause(scopedFilters, i);
             params.push(...where.params);
             const returning = body.returning || body.single ? " RETURNING *" : "";
             const sql = `UPDATE public."${body.table}" SET ${setSql}${where.sql}${returning}`;
@@ -137,7 +170,7 @@ export const Route = createFileRoute("/api/db")({
           }
 
           if (body.op === "delete") {
-            const where = whereClause(body.filters);
+            const where = whereClause(scopedFilters);
             const returning = body.returning || body.single ? " RETURNING *" : "";
             const sql = `DELETE FROM public."${body.table}"${where.sql}${returning}`;
             const res = await pool.query(sql, where.params as never);

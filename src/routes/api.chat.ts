@@ -4,6 +4,8 @@ import { mcpInitialize, mcpListTools, mcpCallTool } from '@/lib/mcp-client';
 import { encodeToolName, decodeToolName, shortServerId } from '@/lib/tool-naming';
 import { getAdapter } from '@/lib/llm/factory';
 import type { LlmMessage, LlmTool, LlmToolCall, LlmProviderConfig } from '@/lib/llm/types';
+import { getUserFromRequest, isAuthRequired } from '@/lib/auth.server';
+import { pool } from '@/lib/db.server';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -77,6 +79,15 @@ export const Route = createFileRoute('/api/chat')({
     handlers: {
       OPTIONS: async () => new Response(null, { status: 204, headers: corsHeaders }),
       POST: async ({ request }) => {
+        const authRequired = isAuthRequired();
+        const user = await getUserFromRequest(request);
+        if (authRequired && !user) {
+          return new Response(JSON.stringify({ error: 'Authentication required' }), {
+            status: 401,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
         let body: ChatRequestBody;
         try {
           body = await request.json();
@@ -96,11 +107,12 @@ export const Route = createFileRoute('/api/chat')({
         }
 
         // 1. Load conversation to get its provider/model
-        const { data: conv } = await supabaseAdmin
+        let convQuery = supabaseAdmin
           .from('conversations')
           .select('id, provider_id, model')
-          .eq('id', conversationId)
-          .single();
+          .eq('id', conversationId);
+        if (user) convQuery = convQuery.eq('user_id', user.id);
+        const { data: conv } = await convQuery.single();
 
         if (!conv) {
           return new Response(JSON.stringify({ error: 'Conversation not found' }), {
@@ -112,12 +124,12 @@ export const Route = createFileRoute('/api/chat')({
         // 2. Resolve provider: explicit on conversation OR default
         let providerId = conv.provider_id as string | null;
         if (!providerId) {
-          const { data: def } = await supabaseAdmin
+          const defQuery = supabaseAdmin
             .from('llm_providers')
             .select('id')
             .eq('is_default', true)
-            .eq('enabled', true)
-            .maybeSingle();
+            .eq('enabled', true);
+          const { data: def } = await defQuery.maybeSingle();
           providerId = def?.id ?? null;
         }
 
@@ -131,11 +143,11 @@ export const Route = createFileRoute('/api/chat')({
           );
         }
 
-        const { data: provider } = await supabaseAdmin
+        const providerQuery = supabaseAdmin
           .from('llm_providers')
           .select('*')
-          .eq('id', providerId)
-          .single();
+          .eq('id', providerId);
+        const { data: provider } = await providerQuery.single();
 
         if (!provider || !provider.enabled) {
           return new Response(
@@ -163,12 +175,28 @@ export const Route = createFileRoute('/api/chat')({
           .select('*')
           .eq('enabled', true);
 
+        let filteredServers = servers ?? [];
+        if (authRequired && user && user.role !== 'admin') {
+          const accessRows = await pool.query<{ mcp_server_id: string; allowed: boolean }>(
+            `SELECT mcp_server_id, allowed
+             FROM public.user_mcp_access
+             WHERE user_id = $1`,
+            [user.id] as never,
+          );
+          if (accessRows.rows.length > 0) {
+            const allowedSet = new Set(accessRows.rows.filter((r) => r.allowed).map((r) => r.mcp_server_id));
+            filteredServers = filteredServers.filter((s) => allowedSet.has(s.id));
+          }
+        }
+
         // 4. Load conversation messages
-        const { data: dbMessages } = await supabaseAdmin
+        let msgQuery = supabaseAdmin
           .from('messages')
           .select('*')
           .eq('conversation_id', conversationId)
           .order('created_at', { ascending: true });
+        if (user) msgQuery = msgQuery.eq('user_id', user.id);
+        const { data: dbMessages } = await msgQuery;
 
         const stream = new ReadableStream<Uint8Array>({
           async start(controller) {
@@ -181,7 +209,7 @@ export const Route = createFileRoute('/api/chat')({
               const allTools: LlmTool[] = [];
               const originalToolNameByEncoded = new Map<string, string>();
 
-              for (const srv of servers ?? []) {
+              for (const srv of filteredServers ?? []) {
                 try {
                   const headers = (srv.headers as Record<string, string>) || {};
                   const session = await mcpInitialize({ url: srv.url, headers });
@@ -300,6 +328,7 @@ export const Route = createFileRoute('/api/chat')({
                   .from('messages')
                   .insert({
                     conversation_id: conversationId,
+                    user_id: user?.id ?? null,
                     role: 'assistant',
                     content: assistantContent,
                     tool_calls: dbToolCalls,
@@ -362,6 +391,7 @@ export const Route = createFileRoute('/api/chat')({
                     .from('messages')
                     .insert({
                       conversation_id: conversationId,
+                      user_id: user?.id ?? null,
                       role: 'tool',
                       content: toolResultText,
                       tool_call_id: tc.id,
@@ -380,10 +410,12 @@ export const Route = createFileRoute('/api/chat')({
                 }
               }
 
-              await supabaseAdmin
+              let convUpdate = supabaseAdmin
                 .from('conversations')
                 .update({ updated_at: new Date().toISOString() })
                 .eq('id', conversationId);
+              if (user) convUpdate = convUpdate.eq('user_id', user.id);
+              await convUpdate;
 
               send({ type: 'done' });
               controller.close();

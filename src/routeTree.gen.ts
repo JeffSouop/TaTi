@@ -17,6 +17,14 @@ import { Route as ApiTestLlmRouteImport } from './routes/api.test-llm'
 import { Route as ApiRealtimeRouteImport } from './routes/api.realtime'
 import { Route as ApiDbRouteImport } from './routes/api.db'
 import { Route as ApiChatRouteImport } from './routes/api.chat'
+import { Route as ApiMcpCountRouteImport } from './routes/api.mcp.count'
+import { Route as ApiConversationsEnsureRouteImport } from './routes/api.conversations.ensure'
+import { Route as ApiAuthProfileRouteImport } from './routes/api.auth.profile'
+import { Route as ApiAuthMeRouteImport } from './routes/api.auth.me'
+import { Route as ApiAuthLogoutRouteImport } from './routes/api.auth.logout'
+import { Route as ApiAuthLoginRouteImport } from './routes/api.auth.login'
+import { Route as ApiAdminUsersRouteImport } from './routes/api.admin.users'
+import { Route as ApiAdminUserAccessRouteImport } from './routes/api.admin.user-access'
 
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
@@ -58,6 +66,46 @@ const ApiChatRoute = ApiChatRouteImport.update({
   path: '/api/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiMcpCountRoute = ApiMcpCountRouteImport.update({
+  id: '/api/mcp/count',
+  path: '/api/mcp/count',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiConversationsEnsureRoute = ApiConversationsEnsureRouteImport.update({
+  id: '/api/conversations/ensure',
+  path: '/api/conversations/ensure',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthProfileRoute = ApiAuthProfileRouteImport.update({
+  id: '/api/auth/profile',
+  path: '/api/auth/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthMeRoute = ApiAuthMeRouteImport.update({
+  id: '/api/auth/me',
+  path: '/api/auth/me',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthLogoutRoute = ApiAuthLogoutRouteImport.update({
+  id: '/api/auth/logout',
+  path: '/api/auth/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthLoginRoute = ApiAuthLoginRouteImport.update({
+  id: '/api/auth/login',
+  path: '/api/auth/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminUsersRoute = ApiAdminUsersRouteImport.update({
+  id: '/api/admin/users',
+  path: '/api/admin/users',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdminUserAccessRoute = ApiAdminUserAccessRouteImport.update({
+  id: '/api/admin/user-access',
+  path: '/api/admin/user-access',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +116,14 @@ export interface FileRoutesByFullPath {
   '/api/test-llm': typeof ApiTestLlmRoute
   '/api/test-mcp': typeof ApiTestMcpRoute
   '/c/$id': typeof CIdRoute
+  '/api/admin/user-access': typeof ApiAdminUserAccessRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/profile': typeof ApiAuthProfileRoute
+  '/api/conversations/ensure': typeof ApiConversationsEnsureRoute
+  '/api/mcp/count': typeof ApiMcpCountRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +134,14 @@ export interface FileRoutesByTo {
   '/api/test-llm': typeof ApiTestLlmRoute
   '/api/test-mcp': typeof ApiTestMcpRoute
   '/c/$id': typeof CIdRoute
+  '/api/admin/user-access': typeof ApiAdminUserAccessRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/profile': typeof ApiAuthProfileRoute
+  '/api/conversations/ensure': typeof ApiConversationsEnsureRoute
+  '/api/mcp/count': typeof ApiMcpCountRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +153,14 @@ export interface FileRoutesById {
   '/api/test-llm': typeof ApiTestLlmRoute
   '/api/test-mcp': typeof ApiTestMcpRoute
   '/c/$id': typeof CIdRoute
+  '/api/admin/user-access': typeof ApiAdminUserAccessRoute
+  '/api/admin/users': typeof ApiAdminUsersRoute
+  '/api/auth/login': typeof ApiAuthLoginRoute
+  '/api/auth/logout': typeof ApiAuthLogoutRoute
+  '/api/auth/me': typeof ApiAuthMeRoute
+  '/api/auth/profile': typeof ApiAuthProfileRoute
+  '/api/conversations/ensure': typeof ApiConversationsEnsureRoute
+  '/api/mcp/count': typeof ApiMcpCountRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +173,14 @@ export interface FileRouteTypes {
     | '/api/test-llm'
     | '/api/test-mcp'
     | '/c/$id'
+    | '/api/admin/user-access'
+    | '/api/admin/users'
+    | '/api/auth/login'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/profile'
+    | '/api/conversations/ensure'
+    | '/api/mcp/count'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +191,14 @@ export interface FileRouteTypes {
     | '/api/test-llm'
     | '/api/test-mcp'
     | '/c/$id'
+    | '/api/admin/user-access'
+    | '/api/admin/users'
+    | '/api/auth/login'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/profile'
+    | '/api/conversations/ensure'
+    | '/api/mcp/count'
   id:
     | '__root__'
     | '/'
@@ -121,6 +209,14 @@ export interface FileRouteTypes {
     | '/api/test-llm'
     | '/api/test-mcp'
     | '/c/$id'
+    | '/api/admin/user-access'
+    | '/api/admin/users'
+    | '/api/auth/login'
+    | '/api/auth/logout'
+    | '/api/auth/me'
+    | '/api/auth/profile'
+    | '/api/conversations/ensure'
+    | '/api/mcp/count'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +228,14 @@ export interface RootRouteChildren {
   ApiTestLlmRoute: typeof ApiTestLlmRoute
   ApiTestMcpRoute: typeof ApiTestMcpRoute
   CIdRoute: typeof CIdRoute
+  ApiAdminUserAccessRoute: typeof ApiAdminUserAccessRoute
+  ApiAdminUsersRoute: typeof ApiAdminUsersRoute
+  ApiAuthLoginRoute: typeof ApiAuthLoginRoute
+  ApiAuthLogoutRoute: typeof ApiAuthLogoutRoute
+  ApiAuthMeRoute: typeof ApiAuthMeRoute
+  ApiAuthProfileRoute: typeof ApiAuthProfileRoute
+  ApiConversationsEnsureRoute: typeof ApiConversationsEnsureRoute
+  ApiMcpCountRoute: typeof ApiMcpCountRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +296,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/mcp/count': {
+      id: '/api/mcp/count'
+      path: '/api/mcp/count'
+      fullPath: '/api/mcp/count'
+      preLoaderRoute: typeof ApiMcpCountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/conversations/ensure': {
+      id: '/api/conversations/ensure'
+      path: '/api/conversations/ensure'
+      fullPath: '/api/conversations/ensure'
+      preLoaderRoute: typeof ApiConversationsEnsureRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/profile': {
+      id: '/api/auth/profile'
+      path: '/api/auth/profile'
+      fullPath: '/api/auth/profile'
+      preLoaderRoute: typeof ApiAuthProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/me': {
+      id: '/api/auth/me'
+      path: '/api/auth/me'
+      fullPath: '/api/auth/me'
+      preLoaderRoute: typeof ApiAuthMeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/logout': {
+      id: '/api/auth/logout'
+      path: '/api/auth/logout'
+      fullPath: '/api/auth/logout'
+      preLoaderRoute: typeof ApiAuthLogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/login': {
+      id: '/api/auth/login'
+      path: '/api/auth/login'
+      fullPath: '/api/auth/login'
+      preLoaderRoute: typeof ApiAuthLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/users': {
+      id: '/api/admin/users'
+      path: '/api/admin/users'
+      fullPath: '/api/admin/users'
+      preLoaderRoute: typeof ApiAdminUsersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/admin/user-access': {
+      id: '/api/admin/user-access'
+      path: '/api/admin/user-access'
+      fullPath: '/api/admin/user-access'
+      preLoaderRoute: typeof ApiAdminUserAccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +364,14 @@ const rootRouteChildren: RootRouteChildren = {
   ApiTestLlmRoute: ApiTestLlmRoute,
   ApiTestMcpRoute: ApiTestMcpRoute,
   CIdRoute: CIdRoute,
+  ApiAdminUserAccessRoute: ApiAdminUserAccessRoute,
+  ApiAdminUsersRoute: ApiAdminUsersRoute,
+  ApiAuthLoginRoute: ApiAuthLoginRoute,
+  ApiAuthLogoutRoute: ApiAuthLogoutRoute,
+  ApiAuthMeRoute: ApiAuthMeRoute,
+  ApiAuthProfileRoute: ApiAuthProfileRoute,
+  ApiConversationsEnsureRoute: ApiConversationsEnsureRoute,
+  ApiMcpCountRoute: ApiMcpCountRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

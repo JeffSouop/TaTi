@@ -4,6 +4,46 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 -- ---------------------------------------------------------------------------
+-- users / sessions (auth locale)
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS public.users (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email         TEXT NOT NULL UNIQUE,
+  password_hash TEXT NOT NULL,
+  first_name    TEXT NOT NULL DEFAULT '',
+  last_name     TEXT NOT NULL DEFAULT '',
+  avatar_url    TEXT,
+  role          TEXT NOT NULL DEFAULT 'member',
+  is_active     BOOLEAN NOT NULL DEFAULT true,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS first_name TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS last_name TEXT NOT NULL DEFAULT '';
+ALTER TABLE public.users ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+
+CREATE TABLE IF NOT EXISTS public.user_sessions (
+  id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id    UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  token_hash TEXT NOT NULL UNIQUE,
+  expires_at TIMESTAMPTZ NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON public.user_sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_sessions_exp ON public.user_sessions(expires_at);
+
+-- Acces aux serveurs MCP par utilisateur (si aucune ligne pour un user => acces complet)
+CREATE TABLE IF NOT EXISTS public.user_mcp_access (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  mcp_server_id UUID NOT NULL REFERENCES public.mcp_servers(id) ON DELETE CASCADE,
+  allowed       BOOLEAN NOT NULL DEFAULT true,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, mcp_server_id)
+);
+CREATE INDEX IF NOT EXISTS idx_user_mcp_access_user ON public.user_mcp_access(user_id);
+
+-- ---------------------------------------------------------------------------
 -- app_settings
 -- ---------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.app_settings (
@@ -33,6 +73,8 @@ CREATE TABLE IF NOT EXISTS public.llm_providers (
   created_at          TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at          TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE public.llm_providers ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES public.users(id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS idx_llm_providers_user_id ON public.llm_providers(user_id);
 
 -- ---------------------------------------------------------------------------
 -- mcp_servers
@@ -45,6 +87,8 @@ CREATE TABLE IF NOT EXISTS public.mcp_servers (
   enabled    BOOLEAN NOT NULL DEFAULT true,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE public.mcp_servers ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES public.users(id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS idx_mcp_servers_user_id ON public.mcp_servers(user_id);
 
 -- ---------------------------------------------------------------------------
 -- conversations
@@ -57,6 +101,8 @@ CREATE TABLE IF NOT EXISTS public.conversations (
   created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE public.conversations ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES public.users(id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS idx_conversations_user_id ON public.conversations(user_id);
 
 -- ---------------------------------------------------------------------------
 -- messages
@@ -72,6 +118,8 @@ CREATE TABLE IF NOT EXISTS public.messages (
   server_name     TEXT,
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+ALTER TABLE public.messages ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES public.users(id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS idx_messages_user_id ON public.messages(user_id);
 
 CREATE INDEX IF NOT EXISTS idx_messages_conversation_id
   ON public.messages(conversation_id);
