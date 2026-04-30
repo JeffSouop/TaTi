@@ -321,6 +321,20 @@ function ProviderCard({
                   ? "sk-ant-…"
                   : provider.kind === "openai"
                     ? "sk-…"
+                    : provider.kind === "gemini"
+                      ? "AIza… (ou clé Gemini)"
+                      : provider.kind === "grok"
+                        ? "xai-…"
+                        : provider.kind === "deepseek"
+                          ? "sk-…"
+                          : provider.kind === "cohere"
+                            ? "co-…"
+                            : provider.kind === "huggingface"
+                              ? "hf_…"
+                              : provider.kind === "nvidia"
+                                ? "nvapi-…"
+                                : provider.kind === "perplexity"
+                                  ? "pplx-…"
                     : "ta-clé-api"
               }
               autoComplete="off"
@@ -335,7 +349,16 @@ function ProviderCard({
         </div>
       )}
 
-      {(meta?.needsBaseUrl || provider.kind === "openai" || provider.kind === "mistral") && (
+      {(meta?.needsBaseUrl ||
+        provider.kind === "openai" ||
+        provider.kind === "mistral" ||
+        provider.kind === "gemini" ||
+        provider.kind === "grok" ||
+        provider.kind === "deepseek" ||
+        provider.kind === "cohere" ||
+        provider.kind === "huggingface" ||
+        provider.kind === "nvidia" ||
+        provider.kind === "perplexity") && (
         <div className="space-y-2">
           <Label htmlFor={`url-${provider.id}`}>
             {meta?.needsBaseUrl ? "URL de l'endpoint" : "URL personnalisée (optionnel)"}

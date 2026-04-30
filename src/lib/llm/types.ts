@@ -1,7 +1,18 @@
 // Types unifiés pour tous les providers LLM
 // Chaque adapter convertit ce format vers/depuis son API native.
 
-export type LlmProviderKind = "anthropic" | "openai" | "mistral" | "ollama";
+export type LlmProviderKind =
+  | "anthropic"
+  | "openai"
+  | "mistral"
+  | "ollama"
+  | "gemini"
+  | "grok"
+  | "deepseek"
+  | "cohere"
+  | "huggingface"
+  | "nvidia"
+  | "perplexity";
 
 export interface LlmProviderConfig {
   id: string;
@@ -77,6 +88,37 @@ export const KNOWN_MODELS: Record<string, { value: string; label: string }[]> = 
     { value: "open-mistral-nemo", label: "Open Mistral Nemo" },
     { value: "codestral-latest", label: "Codestral" },
   ],
+  gemini: [
+    { value: "gemini-2.5-pro", label: "Gemini 2.5 Pro (recommandé)" },
+    { value: "gemini-2.5-flash", label: "Gemini 2.5 Flash" },
+    { value: "gemini-2.5-flash-lite", label: "Gemini 2.5 Flash Lite (rapide)" },
+  ],
+  grok: [
+    { value: "grok-4", label: "Grok 4 (recommandé)" },
+    { value: "grok-3", label: "Grok 3" },
+    { value: "grok-3-mini", label: "Grok 3 Mini (rapide)" },
+  ],
+  deepseek: [
+    { value: "deepseek-chat", label: "DeepSeek Chat (recommandé)" },
+    { value: "deepseek-reasoner", label: "DeepSeek Reasoner" },
+  ],
+  cohere: [
+    { value: "command-r-plus", label: "Cohere Command R+ (recommandé)" },
+    { value: "command-r", label: "Cohere Command R" },
+  ],
+  huggingface: [
+    { value: "meta-llama/Llama-3.3-70B-Instruct", label: "HF Llama 3.3 70B Instruct" },
+    { value: "Qwen/Qwen2.5-72B-Instruct", label: "HF Qwen 2.5 72B Instruct" },
+  ],
+  nvidia: [
+    { value: "meta/llama-3.1-70b-instruct", label: "NVIDIA Llama 3.1 70B Instruct" },
+    { value: "nvidia/llama-3.1-nemotron-70b-instruct", label: "NVIDIA Nemotron 70B" },
+  ],
+  perplexity: [
+    { value: "sonar-pro", label: "Perplexity Sonar Pro (recommandé)" },
+    { value: "sonar", label: "Perplexity Sonar" },
+    { value: "sonar-reasoning", label: "Perplexity Sonar Reasoning" },
+  ],
   ollama: [
     { value: "llama3.1", label: "Llama 3.1 (function calling)" },
     { value: "llama3.2", label: "Llama 3.2" },
@@ -114,6 +156,62 @@ export const PROVIDER_KINDS: Array<{
     needsApiKey: true,
     needsBaseUrl: false,
     description: "API Mistral — clé depuis console.mistral.ai",
+  },
+  {
+    value: "gemini",
+    label: "Google Gemini",
+    needsApiKey: true,
+    needsBaseUrl: true,
+    defaultBaseUrl: "https://generativelanguage.googleapis.com/v1beta/openai",
+    description: "API Gemini (OpenAI-compatible) — clé depuis Google AI Studio",
+  },
+  {
+    value: "grok",
+    label: "xAI (Grok)",
+    needsApiKey: true,
+    needsBaseUrl: true,
+    defaultBaseUrl: "https://api.x.ai/v1",
+    description: "API xAI — clé depuis console.x.ai",
+  },
+  {
+    value: "deepseek",
+    label: "DeepSeek",
+    needsApiKey: true,
+    needsBaseUrl: true,
+    defaultBaseUrl: "https://api.deepseek.com/v1",
+    description: "API DeepSeek (OpenAI-compatible) — clé depuis platform.deepseek.com",
+  },
+  {
+    value: "cohere",
+    label: "Cohere",
+    needsApiKey: true,
+    needsBaseUrl: true,
+    defaultBaseUrl: "https://api.cohere.ai/compatibility/v1",
+    description: "API Cohere (OpenAI-compatible) — clé depuis dashboard.cohere.com",
+  },
+  {
+    value: "huggingface",
+    label: "Hugging Face",
+    needsApiKey: true,
+    needsBaseUrl: true,
+    defaultBaseUrl: "https://router.huggingface.co/v1",
+    description: "HF Inference Router (OpenAI-compatible) — clé HF_TOKEN",
+  },
+  {
+    value: "nvidia",
+    label: "NVIDIA",
+    needsApiKey: true,
+    needsBaseUrl: true,
+    defaultBaseUrl: "https://integrate.api.nvidia.com/v1",
+    description: "NVIDIA API catalog (OpenAI-compatible) — clé build.nvidia.com",
+  },
+  {
+    value: "perplexity",
+    label: "Perplexity",
+    needsApiKey: true,
+    needsBaseUrl: true,
+    defaultBaseUrl: "https://api.perplexity.ai",
+    description: "Perplexity Sonar (OpenAI-compatible) — clé depuis docs.perplexity.ai",
   },
   {
     value: "ollama",
