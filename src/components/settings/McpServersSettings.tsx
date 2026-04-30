@@ -17,7 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Server, Wrench, RefreshCw, Database, FileText, Folder, Tags, Globe, Workflow, MessageSquare, Gamepad2, Cloud, Mail, GitBranch, Search, GraduationCap, Notebook, HardDrive } from "lucide-react";
+import { Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Server, Wrench, RefreshCw, Database, FileText, Folder, Tags, Globe, Workflow, MessageSquare, Gamepad2, Cloud, Mail, GitBranch, Search, GraduationCap, Notebook, HardDrive, CalendarDays } from "lucide-react";
 import { toast } from "sonner";
 
 interface McpServer {
@@ -39,6 +39,8 @@ const PRESETS: Array<{ label: string; name: string; url: string; hint: string; i
   { label: "Azure", name: "Azure", url: "http://mcp-azure:8013/mcp", hint: "Bridge Azure ops (VM, RG, NSG, App Service, Storage, Key Vault, Activity Log)", icon: <Cloud className="h-3.5 w-3.5 text-blue-600" /> },
   { label: "GCP", name: "GCP", url: "http://mcp-gcp:8014/mcp", hint: "Bridge GCP ops (Projects, Compute, GKE, GCS, Logging)", icon: <Cloud className="h-3.5 w-3.5 text-sky-500" /> },
   { label: "Email (SMTP)", name: "Email", url: "http://mcp-email:8015/mcp", hint: "Bridge Email SMTP (envoi de rapports)", icon: <Mail className="h-3.5 w-3.5 text-purple-600" /> },
+  { label: "Gmail (Google MCP)", name: "Gmail", url: "https://gmailmcp.googleapis.com/mcp/v1", hint: "Serveur MCP distant officiel Google Workspace (OAuth requis)", icon: <Mail className="h-3.5 w-3.5 text-red-500" /> },
+  { label: "Google Calendar MCP", name: "Google Calendar", url: "https://calendarmcp.googleapis.com/mcp/v1", hint: "Serveur MCP distant officiel Google Calendar (OAuth requis)", icon: <CalendarDays className="h-3.5 w-3.5 text-blue-600" /> },
   { label: "GitHub", name: "GitHub", url: "http://mcp-github:8007/mcp", hint: "Bridge local GitHub MCP (issues + PR)", icon: <GitBranch className="h-3.5 w-3.5" /> },
   { label: "GitLab", name: "GitLab", url: "http://mcp-gitlab:8008/mcp", hint: "Bridge local GitLab MCP (projects + issues + MR)", icon: <GitBranch className="h-3.5 w-3.5 text-orange-500" /> },
   { label: "Elasticsearch", name: "Elasticsearch", url: "http://mcp-elasticsearch:8080/mcp", hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)", icon: <Search className="h-3.5 w-3.5 text-teal-600" /> },
@@ -65,6 +67,8 @@ function getServerIcon(name: string): ReactNode {
   if (key.includes("elastic")) return <Search className="h-3.5 w-3.5 text-teal-600" />;
   if (key.includes("filesystem") || key.includes("file")) return <Folder className="h-3.5 w-3.5 text-amber-600" />;
   if (key.includes("email") || key.includes("smtp")) return <Mail className="h-3.5 w-3.5 text-purple-600" />;
+  if (key.includes("gmail")) return <Mail className="h-3.5 w-3.5 text-red-500" />;
+  if (key.includes("calendar")) return <CalendarDays className="h-3.5 w-3.5 text-blue-600" />;
   if (key.includes("moodle")) return <GraduationCap className="h-3.5 w-3.5 text-orange-600" />;
   if (key.includes("openmetadata")) return <Tags className="h-3.5 w-3.5 text-cyan-700" />;
   if (key.includes("fetch")) return <Globe className="h-3.5 w-3.5 text-green-700" />;
