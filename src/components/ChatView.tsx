@@ -211,12 +211,12 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   return (
     <div className="flex flex-col h-screen flex-1 min-w-0">
       <div className="border-b border-border bg-background/80 backdrop-blur px-4 py-2">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-6xl mx-auto">
           <ConversationProviderSelector conversationId={conversationId} />
         </div>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
-        <div className="max-w-3xl mx-auto px-4 py-6 space-y-4">
+        <div className="max-w-6xl mx-auto px-4 py-6 space-y-4">
           {items.length === 0 && (
             <div className="text-center text-muted-foreground py-20">
               <Bot className="h-10 w-10 mx-auto mb-3 opacity-30" />
@@ -248,7 +248,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
       </div>
 
       <div className="border-t border-border bg-background/80 backdrop-blur">
-        <div className="max-w-3xl mx-auto p-3 flex gap-2 items-end">
+        <div className="max-w-6xl mx-auto p-3 flex gap-2 items-end">
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
@@ -288,7 +288,7 @@ function MessageBubble({
       </div>
       <div
         className={cn(
-          "rounded-lg px-3 py-2 max-w-[85%]",
+          "rounded-lg px-3 py-2 max-w-[94%]",
           isUser ? "bg-primary text-primary-foreground" : "bg-muted/50 border border-border",
         )}
       >
