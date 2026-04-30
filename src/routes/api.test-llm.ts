@@ -1,4 +1,4 @@
-// Test connectivity for any LLM provider kind (anthropic, openai, mistral, ollama)
+// Test connectivity for any LLM provider kind (anthropic, openai-compatible, ollama)
 import { createFileRoute } from '@tanstack/react-router';
 
 const corsHeaders = {
@@ -63,12 +63,20 @@ export const Route = createFileRoute('/api/test-llm')({
             return json({ ok: true, models: (data.data ?? []).map((m) => m.id) });
           }
 
-          if (kind === 'openai' || kind === 'mistral') {
+          if (kind === 'openai' || kind === 'mistral' || kind === 'gemini' || kind === 'grok' || kind === 'deepseek' || kind === 'cohere' || kind === 'huggingface' || kind === 'nvidia' || kind === 'perplexity') {
             if (!api_key) return json({ ok: false, error: 'api_key required' });
-            const url =
-              kind === 'openai'
-                ? base_url?.replace(/\/$/, '') || 'https://api.openai.com/v1'
-                : base_url?.replace(/\/$/, '') || 'https://api.mistral.ai/v1';
+            const defaultUrlByKind: Record<string, string> = {
+              openai: 'https://api.openai.com/v1',
+              mistral: 'https://api.mistral.ai/v1',
+              gemini: 'https://generativelanguage.googleapis.com/v1beta/openai',
+              grok: 'https://api.x.ai/v1',
+              deepseek: 'https://api.deepseek.com/v1',
+              cohere: 'https://api.cohere.ai/compatibility/v1',
+              huggingface: 'https://router.huggingface.co/v1',
+              nvidia: 'https://integrate.api.nvidia.com/v1',
+              perplexity: 'https://api.perplexity.ai',
+            };
+            const url = base_url?.replace(/\/$/, '') || defaultUrlByKind[kind] || 'https://api.openai.com/v1';
             const res = await fetch(`${url}/models`, {
               method: 'GET',
               headers: { Authorization: `Bearer ${api_key}` },

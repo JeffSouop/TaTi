@@ -24,6 +24,55 @@ export function getAdapter(provider: LlmProviderConfig): LlmAdapter {
         apiKey: provider.api_key,
       });
     }
+    case "gemini": {
+      if (!provider.api_key) throw new Error("Clé API Gemini manquante");
+      return createOpenAiAdapter({
+        baseUrl: provider.base_url || "https://generativelanguage.googleapis.com/v1beta/openai",
+        apiKey: provider.api_key,
+      });
+    }
+    case "grok": {
+      if (!provider.api_key) throw new Error("Clé API xAI manquante");
+      return createOpenAiAdapter({
+        baseUrl: provider.base_url || "https://api.x.ai/v1",
+        apiKey: provider.api_key,
+      });
+    }
+    case "deepseek": {
+      if (!provider.api_key) throw new Error("Clé API DeepSeek manquante");
+      return createOpenAiAdapter({
+        baseUrl: provider.base_url || "https://api.deepseek.com/v1",
+        apiKey: provider.api_key,
+      });
+    }
+    case "cohere": {
+      if (!provider.api_key) throw new Error("Clé API Cohere manquante");
+      return createOpenAiAdapter({
+        baseUrl: provider.base_url || "https://api.cohere.ai/compatibility/v1",
+        apiKey: provider.api_key,
+      });
+    }
+    case "huggingface": {
+      if (!provider.api_key) throw new Error("Clé API Hugging Face manquante");
+      return createOpenAiAdapter({
+        baseUrl: provider.base_url || "https://router.huggingface.co/v1",
+        apiKey: provider.api_key,
+      });
+    }
+    case "nvidia": {
+      if (!provider.api_key) throw new Error("Clé API NVIDIA manquante");
+      return createOpenAiAdapter({
+        baseUrl: provider.base_url || "https://integrate.api.nvidia.com/v1",
+        apiKey: provider.api_key,
+      });
+    }
+    case "perplexity": {
+      if (!provider.api_key) throw new Error("Clé API Perplexity manquante");
+      return createOpenAiAdapter({
+        baseUrl: provider.base_url || "https://api.perplexity.ai",
+        apiKey: provider.api_key,
+      });
+    }
     case "ollama": {
       if (!provider.base_url) throw new Error("URL Ollama manquante");
       return createOllamaAdapter({ baseUrl: provider.base_url });
