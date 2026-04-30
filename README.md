@@ -8,6 +8,47 @@ tourner intégralement en local via Docker Compose.
 - Docker + Docker Compose v2
 - (optionnel) Node 20+ / Bun si tu veux lancer hors Docker
 
+## Qualité CI/CD (GitHub Actions)
+
+Le projet inclut un pipeline CI volontairement strict, mais pragmatique :
+
+- `lint` (ESLint)
+- `typecheck` (TypeScript en `strict`)
+- `test:coverage` (Vitest + seuils mini de couverture)
+- `format:check` (Prettier)
+- `build` (Vite)
+
+Déclenchements :
+
+- sur chaque `pull_request` vers `main`
+- sur chaque `push` sur `main`
+- optimisation via détection de changements (les jobs lourds ne tournent que si le code applicatif change)
+
+Recommandation protection de branche GitHub :
+
+- définir `CI / quality-status` comme check requis unique sur `main`
+
+Sécurité open source :
+
+- pour les PR venant d'un fork, ajoute le label `safe to test` avant exécution de la CI
+- workflow dédié `Security Audit` (npm audit niveau `high+critical`) exécuté chaque semaine et sur changement de dépendances
+
+E2E smoke :
+
+- workflow `E2E Smoke` (Playwright) activé sur PR/push pour vérifier qu'un parcours minimal UI reste opérationnel
+- au démarrage il est volontairement **non bloquant** (`continue-on-error`) pour stabilisation progressive
+- une fois stable pendant quelques itérations, tu peux le rendre bloquant et l'ajouter aux checks requis de branche
+
+Release :
+
+- un release GitHub est créé automatiquement quand tu pousses un tag SemVer `vX.Y.Z`.
+- exemple :
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
 ## Démarrage rapide
 
 ```bash
@@ -35,17 +76,19 @@ Tu peux donc connecter plusieurs moteurs open source, pas seulement Ollama.
 
 #### Option A - Ollama (local, simple)
 
-1) Installer Ollama:
+1. Installer Ollama:
+
 - macOS/Linux: [https://ollama.com/download](https://ollama.com/download)
 
-2) Lancer au moins un modele:
+2. Lancer au moins un modele:
 
 ```bash
 ollama pull llama3.1
 ollama run llama3.1
 ```
 
-3) Dans TaTi -> Parametres -> Providers LLM:
+3. Dans TaTi -> Parametres -> Providers LLM:
+
 - Ajouter provider: `Ollama (local / self-hosted)`
 - Base URL:
   - `http://host.docker.internal:11434` si TaTi tourne dans Docker
@@ -56,8 +99,9 @@ ollama run llama3.1
 
 OpenRouter expose une API OpenAI-compatible, pratique pour tester plusieurs modeles OSS sans infra locale.
 
-1) Creer une cle API OpenRouter  
-2) Dans TaTi -> Providers LLM:
+1. Creer une cle API OpenRouter
+2. Dans TaTi -> Providers LLM:
+
 - Ajouter provider: `OpenAI (GPT)` (ou `Mistral`/autre provider openai-compatible)
 - API key: `<ta_cle_openrouter>`
 - Base URL: `https://openrouter.ai/api/v1`
@@ -66,11 +110,13 @@ OpenRouter expose une API OpenAI-compatible, pratique pour tester plusieurs mode
 #### Option C - Inference providers openai-compatible (HF, Together, Groq, etc.)
 
 Si le provider expose `/chat/completions` au format OpenAI:
+
 - utilise n'importe quel provider TaTi base sur l'adapter OpenAI-compatible
 - renseigne simplement `API key` + `Base URL`
 - choisis le nom exact du modele
 
 Exemples usuels:
+
 - Hugging Face Router: `https://router.huggingface.co/v1`
 - NVIDIA: `https://integrate.api.nvidia.com/v1`
 - Together: `https://api.together.xyz/v1`
@@ -79,9 +125,10 @@ Exemples usuels:
 #### Verification rapide
 
 Dans la fiche provider:
-1) `Tester la connexion`
-2) `Enregistrer`
-3) Ouvrir une conversation et selectionner le provider
+
+1. `Tester la connexion`
+2. `Enregistrer`
+3. Ouvrir une conversation et selectionner le provider
 
 #### Notes importantes
 
@@ -90,13 +137,14 @@ Dans la fiche provider:
 - En entreprise, proxy/firewall peuvent bloquer certains endpoints externes.
 
 Services :
+
 - App (dev)→ http://localhost:5173
 - Postgres → localhost:5432 (user/pass dans .env)
-- MCP-OM   → http://localhost:8001/mcp
-- MCP-PG   → http://localhost:8002/mcp
-- MCP-PDF  → http://localhost:8003/mcp
+- MCP-OM → http://localhost:8001/mcp
+- MCP-PG → http://localhost:8002/mcp
+- MCP-PDF → http://localhost:8003/mcp
 - MCP-Notion → http://localhost:8004/mcp
-- MCP-Slack  → http://localhost:8006/mcp
+- MCP-Slack → http://localhost:8006/mcp
 - MCP-Discord → http://localhost:8010/mcp
 - MCP-Filesystem → http://localhost:8011/mcp
 - MCP-AWS → http://localhost:8012/mcp
@@ -109,6 +157,7 @@ Services :
 - MCP-Elastic → http://localhost:8009/mcp
 
 Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
+
 - PostgreSQL → `http://mcp-postgres:8002/mcp` (car l'app tourne dans Docker)
 - PDF Generator → `http://mcp-pdf:8003/mcp`
 - Notion → `http://mcp-notion:8004/mcp`
@@ -195,6 +244,7 @@ docker compose up -d --build mcp-discord
 ```
 
 Configuration TaTi :
+
 - URL serveur MCP Discord : `http://mcp-discord:8010/mcp`
 - outils exposés : `discord_list_channels`, `discord_post_message`, `discord_get_channel_history`
 
@@ -214,6 +264,7 @@ docker compose up -d --build mcp-filesystem
 ```
 
 Configuration TaTi :
+
 - URL serveur MCP Filesystem : `http://mcp-filesystem:8011/mcp`
 - outils exposés : `filesystem_list_directory`, `filesystem_read_file`,
   `filesystem_write_file`, `filesystem_make_directory`
@@ -238,6 +289,7 @@ docker compose up -d --build mcp-aws
 ```
 
 Configuration TaTi :
+
 - URL serveur MCP AWS : `http://mcp-aws:8012/mcp`
 - outils exposés :
   - `aws_ec2_list_instances`, `aws_ec2_describe_security_group`
@@ -271,6 +323,7 @@ docker compose up -d --build mcp-azure
 ```
 
 Configuration TaTi :
+
 - URL serveur MCP Azure : `http://mcp-azure:8013/mcp`
 - outils exposés :
   - `azure_list_resource_groups`
@@ -299,6 +352,7 @@ docker compose up -d --build mcp-gcp
 ```
 
 Configuration TaTi :
+
 - URL serveur MCP GCP : `http://mcp-gcp:8014/mcp`
 - outils exposés :
   - `gcp_list_projects`
@@ -330,6 +384,7 @@ docker compose up -d --build mcp-email
 ```
 
 Configuration TaTi :
+
 - URL serveur MCP Email : `http://mcp-email:8015/mcp`
 - outil exposé : `email_send_report`
 
@@ -351,6 +406,7 @@ docker compose up -d --build mcp-dagster
 ```
 
 Configuration TaTi :
+
 - URL serveur MCP Dagster : `http://mcp-dagster:8016/mcp`
 - outils exposés :
   - `dagster_list_repositories`
@@ -386,6 +442,7 @@ docker compose up -d --build mcp-github mcp-gitlab
    - clique `Tester`, puis `Enregistrer`.
 
 Notes:
+
 - GitHub: préfère un token finement scoped (repo/issues/pull requests).
 - GitLab: utilise un PAT avec scopes API requis sur les projets visés.
 - Évite de committer des tokens dans des fichiers versionnés.
@@ -412,6 +469,7 @@ docker compose up -d --build mcp-elasticsearch
 ```
 
 Dans TaTi -> Paramètres -> Serveurs MCP:
+
 - preset `Elasticsearch`
 - URL: `http://mcp-elasticsearch:8080/mcp`
 - Tester -> Enregistrer
@@ -469,8 +527,6 @@ docker compose down -v
 docker compose up --build
 ```
 
-
-
 ```bash
 docker compose exec -T postgres psql -U tati -d tati \
   -c "\copy public.llm_providers FROM STDIN CSV HEADER" < ./exports/llm_providers.csv
@@ -504,4 +560,7 @@ bun run dev
   `@cloudflare/vite-plugin`. Le mode `prod` du compose utilise `vite preview`
   qui sert le build statique + SSR. Pour un déploiement prod plus sérieux,
   remplace ce plugin par `@tanstack/react-start/server`.
+
+```
+
 ```

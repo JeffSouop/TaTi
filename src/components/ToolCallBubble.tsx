@@ -22,13 +22,18 @@ export function ToolCallBubble({ call }: { call: ToolCallDisplay }) {
         className="w-full flex items-center gap-2 px-3 py-2 hover:bg-muted/60 transition-colors text-left"
       >
         <ChevronRight
-          className={cn("h-3.5 w-3.5 text-muted-foreground transition-transform", open && "rotate-90")}
+          className={cn(
+            "h-3.5 w-3.5 text-muted-foreground transition-transform",
+            open && "rotate-90",
+          )}
         />
         <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
         <span className="font-mono text-xs font-medium">{call.name}</span>
         <span className="text-xs text-muted-foreground">via {call.serverName}</span>
         <span className="ml-auto">
-          {call.status === "running" && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+          {call.status === "running" && (
+            <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+          )}
           {call.status === "done" && <CheckCircle2 className="h-3.5 w-3.5 text-green-500" />}
           {call.status === "error" && <AlertCircle className="h-3.5 w-3.5 text-destructive" />}
         </span>
@@ -36,7 +41,9 @@ export function ToolCallBubble({ call }: { call: ToolCallDisplay }) {
       {open && (
         <div className="px-3 pb-3 pt-1 space-y-2 border-t border-border/50">
           <div>
-            <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">Arguments</div>
+            <div className="text-[10px] uppercase tracking-wide text-muted-foreground mb-1">
+              Arguments
+            </div>
             <pre className="bg-background/60 rounded p-2 text-xs overflow-x-auto font-mono">
               {JSON.stringify(call.arguments, null, 2)}
             </pre>
@@ -52,7 +59,10 @@ export function ToolCallBubble({ call }: { call: ToolCallDisplay }) {
                   call.error ? "bg-destructive/10 text-destructive" : "bg-background/60",
                 )}
               >
-                {call.error ?? (typeof call.result === "string" ? call.result : JSON.stringify(call.result, null, 2))}
+                {call.error ??
+                  (typeof call.result === "string"
+                    ? call.result
+                    : JSON.stringify(call.result, null, 2))}
               </pre>
             </div>
           )}

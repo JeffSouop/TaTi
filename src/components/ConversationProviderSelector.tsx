@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Sparkles, AlertCircle } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { KNOWN_MODELS } from "@/lib/llm/types";
@@ -23,8 +29,15 @@ export function ConversationProviderSelector({ conversationId }: { conversationI
   useEffect(() => {
     (async () => {
       const [{ data: provs }, { data: conv }] = await Promise.all([
-        supabase.from("llm_providers").select("id, kind, name, default_model, is_default, enabled").eq("enabled", true),
-        supabase.from("conversations").select("provider_id, model").eq("id", conversationId).single(),
+        supabase
+          .from("llm_providers")
+          .select("id, kind, name, default_model, is_default, enabled")
+          .eq("enabled", true),
+        supabase
+          .from("conversations")
+          .select("provider_id, model")
+          .eq("id", conversationId)
+          .single(),
       ]);
       const list = (provs ?? []) as Provider[];
       setProviders(list);
@@ -42,7 +55,10 @@ export function ConversationProviderSelector({ conversationId }: { conversationI
     const p = providers.find((x) => x.id === id);
     const newModel = p?.default_model ?? "";
     setModel(newModel);
-    await supabase.from("conversations").update({ provider_id: id, model: newModel }).eq("id", conversationId);
+    await supabase
+      .from("conversations")
+      .update({ provider_id: id, model: newModel })
+      .eq("id", conversationId);
   };
 
   const onModelChange = async (m: string) => {
@@ -57,13 +73,15 @@ export function ConversationProviderSelector({ conversationId }: { conversationI
       <div className="flex items-center gap-2 text-xs text-destructive">
         <AlertCircle className="h-3.5 w-3.5" />
         Aucun provider IA configuré.
-        <Link to="/settings" className="underline">Configurer →</Link>
+        <Link to="/settings" className="underline">
+          Configurer →
+        </Link>
       </div>
     );
   }
 
   const currentProv = providers.find((p) => p.id === providerId);
-  const knownModels = currentProv ? KNOWN_MODELS[currentProv.kind] ?? [] : [];
+  const knownModels = currentProv ? (KNOWN_MODELS[currentProv.kind] ?? []) : [];
   const modelInList = knownModels.some((m) => m.value === model);
 
   return (
@@ -75,20 +93,29 @@ export function ConversationProviderSelector({ conversationId }: { conversationI
         </SelectTrigger>
         <SelectContent>
           {providers.map((p) => (
-            <SelectItem key={p.id} value={p.id} className="text-xs">{p.name}</SelectItem>
+            <SelectItem key={p.id} value={p.id} className="text-xs">
+              {p.name}
+            </SelectItem>
           ))}
         </SelectContent>
       </Select>
-      <Select value={modelInList ? model : "__custom__"} onValueChange={(v) => v !== "__custom__" && onModelChange(v)}>
+      <Select
+        value={modelInList ? model : "__custom__"}
+        onValueChange={(v) => v !== "__custom__" && onModelChange(v)}
+      >
         <SelectTrigger className="h-8 text-xs w-auto min-w-[160px]">
           <SelectValue>{model || "Modèle"}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {knownModels.map((m) => (
-            <SelectItem key={m.value} value={m.value} className="text-xs">{m.label}</SelectItem>
+            <SelectItem key={m.value} value={m.value} className="text-xs">
+              {m.label}
+            </SelectItem>
           ))}
           {!modelInList && model && (
-            <SelectItem value="__custom__" className="text-xs">{model} (personnalisé)</SelectItem>
+            <SelectItem value="__custom__" className="text-xs">
+              {model} (personnalisé)
+            </SelectItem>
           )}
         </SelectContent>
       </Select>

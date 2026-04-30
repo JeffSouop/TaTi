@@ -93,7 +93,9 @@ export async function createSession(userId: string): Promise<{ token: string; ex
 
 export async function revokeSession(token: string | null): Promise<void> {
   if (!token) return;
-  await pool.query(`DELETE FROM public.user_sessions WHERE token_hash = $1`, [hashToken(token)] as never);
+  await pool.query(`DELETE FROM public.user_sessions WHERE token_hash = $1`, [
+    hashToken(token),
+  ] as never);
 }
 
 export function buildSessionCookie(token: string, expiresAt: Date): string {

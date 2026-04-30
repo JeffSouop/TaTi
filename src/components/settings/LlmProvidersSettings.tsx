@@ -4,7 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -112,8 +118,9 @@ export function LlmProvidersSettings() {
           <div className="text-sm space-y-1">
             <p className="font-medium">Configure tes propres providers IA</p>
             <p className="text-muted-foreground text-xs">
-              TaTi est agnostique : ajoute autant de providers que tu veux (Claude, GPT, Mistral, Ollama…).
-              Tu choisiras lequel utiliser dans chaque conversation. Le provider marqué <Star className="h-3 w-3 inline fill-current" /> est utilisé par défaut.
+              TaTi est agnostique : ajoute autant de providers que tu veux (Claude, GPT, Mistral,
+              Ollama…). Tu choisiras lequel utiliser dans chaque conversation. Le provider marqué{" "}
+              <Star className="h-3 w-3 inline fill-current" /> est utilisé par défaut.
             </p>
           </div>
         </div>
@@ -163,7 +170,10 @@ export function LlmProvidersSettings() {
         </Button>
       ) : null}
 
-      <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+      <AlertDialog
+        open={Boolean(pendingDelete)}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer ce provider ?</AlertDialogTitle>
@@ -280,23 +290,40 @@ function ProviderCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-semibold text-sm">{name}</h3>
-            <Badge variant="secondary" className="text-[10px]">{meta?.label ?? provider.kind}</Badge>
+            <Badge variant="secondary" className="text-[10px]">
+              {meta?.label ?? provider.kind}
+            </Badge>
             {provider.is_default && (
               <Badge className="text-[10px] gap-1">
                 <Star className="h-2.5 w-2.5 fill-current" /> Par défaut
               </Badge>
             )}
-            {!enabled && <Badge variant="outline" className="text-[10px]">Désactivé</Badge>}
+            {!enabled && (
+              <Badge variant="outline" className="text-[10px]">
+                Désactivé
+              </Badge>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           {!provider.is_default && (
-            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onSetDefault} title="Définir par défaut">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              onClick={onSetDefault}
+              title="Définir par défaut"
+            >
               <Star className="h-4 w-4" />
             </Button>
           )}
           <Switch checked={enabled} onCheckedChange={setEnabled} />
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive" onClick={onRemove}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-destructive"
+            onClick={onRemove}
+          >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
@@ -335,17 +362,20 @@ function ProviderCard({
                                 ? "nvapi-…"
                                 : provider.kind === "perplexity"
                                   ? "pplx-…"
-                    : "ta-clé-api"
+                                  : "ta-clé-api"
               }
               autoComplete="off"
             />
-            <Button variant="outline" size="icon" type="button" onClick={() => setShowKey((v) => !v)}>
+            <Button
+              variant="outline"
+              size="icon"
+              type="button"
+              onClick={() => setShowKey((v) => !v)}
+            >
               {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground">
-            
-          </p>
+          <p className="text-xs text-muted-foreground"></p>
         </div>
       )}
 
@@ -380,21 +410,26 @@ function ProviderCard({
       <div className="space-y-2">
         <Label htmlFor={`model-${provider.id}`}>Modèle par défaut</Label>
         <div className="flex gap-2">
-          <Select value={usingCustomModel ? "__custom__" : model} onValueChange={(v) => {
-            if (v === "__custom__") {
-              setCustomModel(model);
-              setModel("");
-            } else {
-              setModel(v);
-              setCustomModel("");
-            }
-          }}>
+          <Select
+            value={usingCustomModel ? "__custom__" : model}
+            onValueChange={(v) => {
+              if (v === "__custom__") {
+                setCustomModel(model);
+                setModel("");
+              } else {
+                setModel(v);
+                setCustomModel("");
+              }
+            }}
+          >
             <SelectTrigger id={`model-${provider.id}`} className="flex-1">
               <SelectValue placeholder="Choisir un modèle" />
             </SelectTrigger>
             <SelectContent>
               {knownModels.map((m) => (
-                <SelectItem key={m.value} value={m.value}>{m.label}</SelectItem>
+                <SelectItem key={m.value} value={m.value}>
+                  {m.label}
+                </SelectItem>
               ))}
               <SelectItem value="__custom__">… autre (saisie manuelle)</SelectItem>
             </SelectContent>
@@ -442,7 +477,11 @@ function ProviderCard({
           Tester la connexion
         </Button>
         <Button onClick={save} size="sm" disabled={saving}>
-          {saving ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
+          {saving ? (
+            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+          ) : (
+            <Save className="h-4 w-4 mr-1" />
+          )}
           Enregistrer
         </Button>
         {testResult && (
@@ -451,7 +490,11 @@ function ProviderCard({
               testResult.ok ? "text-green-600" : "text-destructive"
             }`}
           >
-            {testResult.ok ? <CheckCircle2 className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
+            {testResult.ok ? (
+              <CheckCircle2 className="h-3.5 w-3.5" />
+            ) : (
+              <AlertCircle className="h-3.5 w-3.5" />
+            )}
             {testResult.message}
           </div>
         )}

@@ -45,7 +45,8 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
         aMessages.push({ role: "user", content: normalizeContent(m.content, MAX_TEXT_CHARS) });
       } else if (m.role === "assistant") {
         const blocks: Array<Record<string, unknown>> = [];
-        if (m.content) blocks.push({ type: "text", text: normalizeContent(m.content, MAX_TEXT_CHARS) });
+        if (m.content)
+          blocks.push({ type: "text", text: normalizeContent(m.content, MAX_TEXT_CHARS) });
         if (m.toolCalls) {
           for (const tc of m.toolCalls) {
             knownToolUseIds.add(tc.id);
@@ -70,7 +71,7 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
             {
               type: "tool_result",
               tool_use_id: m.toolCallId,
-                content: normalizeContent(m.content, MAX_TOOL_RESULT_CHARS),
+              content: normalizeContent(m.content, MAX_TOOL_RESULT_CHARS),
             },
           ],
         });
@@ -162,7 +163,10 @@ export function createAnthropicAdapter(opts: { apiKey: string }): LlmAdapter {
       let buf = "";
 
       // Track in-progress tool_use blocks
-      const blocks = new Map<number, { type: "text" | "tool_use"; id?: string; name?: string; argsBuf: string }>();
+      const blocks = new Map<
+        number,
+        { type: "text" | "tool_use"; id?: string; name?: string; argsBuf: string }
+      >();
 
       while (true) {
         const { done, value } = await reader.read();
