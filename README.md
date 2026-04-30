@@ -560,7 +560,3 @@ bun run dev
   `@cloudflare/vite-plugin`. Le mode `prod` du compose utilise `vite preview`
   qui sert le build statique + SSR. Pour un déploiement prod plus sérieux,
   remplace ce plugin par `@tanstack/react-start/server`.
-
-```
-
-```

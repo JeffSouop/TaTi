@@ -66,24 +66,42 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Get changed files
+      - name: Collect changed files safely
         id: changed-files
-        uses: tj-actions/changed-files@v45
-        with:
-          files: |
-            **/*.{js,jsx,ts,tsx,json,md,yml,yaml}
-          files_ignore: |
-            coverage/**
-            test-results/**
-            playwright-report/**
-            dist/**
-            .output/**
-            .vinxi/**
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE_SHA="${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}"
+          HEAD_SHA="${{ github.sha }}"
+
+          # Collect all changed files in a null-delimited file.
+          git diff --name-only -z "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed_files
+
+          # Filter only files that matter for lint/format checks.
+          : > /tmp/changed_files_for_checks
+          while IFS= read -r -d '' file; do
+            case "$file" in
+              coverage/*|test-results/*|playwright-report/*|dist/*|.output/*|.vinxi/*)
+                continue
+                ;;
+            esac
+            case "$file" in
+              *.js|*.jsx|*.ts|*.tsx|*.json|*.md|*.yml|*.yaml)
+                printf '%s\0' "$file" >> /tmp/changed_files_for_checks
+                ;;
+            esac
+          done < /tmp/all_changed_files
+
+          if [ -s /tmp/changed_files_for_checks ]; then
+            echo "any_changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "any_changed=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Lint changed files
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          npx eslint ${{ steps.changed-files.outputs.all_modified_files }}
+        shell: bash
+        run: xargs -0 -a /tmp/changed_files_for_checks npx eslint --
 
       - name: Typecheck
         run: npm run typecheck
@@ -93,8 +111,8 @@ jobs:
 
       - name: Prettier check changed files
         if: steps.changed-files.outputs.any_changed == 'true'
-        run: |
-          npx prettier --check ${{ steps.changed-files.outputs.all_modified_files }}
+        shell: bash
+        run: xargs -0 -a /tmp/changed_files_for_checks npx prettier --check --
 
       - name: Build
         run: npm run build
