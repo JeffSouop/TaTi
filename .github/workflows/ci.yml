@@ -24,6 +24,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Detect relevant app changes
         id: filter
         uses: dorny/paths-filter@v3
@@ -56,6 +58,8 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -73,6 +77,12 @@ jobs:
           set -euo pipefail
           BASE_SHA="${{ github.event_name == 'pull_request' && github.event.pull_request.base.sha || github.event.before }}"
           HEAD_SHA="${{ github.sha }}"
+
+          # Fallback when BASE_SHA is not present in local git graph (e.g. force-push / rewritten history).
+          if ! git cat-file -e "${BASE_SHA}^{commit}" 2>/dev/null; then
+            echo "BASE_SHA $BASE_SHA not found locally, using merge-base with origin/main."
+            BASE_SHA="$(git merge-base HEAD origin/main)"
+          fi
 
           # Collect all changed files in a null-delimited file.
           git diff --name-only -z "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed_files
