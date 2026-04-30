@@ -28,6 +28,67 @@ docker compose up --build
 docker compose --profile prod up --build
 ```
 
+### IA open source: installation et connexion a TaTi
+
+TaTi supporte nativement les providers "openai-compatible" et Ollama.  
+Tu peux donc connecter plusieurs moteurs open source, pas seulement Ollama.
+
+#### Option A - Ollama (local, simple)
+
+1) Installer Ollama:
+- macOS/Linux: [https://ollama.com/download](https://ollama.com/download)
+
+2) Lancer au moins un modele:
+
+```bash
+ollama pull llama3.1
+ollama run llama3.1
+```
+
+3) Dans TaTi -> Parametres -> Providers LLM:
+- Ajouter provider: `Ollama (local / self-hosted)`
+- Base URL:
+  - `http://host.docker.internal:11434` si TaTi tourne dans Docker
+  - `http://localhost:11434` si TaTi tourne hors Docker
+- Modele: `llama3.1` (ou autre modele installe)
+
+#### Option B - OpenRouter (catalogue multi-modeles OSS)
+
+OpenRouter expose une API OpenAI-compatible, pratique pour tester plusieurs modeles OSS sans infra locale.
+
+1) Creer une cle API OpenRouter  
+2) Dans TaTi -> Providers LLM:
+- Ajouter provider: `OpenAI (GPT)` (ou `Mistral`/autre provider openai-compatible)
+- API key: `<ta_cle_openrouter>`
+- Base URL: `https://openrouter.ai/api/v1`
+- Modele: ex. `meta-llama/llama-3.1-70b-instruct`
+
+#### Option C - Inference providers openai-compatible (HF, Together, Groq, etc.)
+
+Si le provider expose `/chat/completions` au format OpenAI:
+- utilise n'importe quel provider TaTi base sur l'adapter OpenAI-compatible
+- renseigne simplement `API key` + `Base URL`
+- choisis le nom exact du modele
+
+Exemples usuels:
+- Hugging Face Router: `https://router.huggingface.co/v1`
+- NVIDIA: `https://integrate.api.nvidia.com/v1`
+- Together: `https://api.together.xyz/v1`
+- Groq: `https://api.groq.com/openai/v1`
+
+#### Verification rapide
+
+Dans la fiche provider:
+1) `Tester la connexion`
+2) `Enregistrer`
+3) Ouvrir une conversation et selectionner le provider
+
+#### Notes importantes
+
+- Certains modeles open source n'implementent pas bien le tool-calling; privilegie les modeles "instruct/function-calling".
+- Pour Docker + service local sur ta machine, pense a `host.docker.internal`.
+- En entreprise, proxy/firewall peuvent bloquer certains endpoints externes.
+
 Services :
 - App (dev)→ http://localhost:5173
 - Postgres → localhost:5432 (user/pass dans .env)
