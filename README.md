@@ -62,6 +62,32 @@ Configuration recommandée dans l'interface TaTi (Serveurs MCP) :
 - GitHub → `http://mcp-github:8007/mcp`
 - GitLab → `http://mcp-gitlab:8008/mcp`
 - Elasticsearch → `http://mcp-elasticsearch:8080/mcp`
+- Gmail (Google MCP distant) → `https://gmailmcp.googleapis.com/mcp/v1`
+- Google Calendar (Google MCP distant) → `https://calendarmcp.googleapis.com/mcp/v1`
+
+## Configuration Gmail + Google Calendar (MCP distants officiels)
+
+Ces 2 serveurs MCP sont fournis par Google (pas besoin de conteneur local dédié).
+
+Dans TaTi -> Paramètres -> Serveurs MCP -> Ajouter un serveur :
+
+- Gmail:
+  - URL: `https://gmailmcp.googleapis.com/mcp/v1`
+  - Nom: `Gmail`
+- Google Calendar:
+  - URL: `https://calendarmcp.googleapis.com/mcp/v1`
+  - Nom: `Google Calendar`
+
+Authentification:
+
+- Ces endpoints utilisent OAuth 2.0 Google.
+- Si ton client MCP n'a pas de flow OAuth natif, tu peux passer un header `Authorization: Bearer <token>`.
+
+Activation côté Google Cloud (projet concerné):
+
+```bash
+gcloud services enable gmailmcp.googleapis.com calendarmcp.googleapis.com --project=PROJECT_ID
+```
 
 ## Configuration Slack et Notion
 
