@@ -46,7 +46,10 @@ export const Route = createRootRoute({
           "TaTi (Talent Artificial Tally Intelligence) — interface MCP open source pour interroger Dagster, OpenMetadata, DBT et vos bases en langage naturel. Self-hosted, multi-LLM.",
       },
       { property: "og:title", content: "TaTi — Plateforme MCP open source" },
-      { property: "og:description", content: "Interface MCP self-hosted, multi-LLM (Claude, OpenAI, Mistral, Ollama)." },
+      {
+        property: "og:description",
+        content: "Interface MCP self-hosted, multi-LLM (Claude, OpenAI, Mistral, Ollama).",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

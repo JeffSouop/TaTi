@@ -31,7 +31,7 @@ export const Route = createFileRoute("/api/realtime")({
           tablesParam
             .split(",")
             .map((t) => t.trim())
-            .filter((t) => ALLOWED_TABLES.has(t))
+            .filter((t) => ALLOWED_TABLES.has(t)),
         );
 
         const stream = new ReadableStream<Uint8Array>({
@@ -49,7 +49,8 @@ export const Route = createFileRoute("/api/realtime")({
             // Connexion dédiée hors pool pour éviter d'épuiser le pool principal.
             const cfg = pool.options;
             const client = new Client({
-              connectionString: typeof cfg.connectionString === "string" ? cfg.connectionString : undefined,
+              connectionString:
+                typeof cfg.connectionString === "string" ? cfg.connectionString : undefined,
               host: typeof cfg.host === "string" ? cfg.host : undefined,
               port: typeof cfg.port === "number" ? cfg.port : undefined,
               user: typeof cfg.user === "string" ? cfg.user : undefined,

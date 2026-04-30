@@ -15,7 +15,7 @@ interface DbMessage {
   conversation_id: string;
   role: "user" | "assistant" | "tool" | "system";
   content: string;
-  tool_calls: any;
+  tool_calls: unknown;
   tool_call_id: string | null;
   tool_name: string | null;
   server_name: string | null;
@@ -30,6 +30,26 @@ interface DisplayItem {
   toolCall?: ToolCallDisplay;
   streaming?: boolean;
 }
+
+type ToolCallMeta = {
+  id: string;
+  function?: {
+    name?: string;
+    arguments?: string;
+  };
+};
+
+type ChatSseEvent =
+  | { type: "token"; content: string }
+  | {
+      type: "tool_call_start";
+      id: string;
+      name: string;
+      serverName?: string;
+      arguments?: unknown;
+    }
+  | { type: "tool_call_result"; id: string; result?: unknown; error?: string }
+  | { type: "error"; message: string };
 
 export function ChatView({ conversationId }: { conversationId: string }) {
   const [items, setItems] = useState<DisplayItem[]>([]);
@@ -151,16 +171,12 @@ export function ChatView({ conversationId }: { conversationId: string }) {
     }
   };
 
-  const handleEvent = (evt: any) => {
+  const handleEvent = (evt: ChatSseEvent) => {
     if (evt.type === "token") {
       const cur = streamingMsgRef.current;
       if (!cur) return;
       cur.text += evt.content;
-      setItems((prev) =>
-        prev.map((it) =>
-          it.id === cur.id ? { ...it, content: cur.text } : it,
-        ),
-      );
+      setItems((prev) => prev.map((it) => (it.id === cur.id ? { ...it, content: cur.text } : it)));
     } else if (evt.type === "tool_call_start") {
       setItems((prev) => [
         ...prev,
@@ -170,7 +186,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
           toolCall: {
             id: evt.id,
             name: evt.name,
-            serverName: evt.serverName,
+            serverName: evt.serverName ?? "—",
             arguments: evt.arguments,
             status: "running",
           },
@@ -224,9 +240,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
             <div className="text-center text-muted-foreground py-20">
               <Bot className="h-10 w-10 mx-auto mb-3 opacity-30" />
               <p className="text-sm">Pose ta question pour démarrer la conversation.</p>
-              <p className="text-xs mt-1">
-                L'IA peut appeler tes serveurs MCP automatiquement.
-              </p>
+              <p className="text-xs mt-1">L'IA peut appeler tes serveurs MCP automatiquement.</p>
             </div>
           )}
           {items.map((it) =>
@@ -270,7 +284,12 @@ export function ChatView({ conversationId }: { conversationId: string }) {
             className="min-h-[48px] max-h-40 resize-none"
             disabled={streaming}
           />
-          <Button onClick={send} disabled={streaming || !input.trim()} size="icon" className="h-12 w-12 shrink-0">
+          <Button
+            onClick={send}
+            disabled={streaming || !input.trim()}
+            size="icon"
+            className="h-12 w-12 shrink-0"
+          >
             <Send className="h-4 w-4" />
           </Button>
         </div>
@@ -328,9 +347,18 @@ function MessageBubble({
           )
         ) : streaming ? (
           <div className="flex gap-1 py-1">
-            <span className="h-1.5 w-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-            <span className="h-1.5 w-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-            <span className="h-1.5 w-1.5 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+            <span
+              className="h-1.5 w-1.5 bg-muted-foreground rounded-full animate-bounce"
+              style={{ animationDelay: "0ms" }}
+            />
+            <span
+              className="h-1.5 w-1.5 bg-muted-foreground rounded-full animate-bounce"
+              style={{ animationDelay: "150ms" }}
+            />
+            <span
+              className="h-1.5 w-1.5 bg-muted-foreground rounded-full animate-bounce"
+              style={{ animationDelay: "300ms" }}
+            />
           </div>
         ) : null}
       </div>
@@ -348,7 +376,7 @@ function buildItemsFromDb(msgs: DbMessage[]): DisplayItem[] {
       if (m.content) {
         items.push({ type: "message", id: m.id, role: "assistant", content: m.content });
       }
-      const tcs = (m.tool_calls ?? []) as Array<any>;
+      const tcs = (m.tool_calls ?? []) as ToolCallMeta[];
       for (const tc of tcs) {
         // Find matching tool result
         const toolMsg = msgs.find((x) => x.role === "tool" && x.tool_call_id === tc.id);

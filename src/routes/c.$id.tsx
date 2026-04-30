@@ -21,20 +21,24 @@ function ChatPage() {
           <div className="text-sm text-muted-foreground">Chargement de la session...</div>
         </main>
       ) : (
-      <>
-      {canShowSidebar && (
-        <ChatSidebar activeId={id} collapsed={!sidebar.visible} onToggleCollapse={sidebar.toggle} />
-      )}
-      <main className="flex-1 relative">
-      {auth.authRequired && !auth.loading && !auth.authenticated ? (
-        <div className="h-full">
-          <AuthLoginCard onSuccess={() => void auth.refresh()} />
-        </div>
-      ) : (
-        <ChatView conversationId={id} key={id} />
-      )}
-      </main>
-      </>
+        <>
+          {canShowSidebar && (
+            <ChatSidebar
+              activeId={id}
+              collapsed={!sidebar.visible}
+              onToggleCollapse={sidebar.toggle}
+            />
+          )}
+          <main className="flex-1 relative">
+            {auth.authRequired && !auth.loading && !auth.authenticated ? (
+              <div className="h-full">
+                <AuthLoginCard onSuccess={() => void auth.refresh()} />
+              </div>
+            ) : (
+              <ChatView conversationId={id} key={id} />
+            )}
+          </main>
+        </>
       )}
     </div>
   );

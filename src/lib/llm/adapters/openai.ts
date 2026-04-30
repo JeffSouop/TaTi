@@ -73,7 +73,7 @@ export function createOpenAiAdapter(opts: {
 
         let nlIdx: number;
         while ((nlIdx = buf.indexOf("\n")) !== -1) {
-          let line = buf.slice(0, nlIdx).trim();
+          const line = buf.slice(0, nlIdx).trim();
           buf = buf.slice(nlIdx + 1);
           if (!line || line.startsWith(":")) continue;
           if (!line.startsWith("data: ")) continue;

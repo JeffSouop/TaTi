@@ -8,16 +8,13 @@
 import { Pool, type QueryResult, type QueryResultRow } from "pg";
 
 declare global {
-  // eslint-disable-next-line no-var
   var __pgPool: Pool | undefined;
 }
 
 function makePool(): Pool {
   const url = process.env.DATABASE_URL;
   if (!url) {
-    throw new Error(
-      "DATABASE_URL n'est pas défini. Ajoute-le dans .env (cf. .env.example)."
-    );
+    throw new Error("DATABASE_URL n'est pas défini. Ajoute-le dans .env (cf. .env.example).");
   }
   return new Pool({
     connectionString: url,
@@ -31,7 +28,7 @@ export const pool: Pool = globalThis.__pgPool ?? (globalThis.__pgPool = makePool
 
 export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
-  params: unknown[] = []
+  params: unknown[] = [],
 ): Promise<QueryResult<T>> {
   return pool.query<T>(text, params as never);
 }
@@ -111,14 +108,18 @@ class ServerQueryBuilder {
   }
 
   // --- terminal: SELECT ----------------------------------------------------
-  private async runSelect(): Promise<{ data: Any; error: { message: string } | null; count: number | null }> {
+  private async runSelect(): Promise<{
+    data: Any;
+    error: { message: string } | null;
+    count: number | null;
+  }> {
     try {
       const { sql: whereSql, params } = this.whereSql();
       let count: number | null = null;
       if (this.countMode === "exact") {
         const cRes = await pool.query<{ c: string }>(
           `SELECT COUNT(*)::text AS c FROM public."${this.table}"${whereSql}`,
-          params as never
+          params as never,
         );
         count = Number(cRes.rows[0]?.c ?? 0);
       }
@@ -132,7 +133,11 @@ class ServerQueryBuilder {
       const res = await pool.query(sql, params as never);
       return { data: res.rows, error: null, count };
     } catch (e) {
-      return { data: null, error: { message: e instanceof Error ? e.message : "DB error" }, count: null };
+      return {
+        data: null,
+        error: { message: e instanceof Error ? e.message : "DB error" },
+        count: null,
+      };
     }
   }
 
@@ -140,11 +145,16 @@ class ServerQueryBuilder {
     const r = await this.runSelect();
     if (r.error) return r;
     const rows = (r.data as unknown[]) ?? [];
-    if (rows.length === 0) return { data: null, error: { message: "No rows found" }, count: r.count };
+    if (rows.length === 0)
+      return { data: null, error: { message: "No rows found" }, count: r.count };
     return { data: rows[0], error: null, count: r.count };
   }
 
-  async maybeSingle(): Promise<{ data: Any; error: { message: string } | null; count: number | null }> {
+  async maybeSingle(): Promise<{
+    data: Any;
+    error: { message: string } | null;
+    count: number | null;
+  }> {
     const r = await this.runSelect();
     if (r.error) return r;
     const rows = (r.data as unknown[]) ?? [];
@@ -153,8 +163,12 @@ class ServerQueryBuilder {
 
   // Permet d'awaiter directement (sans .single()) — équivalent .select() final.
   then<TResult1 = Any, TResult2 = never>(
-    onfulfilled?: (value: { data: Any; error: { message: string } | null; count: number | null }) => TResult1 | PromiseLike<TResult1>,
-    onrejected?: (reason: unknown) => TResult2 | PromiseLike<TResult2>
+    onfulfilled?: (value: {
+      data: Any;
+      error: { message: string } | null;
+      count: number | null;
+    }) => TResult1 | PromiseLike<TResult1>,
+    onrejected?: (reason: unknown) => TResult2 | PromiseLike<TResult2>,
   ): Promise<TResult1 | TResult2> {
     return this.runSelect().then(onfulfilled, onrejected);
   }
@@ -186,7 +200,7 @@ class InsertOrModify {
   constructor(
     private table: string,
     private op: "insert" | "update" | "delete",
-    private args: ModifyArgs
+    private args: ModifyArgs,
   ) {}
 
   select(_cols = "*") {
@@ -211,8 +225,11 @@ class InsertOrModify {
   }
 
   then<TResult1 = Any, TResult2 = never>(
-    onfulfilled?: (value: { data: Any; error: { message: string } | null }) => TResult1 | PromiseLike<TResult1>,
-    onrejected?: (reason: unknown) => TResult2 | PromiseLike<TResult2>
+    onfulfilled?: (value: {
+      data: Any;
+      error: { message: string } | null;
+    }) => TResult1 | PromiseLike<TResult1>,
+    onrejected?: (reason: unknown) => TResult2 | PromiseLike<TResult2>,
   ): Promise<TResult1 | TResult2> {
     return this.run().then(onfulfilled, onrejected);
   }

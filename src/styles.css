@@ -76,13 +76,17 @@
   --radius: 0.625rem;
 
   /* Brand tokens (also exposed for gradients & shadows) */
-  --brand-violet: oklch(0.554 0.247 295.7);          /* #7C3AED */
-  --brand-violet-glow: oklch(0.737 0.149 295.0);     /* #A78BFA */
-  --brand-bg: oklch(0.084 0.018 286);                /* #0A0A0F */
-  --brand-surface-1: oklch(0.165 0.067 296);         /* #12062A */
-  --brand-surface-2: oklch(0.225 0.108 296);         /* #1E0A3C */
+  --brand-violet: oklch(0.554 0.247 295.7); /* #7C3AED */
+  --brand-violet-glow: oklch(0.737 0.149 295); /* #A78BFA */
+  --brand-bg: oklch(0.084 0.018 286); /* #0A0A0F */
+  --brand-surface-1: oklch(0.165 0.067 296); /* #12062A */
+  --brand-surface-2: oklch(0.225 0.108 296); /* #1E0A3C */
 
-  --gradient-primary: linear-gradient(135deg, var(--brand-violet) 0%, var(--brand-violet-glow) 100%);
+  --gradient-primary: linear-gradient(
+    135deg,
+    var(--brand-violet) 0%,
+    var(--brand-violet-glow) 100%
+  );
   --gradient-surface: linear-gradient(180deg, var(--brand-surface-2), var(--brand-surface-1));
   --shadow-glow: 0 0 32px -8px color-mix(in oklab, var(--brand-violet) 55%, transparent);
   --shadow-elegant: 0 12px 40px -12px color-mix(in oklab, var(--brand-violet) 35%, transparent);
@@ -166,22 +170,46 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
-    font-family: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-family:
+      "Inter",
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  code, pre, kbd, samp, .font-mono {
+  code,
+  pre,
+  kbd,
+  samp,
+  .font-mono {
     font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 
   /* Markdown rendering */
-  .prose-msg p { margin: 0.4rem 0; line-height: 1.55; }
-  .prose-msg p:first-child { margin-top: 0; }
-  .prose-msg p:last-child { margin-bottom: 0; }
-  .prose-msg ul, .prose-msg ol { margin: 0.4rem 0; padding-left: 1.4rem; }
-  .prose-msg li { margin: 0.15rem 0; }
+  .prose-msg p {
+    margin: 0.4rem 0;
+    line-height: 1.55;
+  }
+  .prose-msg p:first-child {
+    margin-top: 0;
+  }
+  .prose-msg p:last-child {
+    margin-bottom: 0;
+  }
+  .prose-msg ul,
+  .prose-msg ol {
+    margin: 0.4rem 0;
+    padding-left: 1.4rem;
+  }
+  .prose-msg li {
+    margin: 0.15rem 0;
+  }
   .prose-msg code {
     background: var(--color-muted);
     padding: 0.1rem 0.35rem;
@@ -199,24 +227,42 @@
     font-size: 0.85rem;
     line-height: 1.5;
   }
-  .prose-msg pre code { background: transparent; padding: 0; }
-  .prose-msg h1, .prose-msg h2, .prose-msg h3 {
+  .prose-msg pre code {
+    background: transparent;
+    padding: 0;
+  }
+  .prose-msg h1,
+  .prose-msg h2,
+  .prose-msg h3 {
     font-weight: 600;
     margin: 0.8rem 0 0.4rem;
     line-height: 1.3;
   }
-  .prose-msg h1 { font-size: 1.25rem; }
-  .prose-msg h2 { font-size: 1.1rem; }
-  .prose-msg h3 { font-size: 1rem; }
-  .prose-msg a { color: var(--color-primary); text-decoration: underline; }
+  .prose-msg h1 {
+    font-size: 1.25rem;
+  }
+  .prose-msg h2 {
+    font-size: 1.1rem;
+  }
+  .prose-msg h3 {
+    font-size: 1rem;
+  }
+  .prose-msg a {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
   .prose-msg blockquote {
     border-left: 3px solid var(--color-border);
     padding-left: 0.8rem;
     color: var(--color-muted-foreground);
     margin: 0.5rem 0;
   }
-  .prose-msg table { border-collapse: collapse; margin: 0.5rem 0; }
-  .prose-msg th, .prose-msg td {
+  .prose-msg table {
+    border-collapse: collapse;
+    margin: 0.5rem 0;
+  }
+  .prose-msg th,
+  .prose-msg td {
     border: 1px solid var(--color-border);
     padding: 0.3rem 0.6rem;
     text-align: left;

@@ -5,3 +5,6 @@ dist
 pnpm-lock.yaml
 package-lock.json
 routeTree.gen.ts
+coverage
+test-results
+playwright-report

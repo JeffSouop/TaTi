@@ -126,7 +126,7 @@ class SelectBuilder<T = any> implements PromiseLike<DbResult<T[]>> {
 
   then<TResult1 = DbResult<T[]>, TResult2 = never>(
     onfulfilled?: ((value: DbResult<T[]>) => TResult1 | PromiseLike<TResult1>) | null,
-    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ): Promise<TResult1 | TResult2> {
     return this.exec().then(onfulfilled as never, onrejected as never);
   }
@@ -142,7 +142,7 @@ class ModifyBuilder<T = any> implements PromiseLike<DbResult<T>> {
   constructor(
     private table: string,
     private op: "insert" | "update" | "delete",
-    private values?: Record<string, unknown> | Record<string, unknown>[]
+    private values?: Record<string, unknown> | Record<string, unknown>[],
   ) {}
 
   eq(col: string, val: unknown) {
@@ -177,7 +177,7 @@ class ModifyBuilder<T = any> implements PromiseLike<DbResult<T>> {
 
   then<TResult1 = DbResult<T>, TResult2 = never>(
     onfulfilled?: ((value: DbResult<T>) => TResult1 | PromiseLike<TResult1>) | null,
-    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
   ): Promise<TResult1 | TResult2> {
     return this.exec().then(onfulfilled as never, onrejected as never);
   }
@@ -237,8 +237,17 @@ class RealtimeChannel {
   private es?: EventSource;
   constructor(public name: string) {}
 
-  on(_kind: "postgres_changes", filter: { event?: ChangeEvent; schema?: string; table?: string }, cb: ChangeCallback) {
-    this.listeners.push({ event: filter.event ?? "*", schema: filter.schema, table: filter.table, cb });
+  on(
+    _kind: "postgres_changes",
+    filter: { event?: ChangeEvent; schema?: string; table?: string },
+    cb: ChangeCallback,
+  ) {
+    this.listeners.push({
+      event: filter.event ?? "*",
+      schema: filter.schema,
+      table: filter.table,
+      cb,
+    });
     return this;
   }
 

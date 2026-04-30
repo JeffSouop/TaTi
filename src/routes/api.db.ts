@@ -45,10 +45,7 @@ const ALLOWED_TABLES = new Set([
   "messages",
 ]);
 
-const USER_SCOPED_TABLES = new Set([
-  "conversations",
-  "messages",
-]);
+const USER_SCOPED_TABLES = new Set(["conversations", "messages"]);
 const ADMIN_ONLY_TABLES = new Set(["mcp_servers"]);
 
 function whereClause(filters: OpRequest["filters"], startIndex = 1) {
@@ -76,7 +73,10 @@ export const Route = createFileRoute("/api/db")({
         }
 
         if (!body.table || !ALLOWED_TABLES.has(body.table)) {
-          return Response.json({ error: { message: `Table not allowed: ${body.table}` } }, { status: 400 });
+          return Response.json(
+            { error: { message: `Table not allowed: ${body.table}` } },
+            { status: 400 },
+          );
         }
 
         const authRequired = isAuthRequired();
@@ -107,7 +107,7 @@ export const Route = createFileRoute("/api/db")({
             if (body.count === "exact") {
               const cRes = await pool.query<{ c: string }>(
                 `SELECT COUNT(*)::text AS c FROM public."${body.table}"${where.sql}`,
-                where.params as never
+                where.params as never,
               );
               count = Number(cRes.rows[0]?.c ?? 0);
             }
@@ -128,7 +128,10 @@ export const Route = createFileRoute("/api/db")({
           if (body.op === "insert") {
             const rowsArr = Array.isArray(body.values) ? body.values : [body.values!];
             if (rowsArr.length === 0) {
-              return Response.json({ data: null, error: { message: "No rows to insert" } }, { status: 400 });
+              return Response.json(
+                { data: null, error: { message: "No rows to insert" } },
+                { status: 400 },
+              );
             }
             if (applyUserScope) {
               for (const row of rowsArr) {
@@ -155,7 +158,10 @@ export const Route = createFileRoute("/api/db")({
             const v = body.values as Record<string, unknown>;
             const setCols = Object.keys(v);
             if (setCols.length === 0) {
-              return Response.json({ data: null, error: { message: "No fields to update" } }, { status: 400 });
+              return Response.json(
+                { data: null, error: { message: "No fields to update" } },
+                { status: 400 },
+              );
             }
             let i = 1;
             const setSql = setCols.map((c) => `"${c}" = $${i++}`).join(", ");
@@ -182,7 +188,7 @@ export const Route = createFileRoute("/api/db")({
         } catch (e) {
           return Response.json(
             { data: null, error: { message: e instanceof Error ? e.message : "DB error" } },
-            { status: 500 }
+            { status: 500 },
           );
         }
       },
