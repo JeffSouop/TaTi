@@ -7,6 +7,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Server, Wrench, RefreshCw, Database, FileText, Folder, Tags, Globe, Workflow, MessageSquare, Gamepad2, Cloud, Mail, GitBranch, Search, GraduationCap, Notebook, HardDrive } from "lucide-react";
 import { toast } from "sonner";
 
@@ -67,6 +77,7 @@ export function McpServersSettings() {
   const [loading, setLoading] = useState(true);
   const [tools, setTools] = useState<Record<string, Array<{ name: string; description?: string }>>>({});
   const [testing, setTesting] = useState<Record<string, boolean>>({});
+  const [pendingDelete, setPendingDelete] = useState<McpServer | null>(null);
 
   const load = async () => {
     const { data } = await supabase.from("mcp_servers").select("*").order("created_at");
@@ -84,7 +95,6 @@ export function McpServersSettings() {
   };
 
   const remove = async (id: string) => {
-    if (!confirm("Supprimer ce serveur MCP ?")) return;
     await supabase.from("mcp_servers").delete().eq("id", id);
     load();
   };
@@ -169,13 +179,37 @@ export function McpServersSettings() {
               <Button variant="ghost" size="icon" onClick={() => testServer(s)} disabled={testing[s.id]}>
                 {testing[s.id] ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => remove(s.id)}>
+              <Button variant="ghost" size="icon" onClick={() => setPendingDelete(s)}>
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </div>
           </div>
         </Card>
       ))}
+
+      <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce serveur MCP ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Le serveur {pendingDelete ? `"${pendingDelete.name}"` : ""} sera retire de la configuration.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async () => {
+                if (!pendingDelete) return;
+                await remove(pendingDelete.id);
+                setPendingDelete(null);
+              }}
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

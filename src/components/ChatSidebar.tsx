@@ -3,6 +3,16 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { MessageSquare, Pencil, Plus, Settings, Trash2, Server } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 import tatiLogo from "@/assets/tati-logo.png";
@@ -16,6 +26,7 @@ interface Conv {
 export function ChatSidebar({ activeId }: { activeId?: string }) {
   const [convs, setConvs] = useState<Conv[]>([]);
   const [serverCount, setServerCount] = useState(0);
+  const [pendingDelete, setPendingDelete] = useState<Conv | null>(null);
   const navigate = useNavigate();
 
   const load = async () => {
@@ -51,12 +62,18 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
     if (data) navigate({ to: "/c/$id", params: { id: data.id } });
   };
 
-  const deleteConv = async (id: string, e: React.MouseEvent) => {
+  const openDeleteDialog = (conv: Conv, e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    if (!confirm("Supprimer cette conversation ?")) return;
+    setPendingDelete(conv);
+  };
+
+  const confirmDelete = async () => {
+    if (!pendingDelete) return;
+    const id = pendingDelete.id;
     await supabase.from("conversations").delete().eq("id", id);
     if (activeId === id) navigate({ to: "/" });
+    setPendingDelete(null);
   };
 
   const renameConv = async (c: Conv, e: React.MouseEvent) => {
@@ -115,7 +132,7 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
               <Pencil className="h-3 w-3" />
             </button>
             <button
-              onClick={(e) => deleteConv(c.id, e)}
+              onClick={(e) => openDeleteDialog(c, e)}
               className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/20 hover:text-destructive transition"
               aria-label="Supprimer"
             >
@@ -138,6 +155,24 @@ export function ChatSidebar({ activeId }: { activeId?: string }) {
           Paramètres
         </Link>
       </div>
+
+      <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer cette conversation ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Cette action est definitive. La conversation
+              {pendingDelete ? ` "${pendingDelete.title}"` : ""} sera supprimee.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={confirmDelete}>
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 }
