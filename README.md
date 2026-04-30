@@ -408,9 +408,7 @@ docker compose down -v
 docker compose up --build
 ```
 
-## Restaurer les données depuis Lovable Cloud
 
-Si tu as exporté tes tables en CSV depuis Lovable :
 
 ```bash
 docker compose exec -T postgres psql -U tati -d tati \

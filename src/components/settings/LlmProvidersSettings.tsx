@@ -330,7 +330,7 @@ function ProviderCard({
             </Button>
           </div>
           <p className="text-xs text-muted-foreground">
-            Stockée dans ta DB Lovable Cloud. En self-hosted, sera chiffrée AES-256.
+            
           </p>
         </div>
       )}
