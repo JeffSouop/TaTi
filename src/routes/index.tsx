@@ -4,6 +4,10 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { MessageSquarePlus, Server, Settings } from "lucide-react";
 import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/hooks/use-auth";
+import { AuthLoginCard } from "@/components/AuthLoginCard";
+import { useSidebarVisibility } from "@/hooks/use-sidebar-visibility";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -20,20 +24,44 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
+  const auth = useAuth();
+  const sidebar = useSidebarVisibility();
+  const canShowSidebar = !(auth.authRequired && !auth.loading && !auth.authenticated);
 
   const newChat = async () => {
-    const { data } = await supabase
-      .from("conversations")
-      .insert({ title: "Nouvelle conversation" })
-      .select()
-      .single();
-    if (data) navigate({ to: "/c/$id", params: { id: data.id } });
+    try {
+      const res = await fetch("/api/conversations/ensure", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok || !data?.ok || !data?.conversationId) {
+        throw new Error(data?.error ?? "Impossible de créer une conversation");
+      }
+      if (data.reused) {
+        toast.message("Tu as déjà un chat vide, on l'a rouvert.");
+      }
+      navigate({ to: "/c/$id", params: { id: data.conversationId } });
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Impossible d'ouvrir un chat");
+    }
   };
 
   return (
     <div className="flex h-screen bg-background">
-      <ChatSidebar />
+      {auth.loading ? (
+        <main className="flex-1 flex items-center justify-center">
+          <div className="text-sm text-muted-foreground">Chargement de la session...</div>
+        </main>
+      ) : (
+      <>
+      {canShowSidebar && (
+        <ChatSidebar collapsed={!sidebar.visible} onToggleCollapse={sidebar.toggle} />
+      )}
       <main className="flex-1 relative overflow-hidden">
+        {auth.authRequired && !auth.loading && !auth.authenticated ? (
+          <div className="h-full">
+            <AuthLoginCard onSuccess={() => void auth.refresh()} />
+          </div>
+        ) : (
+        <>
         {/* Ambient brand glow */}
         <div
           aria-hidden
@@ -101,7 +129,11 @@ function Index() {
             </div>
           </div>
         </div>
+        </>
+        )}
       </main>
+      </>
+      )}
     </div>
   );
 }

@@ -316,5 +316,39 @@ services:
     ports:
       - "${MCP_ELASTICSEARCH_PORT:-8009}:8080"
 
+  # ---------------------------------------------------------------------------
+  # MCP Grafana (serveur officiel)
+  # ---------------------------------------------------------------------------
+  mcp-grafana:
+    image: grafana/mcp-grafana:latest
+    container_name: mcp-grafana
+    restart: unless-stopped
+    environment:
+      GRAFANA_URL: ${MCP_GRAFANA_URL:-}
+      GRAFANA_SERVICE_ACCOUNT_TOKEN: ${MCP_GRAFANA_SERVICE_ACCOUNT_TOKEN:-}
+      GRAFANA_ORG_ID: ${MCP_GRAFANA_ORG_ID:-}
+    command: ["-t", "streamable-http", "--address", "0.0.0.0:8020"]
+    ports:
+      - "${MCP_GRAFANA_PORT:-8020}:8020"
+
+  # ---------------------------------------------------------------------------
+  # MCP Prometheus (serveur communautaire stable)
+  # ---------------------------------------------------------------------------
+  mcp-prometheus:
+    image: ghcr.io/pab1it0/prometheus-mcp-server:latest
+    container_name: mcp-prometheus
+    restart: unless-stopped
+    environment:
+      PROMETHEUS_URL: ${MCP_PROMETHEUS_URL:-}
+      PROMETHEUS_URL_SSL_VERIFY: ${MCP_PROMETHEUS_SSL_VERIFY:-true}
+      PROMETHEUS_USERNAME: ${MCP_PROMETHEUS_USERNAME:-}
+      PROMETHEUS_PASSWORD: ${MCP_PROMETHEUS_PASSWORD:-}
+      PROMETHEUS_TOKEN: ${MCP_PROMETHEUS_TOKEN:-}
+      PROMETHEUS_MCP_SERVER_TRANSPORT: http
+      PROMETHEUS_MCP_BIND_HOST: 0.0.0.0
+      PROMETHEUS_MCP_BIND_PORT: 8021
+    ports:
+      - "${MCP_PROMETHEUS_PORT:-8021}:8021"
+
 volumes:
   postgres_data:

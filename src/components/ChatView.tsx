@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, User, Bot, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/use-auth";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface DbMessage {
   id: string;
@@ -36,6 +38,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const streamingMsgRef = useRef<{ id: string; text: string } | null>(null);
+  const auth = useAuth();
 
   // Load existing messages
   useEffect(() => {
@@ -235,6 +238,16 @@ export function ChatView({ conversationId }: { conversationId: string }) {
                 role={it.role!}
                 content={it.content ?? ""}
                 streaming={it.streaming}
+                userProfile={
+                  auth.user
+                    ? {
+                        firstName: auth.user.first_name,
+                        lastName: auth.user.last_name,
+                        email: auth.user.email,
+                        avatarUrl: auth.user.avatar_url,
+                      }
+                    : null
+                }
               />
             ),
           )}
@@ -270,22 +283,37 @@ function MessageBubble({
   role,
   content,
   streaming,
+  userProfile,
 }: {
   role: "user" | "assistant";
   content: string;
   streaming?: boolean;
+  userProfile?: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    avatarUrl?: string | null;
+  } | null;
 }) {
   const isUser = role === "user";
+  const initials = isUser
+    ? (
+        `${userProfile?.firstName?.[0] ?? ""}${userProfile?.lastName?.[0] ?? ""}` ||
+        `${userProfile?.email?.[0] ?? "U"}`
+      ).toUpperCase()
+    : "A";
   return (
     <div className={cn("flex gap-3", isUser && "flex-row-reverse")}>
-      <div
-        className={cn(
-          "h-7 w-7 rounded-full flex items-center justify-center shrink-0 text-xs font-medium",
-          isUser ? "bg-primary text-primary-foreground" : "bg-muted text-foreground",
-        )}
-      >
-        {isUser ? <User className="h-3.5 w-3.5" /> : <Bot className="h-3.5 w-3.5" />}
-      </div>
+      {isUser ? (
+        <Avatar className="h-7 w-7 shrink-0">
+          <AvatarImage src={userProfile?.avatarUrl ?? ""} alt="Profil utilisateur" />
+          <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
+        </Avatar>
+      ) : (
+        <div className="h-7 w-7 rounded-full flex items-center justify-center shrink-0 text-xs font-medium bg-muted text-foreground">
+          <Bot className="h-3.5 w-3.5" />
+        </div>
+      )}
       <div
         className={cn(
           "rounded-lg px-3 py-2 max-w-[94%]",
