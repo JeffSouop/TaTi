@@ -9,6 +9,16 @@ import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Loader2,
   CheckCircle2,
   AlertCircle,
@@ -40,6 +50,7 @@ export function LlmProvidersSettings() {
   const [providers, setProviders] = useState<ProviderRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<ProviderRow | null>(null);
 
   const load = async () => {
     const { data } = await supabase
@@ -78,7 +89,6 @@ export function LlmProvidersSettings() {
   };
 
   const removeProvider = async (id: string) => {
-    if (!confirm("Supprimer ce provider ? Les conversations qui l'utilisent reviendront au provider par défaut.")) return;
     await supabase.from("llm_providers").delete().eq("id", id);
     setProviders((prev) => prev.filter((p) => p.id !== id));
     toast.success("Provider supprimé");
@@ -122,7 +132,7 @@ export function LlmProvidersSettings() {
         <ProviderCard
           key={p.id}
           provider={p}
-          onRemove={() => removeProvider(p.id)}
+          onRemove={() => setPendingDelete(p)}
           onSetDefault={() => setDefault(p.id)}
           onUpdate={load}
         />
@@ -152,6 +162,31 @@ export function LlmProvidersSettings() {
           <Plus className="h-4 w-4 mr-1" /> Ajouter un autre provider
         </Button>
       ) : null}
+
+      <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce provider ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Les conversations qui l'utilisent reviendront au provider par defaut.
+              {pendingDelete ? ` Provider: "${pendingDelete.name}".` : ""}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={async () => {
+                if (!pendingDelete) return;
+                await removeProvider(pendingDelete.id);
+                setPendingDelete(null);
+              }}
+            >
+              Supprimer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
