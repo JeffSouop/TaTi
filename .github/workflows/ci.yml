@@ -72,6 +72,13 @@ jobs:
         with:
           files: |
             **/*.{js,jsx,ts,tsx,json,md,yml,yaml}
+          files_ignore: |
+            coverage/**
+            test-results/**
+            playwright-report/**
+            dist/**
+            .output/**
+            .vinxi/**
 
       - name: Lint changed files
         if: steps.changed-files.outputs.any_changed == 'true'
