@@ -7,9 +7,17 @@ export const Route = createFileRoute("/api/auth/me")({
       GET: async ({ request }) => {
         const user = await getUserFromRequest(request);
         if (!user && isAuthRequired()) {
-          return Response.json({ ok: false, authenticated: false, authRequired: true }, { status: 401 });
+          return Response.json(
+            { ok: false, authenticated: false, authRequired: true },
+            { status: 401 },
+          );
         }
-        return Response.json({ ok: true, authenticated: Boolean(user), user, authRequired: isAuthRequired() });
+        return Response.json({
+          ok: true,
+          authenticated: Boolean(user),
+          user,
+          authRequired: isAuthRequired(),
+        });
       },
     },
   },

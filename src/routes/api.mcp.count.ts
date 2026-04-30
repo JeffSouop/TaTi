@@ -33,7 +33,9 @@ export const Route = createFileRoute("/api/mcp/count")({
           return Response.json({ ok: true, count: enabledIds.length });
         }
 
-        const allowedSet = new Set(access.rows.filter((r) => r.allowed).map((r) => r.mcp_server_id));
+        const allowedSet = new Set(
+          access.rows.filter((r) => r.allowed).map((r) => r.mcp_server_id),
+        );
         const count = enabledIds.filter((id) => allowedSet.has(id)).length;
         return Response.json({ ok: true, count });
       },

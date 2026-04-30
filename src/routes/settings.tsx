@@ -29,77 +29,89 @@ function SettingsPage() {
           <div className="text-sm text-muted-foreground">Chargement de la session...</div>
         </main>
       ) : (
-      <>
-      {canShowSidebar && (
-        <ChatSidebar collapsed={!sidebar.visible} onToggleCollapse={sidebar.toggle} />
-      )}
-      <main className="flex-1 overflow-y-auto relative">
-        {auth.authRequired && !auth.loading && !auth.authenticated ? (
-          <div className="h-full">
-            <AuthLoginCard onSuccess={() => void auth.refresh()} />
-          </div>
-        ) : (
-        <div className="max-w-4xl mx-auto p-6">
-          <h1 className="text-2xl font-bold mb-1">Paramètres</h1>
-          {isMemberOnly ? (
-            <p className="text-sm text-muted-foreground mb-6">
-              Gère ici tes informations personnelles.
-            </p>
-          ) : (
-            <p className="text-sm text-muted-foreground mb-6">
-              Configure tes providers IA (Claude, GPT, Mistral, Ollama…) et tes serveurs MCP.
-            </p>
+        <>
+          {canShowSidebar && (
+            <ChatSidebar collapsed={!sidebar.visible} onToggleCollapse={sidebar.toggle} />
           )}
-          {isMemberOnly ? (
-            <AccountSettings
-              currentProfile={auth.user!}
-              onProfileUpdated={() => {
-                void auth.refresh();
-              }}
-            />
-          ) : (
-          <Tabs defaultValue={!auth.authRequired || auth.user?.role === "admin" ? "providers" : "account"}>
-            <TabsList>
-              {(!auth.authRequired || auth.user?.role === "admin") && <TabsTrigger value="providers">Providers IA</TabsTrigger>}
-              {(!auth.authRequired || auth.user?.role === "admin") && <TabsTrigger value="mcp">Serveurs MCP</TabsTrigger>}
-              {auth.authRequired && auth.user && <TabsTrigger value="account">Mon compte</TabsTrigger>}
-              {auth.authRequired && auth.user?.role === "admin" && <TabsTrigger value="users">Utilisateurs</TabsTrigger>}
-              <TabsTrigger value="guide">Démarrage rapide</TabsTrigger>
-            </TabsList>
-            {(!auth.authRequired || auth.user?.role === "admin") && (
-              <TabsContent value="providers" className="mt-4">
-                <LlmProvidersSettings />
-              </TabsContent>
+          <main className="flex-1 overflow-y-auto relative">
+            {auth.authRequired && !auth.loading && !auth.authenticated ? (
+              <div className="h-full">
+                <AuthLoginCard onSuccess={() => void auth.refresh()} />
+              </div>
+            ) : (
+              <div className="max-w-4xl mx-auto p-6">
+                <h1 className="text-2xl font-bold mb-1">Paramètres</h1>
+                {isMemberOnly ? (
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Gère ici tes informations personnelles.
+                  </p>
+                ) : (
+                  <p className="text-sm text-muted-foreground mb-6">
+                    Configure tes providers IA (Claude, GPT, Mistral, Ollama…) et tes serveurs MCP.
+                  </p>
+                )}
+                {isMemberOnly ? (
+                  <AccountSettings
+                    currentProfile={auth.user!}
+                    onProfileUpdated={() => {
+                      void auth.refresh();
+                    }}
+                  />
+                ) : (
+                  <Tabs
+                    defaultValue={
+                      !auth.authRequired || auth.user?.role === "admin" ? "providers" : "account"
+                    }
+                  >
+                    <TabsList>
+                      {(!auth.authRequired || auth.user?.role === "admin") && (
+                        <TabsTrigger value="providers">Providers IA</TabsTrigger>
+                      )}
+                      {(!auth.authRequired || auth.user?.role === "admin") && (
+                        <TabsTrigger value="mcp">Serveurs MCP</TabsTrigger>
+                      )}
+                      {auth.authRequired && auth.user && (
+                        <TabsTrigger value="account">Mon compte</TabsTrigger>
+                      )}
+                      {auth.authRequired && auth.user?.role === "admin" && (
+                        <TabsTrigger value="users">Utilisateurs</TabsTrigger>
+                      )}
+                      <TabsTrigger value="guide">Démarrage rapide</TabsTrigger>
+                    </TabsList>
+                    {(!auth.authRequired || auth.user?.role === "admin") && (
+                      <TabsContent value="providers" className="mt-4">
+                        <LlmProvidersSettings />
+                      </TabsContent>
+                    )}
+                    {(!auth.authRequired || auth.user?.role === "admin") && (
+                      <TabsContent value="mcp" className="mt-4">
+                        <McpServersSettings />
+                      </TabsContent>
+                    )}
+                    {auth.authRequired && auth.user && (
+                      <TabsContent value="account" className="mt-4">
+                        <AccountSettings
+                          currentProfile={auth.user}
+                          onProfileUpdated={() => {
+                            void auth.refresh();
+                          }}
+                        />
+                      </TabsContent>
+                    )}
+                    {auth.authRequired && auth.user?.role === "admin" && (
+                      <TabsContent value="users" className="mt-4">
+                        <UserManagementSettings />
+                      </TabsContent>
+                    )}
+                    <TabsContent value="guide" className="mt-4">
+                      <GettingStarted />
+                    </TabsContent>
+                  </Tabs>
+                )}
+              </div>
             )}
-            {(!auth.authRequired || auth.user?.role === "admin") && (
-              <TabsContent value="mcp" className="mt-4">
-                <McpServersSettings />
-              </TabsContent>
-            )}
-            {auth.authRequired && auth.user && (
-              <TabsContent value="account" className="mt-4">
-                <AccountSettings
-                  currentProfile={auth.user}
-                  onProfileUpdated={() => {
-                    void auth.refresh();
-                  }}
-                />
-              </TabsContent>
-            )}
-            {auth.authRequired && auth.user?.role === "admin" && (
-              <TabsContent value="users" className="mt-4">
-                <UserManagementSettings />
-              </TabsContent>
-            )}
-            <TabsContent value="guide" className="mt-4">
-              <GettingStarted />
-            </TabsContent>
-          </Tabs>
-          )}
-        </div>
-        )}
-      </main>
-      </>
+          </main>
+        </>
       )}
     </div>
   );

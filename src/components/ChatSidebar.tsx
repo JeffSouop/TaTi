@@ -1,7 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageSquare, Pencil, Plus, Settings, Trash2, Server, PanelLeftClose, PanelLeftOpen, LogOut } from "lucide-react";
+import {
+  MessageSquare,
+  Pencil,
+  Plus,
+  Settings,
+  Trash2,
+  Server,
+  PanelLeftClose,
+  PanelLeftOpen,
+  LogOut,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -123,7 +133,7 @@ export function ChatSidebar({
   const displayName =
     auth.user && `${auth.user.first_name ?? ""} ${auth.user.last_name ?? ""}`.trim()
       ? `${auth.user.first_name ?? ""} ${auth.user.last_name ?? ""}`.trim()
-      : auth.user?.email ?? "";
+      : (auth.user?.email ?? "");
 
   return (
     <aside
@@ -134,29 +144,37 @@ export function ChatSidebar({
     >
       <div className="p-3 border-b border-sidebar-border">
         <div className="flex items-center justify-between mb-3">
-          <Link to="/" className={cn("flex items-center min-w-0", collapsed ? "justify-center w-full" : "gap-2")}>
+          <Link
+            to="/"
+            className={cn(
+              "flex items-center min-w-0",
+              collapsed ? "justify-center w-full" : "gap-2",
+            )}
+          >
             <div className="h-9 w-9 rounded-md bg-white flex items-center justify-center shrink-0 ring-1 ring-sidebar-border">
               <img src={tatiLogo} alt="TaTi logo" className="h-7 w-7 object-contain" />
             </div>
-            {!collapsed && <div className="min-w-0">
-              <div className="text-sm font-semibold truncate">TaTi</div>
-              <div className="text-[10px] text-muted-foreground truncate">
-                Talent Artificial Tally Intelligence
+            {!collapsed && (
+              <div className="min-w-0">
+                <div className="text-sm font-semibold truncate">TaTi</div>
+                <div className="text-[10px] text-muted-foreground truncate">
+                  Talent Artificial Tally Intelligence
+                </div>
               </div>
-            </div>}
+            )}
           </Link>
           {!collapsed && (
             <div className="flex items-center gap-1">
               {onToggleCollapse && (
-              <button
-                type="button"
-                onClick={onToggleCollapse}
-                className="h-8 w-8 rounded-md hover:bg-sidebar-accent inline-flex items-center justify-center"
-                title="Réduire la barre latérale"
-                aria-label="Réduire la barre latérale"
-              >
-                <PanelLeftClose className="h-4 w-4" />
-              </button>
+                <button
+                  type="button"
+                  onClick={onToggleCollapse}
+                  className="h-8 w-8 rounded-md hover:bg-sidebar-accent inline-flex items-center justify-center"
+                  title="Réduire la barre latérale"
+                  aria-label="Réduire la barre latérale"
+                >
+                  <PanelLeftClose className="h-4 w-4" />
+                </button>
               )}
               <ThemeToggle />
             </div>
@@ -164,7 +182,13 @@ export function ChatSidebar({
         </div>
         {collapsed ? (
           <div className="flex justify-center">
-            <Button onClick={newChat} size="icon" className="h-9 w-9" title="Nouveau chat" aria-label="Nouveau chat">
+            <Button
+              onClick={newChat}
+              size="icon"
+              className="h-9 w-9"
+              title="Nouveau chat"
+              aria-label="Nouveau chat"
+            >
               <Plus className="h-4 w-4" />
             </Button>
           </div>
@@ -176,9 +200,10 @@ export function ChatSidebar({
       </div>
 
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-0.5">
-        {convs.length === 0 && (
-          !collapsed ? <div className="text-xs text-muted-foreground p-3 text-center">Aucune conversation</div> : null
-        )}
+        {convs.length === 0 &&
+          (!collapsed ? (
+            <div className="text-xs text-muted-foreground p-3 text-center">Aucune conversation</div>
+          ) : null)}
         {convs.map((c) => (
           <Link
             key={c.id}
@@ -193,20 +218,24 @@ export function ChatSidebar({
           >
             <MessageSquare className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
             {!collapsed && <span className="truncate flex-1">{c.title}</span>}
-            {!collapsed && <button
-              onClick={(e) => renameConv(c, e)}
-              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-sidebar-accent transition"
-              aria-label="Renommer"
-            >
-              <Pencil className="h-3 w-3" />
-            </button>}
-            {!collapsed && <button
-              onClick={(e) => openDeleteDialog(c, e)}
-              className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/20 hover:text-destructive transition"
-              aria-label="Supprimer"
-            >
-              <Trash2 className="h-3 w-3" />
-            </button>}
+            {!collapsed && (
+              <button
+                onClick={(e) => renameConv(c, e)}
+                className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-sidebar-accent transition"
+                aria-label="Renommer"
+              >
+                <Pencil className="h-3 w-3" />
+              </button>
+            )}
+            {!collapsed && (
+              <button
+                onClick={(e) => openDeleteDialog(c, e)}
+                className="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-destructive/20 hover:text-destructive transition"
+                aria-label="Supprimer"
+              >
+                <Trash2 className="h-3 w-3" />
+              </button>
+            )}
           </Link>
         ))}
       </div>
@@ -228,10 +257,15 @@ export function ChatSidebar({
             "px-2 py-1.5 text-xs text-muted-foreground",
             collapsed ? "flex justify-center" : "flex items-center gap-2",
           )}
-          title={collapsed ? `${serverCount} serveur${serverCount > 1 ? "s" : ""} MCP actif${serverCount > 1 ? "s" : ""}` : undefined}
+          title={
+            collapsed
+              ? `${serverCount} serveur${serverCount > 1 ? "s" : ""} MCP actif${serverCount > 1 ? "s" : ""}`
+              : undefined
+          }
         >
           <Server className="h-3.5 w-3.5" />
-          {!collapsed && `${serverCount} serveur${serverCount > 1 ? "s" : ""} MCP actif${serverCount > 1 ? "s" : ""}`}
+          {!collapsed &&
+            `${serverCount} serveur${serverCount > 1 ? "s" : ""} MCP actif${serverCount > 1 ? "s" : ""}`}
         </div>
         <Link
           to="/settings"
@@ -269,7 +303,10 @@ export function ChatSidebar({
         )}
       </div>
 
-      <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+      <AlertDialog
+        open={Boolean(pendingDelete)}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer cette conversation ?</AlertDialogTitle>
@@ -280,7 +317,10 @@ export function ChatSidebar({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={confirmDelete}>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
               Supprimer
             </AlertDialogAction>
           </AlertDialogFooter>

@@ -3,9 +3,21 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { Loader2, Trash2 } from "lucide-react";
 
@@ -79,7 +91,14 @@ export function UserManagementSettings() {
       const res = await fetch("/api/admin/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, firstName, lastName, avatarUrl: avatarUrl || null, role }),
+        body: JSON.stringify({
+          email,
+          password,
+          firstName,
+          lastName,
+          avatarUrl: avatarUrl || null,
+          role,
+        }),
       });
       const data = await res.json();
       if (!res.ok || !data?.ok) throw new Error(data?.error ?? "Creation impossible");
@@ -102,7 +121,11 @@ export function UserManagementSettings() {
     const res = await fetch(`/api/admin/user-access?userId=${encodeURIComponent(userId)}`);
     const data = await res.json();
     if (!res.ok || !data?.ok) return;
-    const allowed = new Set<string>((data.access ?? []).filter((x: { allowed: boolean }) => x.allowed).map((x: { mcp_server_id: string }) => x.mcp_server_id));
+    const allowed = new Set<string>(
+      (data.access ?? [])
+        .filter((x: { allowed: boolean }) => x.allowed)
+        .map((x: { mcp_server_id: string }) => x.mcp_server_id),
+    );
     setAccessByUser((prev) => ({ ...prev, [userId]: allowed }));
   };
 
@@ -154,7 +177,11 @@ export function UserManagementSettings() {
         }
         return { ...prev, [userId]: cur };
       });
-      toast.success(allowed ? "Tous les services filtrés sont autorisés" : "Tous les services filtrés sont bloqués");
+      toast.success(
+        allowed
+          ? "Tous les services filtrés sont autorisés"
+          : "Tous les services filtrés sont bloqués",
+      );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Mise à jour en masse impossible");
     }
@@ -177,7 +204,9 @@ export function UserManagementSettings() {
 
   const deleteUser = async (id: string) => {
     try {
-      const res = await fetch(`/api/admin/users?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/users?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
       const data = await res.json();
       if (!res.ok || !data?.ok) throw new Error(data?.error ?? "Suppression impossible");
       setUsers((prev) => prev.filter((u) => u.id !== id));
@@ -196,7 +225,11 @@ export function UserManagementSettings() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label>Email</Label>
-            <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@exemple.com" />
+            <Input
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="user@exemple.com"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Mot de passe</Label>
@@ -218,15 +251,27 @@ export function UserManagementSettings() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
           <div className="space-y-1.5">
             <Label>Prenom</Label>
-            <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Prenom" />
+            <Input
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Prenom"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Nom</Label>
-            <Input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Nom" />
+            <Input
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              placeholder="Nom"
+            />
           </div>
           <div className="space-y-1.5">
             <Label>Photo (URL)</Label>
-            <Input value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://..." />
+            <Input
+              value={avatarUrl}
+              onChange={(e) => setAvatarUrl(e.target.value)}
+              placeholder="https://..."
+            />
           </div>
         </div>
         <Button onClick={createUser} disabled={saving || !email || !password}>
@@ -259,38 +304,49 @@ export function UserManagementSettings() {
               );
             })
             .map((u) => (
-            <div key={u.id} className="border border-border rounded-md p-3 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <div className="font-medium text-sm truncate">
-                  {[u.first_name, u.last_name].filter(Boolean).join(" ") || u.email}
+              <div
+                key={u.id}
+                className="border border-border rounded-md p-3 flex items-center justify-between gap-3"
+              >
+                <div className="min-w-0">
+                  <div className="font-medium text-sm truncate">
+                    {[u.first_name, u.last_name].filter(Boolean).join(" ") || u.email}
+                  </div>
+                  <div className="text-xs text-muted-foreground truncate">{u.email}</div>
+                  <div className="text-xs text-muted-foreground">id: {u.id}</div>
                 </div>
-                <div className="text-xs text-muted-foreground truncate">{u.email}</div>
-                <div className="text-xs text-muted-foreground">id: {u.id}</div>
-              </div>
-              <div className="flex items-center gap-3 shrink-0">
-                <Select value={u.role} onValueChange={(v) => void updateUser(u.id, { role: v as "admin" | "member" })}>
-                  <SelectTrigger className="w-28">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="member">member</SelectItem>
-                    <SelectItem value="admin">admin</SelectItem>
-                  </SelectContent>
-                </Select>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Actif</span>
-                  <Switch checked={u.is_active} onCheckedChange={(v) => void updateUser(u.id, { is_active: v })} />
+                <div className="flex items-center gap-3 shrink-0">
+                  <Select
+                    value={u.role}
+                    onValueChange={(v) => void updateUser(u.id, { role: v as "admin" | "member" })}
+                  >
+                    <SelectTrigger className="w-28">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="member">member</SelectItem>
+                      <SelectItem value="admin">admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">Actif</span>
+                    <Switch
+                      checked={u.is_active}
+                      onCheckedChange={(v) => void updateUser(u.id, { is_active: v })}
+                    />
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={() => void deleteUser(u.id)}>
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => void deleteUser(u.id)}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
+                <Button variant="outline" size="sm" onClick={() => void openServices(u)}>
+                  Services
                 </Button>
               </div>
-              <Button variant="outline" size="sm" onClick={() => void openServices(u)}>
-                Services
-              </Button>
-            </div>
-          ))}
-          {users.length === 0 && <div className="text-sm text-muted-foreground">Aucun utilisateur</div>}
+            ))}
+          {users.length === 0 && (
+            <div className="text-sm text-muted-foreground">Aucun utilisateur</div>
+          )}
           {users.length > 0 &&
             users.filter((u) => {
               const q = userSearch.trim().toLowerCase();
@@ -302,7 +358,9 @@ export function UserManagementSettings() {
                 `${u.first_name ?? ""}`.toLowerCase().includes(q) ||
                 `${u.last_name ?? ""}`.toLowerCase().includes(q)
               );
-            }).length === 0 && <div className="text-sm text-muted-foreground">Aucun utilisateur trouvé.</div>}
+            }).length === 0 && (
+              <div className="text-sm text-muted-foreground">Aucun utilisateur trouvé.</div>
+            )}
         </div>
       </Card>
 
@@ -310,10 +368,15 @@ export function UserManagementSettings() {
         <SheetContent side="right" className="w-full sm:max-w-xl overflow-y-auto">
           <SheetHeader>
             <SheetTitle>
-              Services disponibles - {serviceUser ? ([serviceUser.first_name, serviceUser.last_name].filter(Boolean).join(" ") || serviceUser.email) : ""}
+              Services disponibles -{" "}
+              {serviceUser
+                ? [serviceUser.first_name, serviceUser.last_name].filter(Boolean).join(" ") ||
+                  serviceUser.email
+                : ""}
             </SheetTitle>
             <SheetDescription>
-              Si aucun service n'est coché, tous les services MCP sont autorisés pour cet utilisateur.
+              Si aucun service n'est coché, tous les services MCP sont autorisés pour cet
+              utilisateur.
             </SheetDescription>
           </SheetHeader>
           <div className="mt-4 space-y-3">
@@ -328,10 +391,18 @@ export function UserManagementSettings() {
             </div>
             {serviceUser && (
               <div className="flex items-center gap-2">
-                <Button size="sm" variant="outline" onClick={() => void setAllAccess(serviceUser.id, true)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => void setAllAccess(serviceUser.id, true)}
+                >
                   Tout autoriser (filtre)
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => void setAllAccess(serviceUser.id, false)}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => void setAllAccess(serviceUser.id, false)}
+                >
                   Tout bloquer (filtre)
                 </Button>
               </div>
@@ -342,17 +413,23 @@ export function UserManagementSettings() {
               servers
                 .filter((s) => s.name.toLowerCase().includes(serviceSearch.trim().toLowerCase()))
                 .map((s) => (
-              <div key={s.id} className="flex items-center justify-between border border-border rounded-md px-3 py-2">
-                <span className="text-sm">{s.name}</span>
-                <Switch
-                  checked={Boolean(accessByUser[serviceUser.id]?.has(s.id))}
-                  onCheckedChange={(v) => void toggleAccess(serviceUser.id, s.id, v)}
-                />
-              </div>
-            ))}
+                  <div
+                    key={s.id}
+                    className="flex items-center justify-between border border-border rounded-md px-3 py-2"
+                  >
+                    <span className="text-sm">{s.name}</span>
+                    <Switch
+                      checked={Boolean(accessByUser[serviceUser.id]?.has(s.id))}
+                      onCheckedChange={(v) => void toggleAccess(serviceUser.id, s.id, v)}
+                    />
+                  </div>
+                ))}
             {serviceUser &&
-              servers.filter((s) => s.name.toLowerCase().includes(serviceSearch.trim().toLowerCase())).length ===
-                0 && <div className="text-sm text-muted-foreground">Aucun service trouvé.</div>}
+              servers.filter((s) =>
+                s.name.toLowerCase().includes(serviceSearch.trim().toLowerCase()),
+              ).length === 0 && (
+                <div className="text-sm text-muted-foreground">Aucun service trouvé.</div>
+              )}
           </div>
         </SheetContent>
       </Sheet>

@@ -6,7 +6,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card } from "@/components/ui/card";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +24,35 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Plus, Trash2, Loader2, CheckCircle2, AlertCircle, Server, Wrench, RefreshCw, Database, FileText, Folder, Tags, Globe, Workflow, MessageSquare, Gamepad2, Cloud, Mail, GitBranch, Search, GraduationCap, Notebook, HardDrive, CalendarDays, BarChart3, Activity, LineChart } from "lucide-react";
+import {
+  Plus,
+  Trash2,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Server,
+  Wrench,
+  RefreshCw,
+  Database,
+  FileText,
+  Folder,
+  Tags,
+  Globe,
+  Workflow,
+  MessageSquare,
+  Gamepad2,
+  Cloud,
+  Mail,
+  GitBranch,
+  Search,
+  GraduationCap,
+  Notebook,
+  HardDrive,
+  CalendarDays,
+  BarChart3,
+  Activity,
+  LineChart,
+} from "lucide-react";
 import { toast } from "sonner";
 
 interface McpServer {
@@ -28,31 +63,170 @@ interface McpServer {
   enabled: boolean;
 }
 
-const PRESETS: Array<{ label: string; name: string; url: string; hint: string; icon: ReactNode }> = [
-  { label: "PostgreSQL", name: "PostgreSQL", url: "http://mcp-postgres:8002/mcp", hint: "Service docker local mcp-postgres", icon: <Database className="h-3.5 w-3.5 text-sky-700" /> },
-  { label: "PDF", name: "PDF Generator", url: "http://mcp-pdf:8003/mcp", hint: "Génération de PDF (service docker local)", icon: <FileText className="h-3.5 w-3.5 text-red-600" /> },
-  { label: "Notion", name: "Notion", url: "http://mcp-notion:8004/mcp", hint: "Service officiel Notion MCP", icon: <Notebook className="h-3.5 w-3.5" /> },
-  { label: "Slack", name: "Slack", url: "http://mcp-slack:8006/mcp", hint: "Bridge Slack MCP local (messages + channels)", icon: <MessageSquare className="h-3.5 w-3.5 text-fuchsia-600" /> },
-  { label: "Discord", name: "Discord", url: "http://mcp-discord:8010/mcp", hint: "Bridge Discord MCP local (messages + channels)", icon: <Gamepad2 className="h-3.5 w-3.5 text-indigo-600" /> },
-  { label: "Filesystem", name: "Filesystem", url: "http://mcp-filesystem:8011/mcp", hint: "Bridge fichiers local (liste/lit/ecrit sous FILESYSTEM_ROOT)", icon: <Folder className="h-3.5 w-3.5 text-amber-600" /> },
-  { label: "AWS", name: "AWS", url: "http://mcp-aws:8012/mcp", hint: "Bridge AWS ops (EC2, Lambda, ECS/EKS, S3, DynamoDB, CloudWatch, CloudTrail, IAM, Secrets)", icon: <Cloud className="h-3.5 w-3.5 text-orange-500" /> },
-  { label: "Azure", name: "Azure", url: "http://mcp-azure:8013/mcp", hint: "Bridge Azure ops (VM, RG, NSG, App Service, Storage, Key Vault, Activity Log)", icon: <Cloud className="h-3.5 w-3.5 text-blue-600" /> },
-  { label: "GCP", name: "GCP", url: "http://mcp-gcp:8014/mcp", hint: "Bridge GCP ops (Projects, Compute, GKE, GCS, Logging)", icon: <Cloud className="h-3.5 w-3.5 text-sky-500" /> },
-  { label: "Email (SMTP)", name: "Email", url: "http://mcp-email:8015/mcp", hint: "Bridge Email SMTP (envoi de rapports)", icon: <Mail className="h-3.5 w-3.5 text-purple-600" /> },
-  { label: "Gmail (Google MCP)", name: "Gmail", url: "https://gmailmcp.googleapis.com/mcp/v1", hint: "Serveur MCP distant officiel Google Workspace (OAuth requis)", icon: <Mail className="h-3.5 w-3.5 text-red-500" /> },
-  { label: "Google Calendar MCP", name: "Google Calendar", url: "https://calendarmcp.googleapis.com/mcp/v1", hint: "Serveur MCP distant officiel Google Calendar (OAuth requis)", icon: <CalendarDays className="h-3.5 w-3.5 text-blue-600" /> },
-  { label: "GitHub", name: "GitHub", url: "http://mcp-github:8007/mcp", hint: "Bridge local GitHub MCP (issues + PR)", icon: <GitBranch className="h-3.5 w-3.5" /> },
-  { label: "GitLab", name: "GitLab", url: "http://mcp-gitlab:8008/mcp", hint: "Bridge local GitLab MCP (projects + issues + MR)", icon: <GitBranch className="h-3.5 w-3.5 text-orange-500" /> },
-  { label: "Elasticsearch", name: "Elasticsearch", url: "http://mcp-elasticsearch:8080/mcp", hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)", icon: <Search className="h-3.5 w-3.5 text-teal-600" /> },
-  { label: "Grafana", name: "Grafana", url: "http://mcp-grafana:8020/mcp", hint: "Serveur MCP Grafana officiel (dashboards, alerts, logs, metrics)", icon: <BarChart3 className="h-3.5 w-3.5 text-orange-600" /> },
-  { label: "Prometheus", name: "Prometheus", url: "http://mcp-prometheus:8021/mcp", hint: "Bridge Prometheus MCP (PromQL, metadata, targets)", icon: <Activity className="h-3.5 w-3.5 text-red-600" /> },
-  { label: "Datadog", name: "Datadog", url: "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp", hint: "Serveur MCP Datadog officiel (ajoute DD_API_KEY + DD_APPLICATION_KEY dans Headers JSON)", icon: <LineChart className="h-3.5 w-3.5 text-violet-600" /> },
-  { label: "MySQL", name: "MySQL", url: "https://YOUR-TUNNEL/mysql/mcp", hint: "Sert via mcp-server-mysql", icon: <HardDrive className="h-3.5 w-3.5 text-blue-700" /> },
-  { label: "Dagster", name: "Dagster", url: "http://mcp-dagster:8016/mcp", hint: "Bridge local Dagster MCP (GraphQL runs/jobs)", icon: <Workflow className="h-3.5 w-3.5 text-violet-700" /> },
-  { label: "Moodle", name: "Moodle", url: "https://YOUR-MOODLE-SITE/webservice/mcp/server.php", hint: "Plugin Moodle MCP natif (ajoute Authorization: Bearer <token> dans Headers JSON)", icon: <GraduationCap className="h-3.5 w-3.5 text-orange-600" /> },
-  { label: "OpenMetadata", name: "OpenMetadata", url: "https://YOUR-OM-INSTANCE/mcp", hint: "Serveur MCP intégré à OpenMetadata", icon: <Tags className="h-3.5 w-3.5 text-cyan-700" /> },
-  { label: "Fetch (universel)", name: "Fetch", url: "https://YOUR-TUNNEL/fetch/mcp", hint: "Pour APIs sans serveur MCP dédié (ex. Hyperplanning)", icon: <Globe className="h-3.5 w-3.5 text-green-700" /> },
-];
+const PRESETS: Array<{ label: string; name: string; url: string; hint: string; icon: ReactNode }> =
+  [
+    {
+      label: "PostgreSQL",
+      name: "PostgreSQL",
+      url: "http://mcp-postgres:8002/mcp",
+      hint: "Service docker local mcp-postgres",
+      icon: <Database className="h-3.5 w-3.5 text-sky-700" />,
+    },
+    {
+      label: "PDF",
+      name: "PDF Generator",
+      url: "http://mcp-pdf:8003/mcp",
+      hint: "Génération de PDF (service docker local)",
+      icon: <FileText className="h-3.5 w-3.5 text-red-600" />,
+    },
+    {
+      label: "Notion",
+      name: "Notion",
+      url: "http://mcp-notion:8004/mcp",
+      hint: "Service officiel Notion MCP",
+      icon: <Notebook className="h-3.5 w-3.5" />,
+    },
+    {
+      label: "Slack",
+      name: "Slack",
+      url: "http://mcp-slack:8006/mcp",
+      hint: "Bridge Slack MCP local (messages + channels)",
+      icon: <MessageSquare className="h-3.5 w-3.5 text-fuchsia-600" />,
+    },
+    {
+      label: "Discord",
+      name: "Discord",
+      url: "http://mcp-discord:8010/mcp",
+      hint: "Bridge Discord MCP local (messages + channels)",
+      icon: <Gamepad2 className="h-3.5 w-3.5 text-indigo-600" />,
+    },
+    {
+      label: "Filesystem",
+      name: "Filesystem",
+      url: "http://mcp-filesystem:8011/mcp",
+      hint: "Bridge fichiers local (liste/lit/ecrit sous FILESYSTEM_ROOT)",
+      icon: <Folder className="h-3.5 w-3.5 text-amber-600" />,
+    },
+    {
+      label: "AWS",
+      name: "AWS",
+      url: "http://mcp-aws:8012/mcp",
+      hint: "Bridge AWS ops (EC2, Lambda, ECS/EKS, S3, DynamoDB, CloudWatch, CloudTrail, IAM, Secrets)",
+      icon: <Cloud className="h-3.5 w-3.5 text-orange-500" />,
+    },
+    {
+      label: "Azure",
+      name: "Azure",
+      url: "http://mcp-azure:8013/mcp",
+      hint: "Bridge Azure ops (VM, RG, NSG, App Service, Storage, Key Vault, Activity Log)",
+      icon: <Cloud className="h-3.5 w-3.5 text-blue-600" />,
+    },
+    {
+      label: "GCP",
+      name: "GCP",
+      url: "http://mcp-gcp:8014/mcp",
+      hint: "Bridge GCP ops (Projects, Compute, GKE, GCS, Logging)",
+      icon: <Cloud className="h-3.5 w-3.5 text-sky-500" />,
+    },
+    {
+      label: "Email (SMTP)",
+      name: "Email",
+      url: "http://mcp-email:8015/mcp",
+      hint: "Bridge Email SMTP (envoi de rapports)",
+      icon: <Mail className="h-3.5 w-3.5 text-purple-600" />,
+    },
+    {
+      label: "Gmail (Google MCP)",
+      name: "Gmail",
+      url: "https://gmailmcp.googleapis.com/mcp/v1",
+      hint: "Serveur MCP distant officiel Google Workspace (OAuth requis)",
+      icon: <Mail className="h-3.5 w-3.5 text-red-500" />,
+    },
+    {
+      label: "Google Calendar MCP",
+      name: "Google Calendar",
+      url: "https://calendarmcp.googleapis.com/mcp/v1",
+      hint: "Serveur MCP distant officiel Google Calendar (OAuth requis)",
+      icon: <CalendarDays className="h-3.5 w-3.5 text-blue-600" />,
+    },
+    {
+      label: "GitHub",
+      name: "GitHub",
+      url: "http://mcp-github:8007/mcp",
+      hint: "Bridge local GitHub MCP (issues + PR)",
+      icon: <GitBranch className="h-3.5 w-3.5" />,
+    },
+    {
+      label: "GitLab",
+      name: "GitLab",
+      url: "http://mcp-gitlab:8008/mcp",
+      hint: "Bridge local GitLab MCP (projects + issues + MR)",
+      icon: <GitBranch className="h-3.5 w-3.5 text-orange-500" />,
+    },
+    {
+      label: "Elasticsearch",
+      name: "Elasticsearch",
+      url: "http://mcp-elasticsearch:8080/mcp",
+      hint: "MCP Elasticsearch (indices, mappings, search, ES|QL)",
+      icon: <Search className="h-3.5 w-3.5 text-teal-600" />,
+    },
+    {
+      label: "Grafana",
+      name: "Grafana",
+      url: "http://mcp-grafana:8020/mcp",
+      hint: "Serveur MCP Grafana officiel (dashboards, alerts, logs, metrics)",
+      icon: <BarChart3 className="h-3.5 w-3.5 text-orange-600" />,
+    },
+    {
+      label: "Prometheus",
+      name: "Prometheus",
+      url: "http://mcp-prometheus:8021/mcp",
+      hint: "Bridge Prometheus MCP (PromQL, metadata, targets)",
+      icon: <Activity className="h-3.5 w-3.5 text-red-600" />,
+    },
+    {
+      label: "Datadog",
+      name: "Datadog",
+      url: "https://mcp.datadoghq.com/api/unstable/mcp-server/mcp",
+      hint: "Serveur MCP Datadog officiel (ajoute DD_API_KEY + DD_APPLICATION_KEY dans Headers JSON)",
+      icon: <LineChart className="h-3.5 w-3.5 text-violet-600" />,
+    },
+    {
+      label: "MySQL",
+      name: "MySQL",
+      url: "https://YOUR-TUNNEL/mysql/mcp",
+      hint: "Sert via mcp-server-mysql",
+      icon: <HardDrive className="h-3.5 w-3.5 text-blue-700" />,
+    },
+    {
+      label: "Dagster",
+      name: "Dagster",
+      url: "http://mcp-dagster:8016/mcp",
+      hint: "Bridge local Dagster MCP (GraphQL runs/jobs)",
+      icon: <Workflow className="h-3.5 w-3.5 text-violet-700" />,
+    },
+    {
+      label: "Moodle",
+      name: "Moodle",
+      url: "https://YOUR-MOODLE-SITE/webservice/mcp/server.php",
+      hint: "Plugin Moodle MCP natif (ajoute Authorization: Bearer <token> dans Headers JSON)",
+      icon: <GraduationCap className="h-3.5 w-3.5 text-orange-600" />,
+    },
+    {
+      label: "OpenMetadata",
+      name: "OpenMetadata",
+      url: "https://YOUR-OM-INSTANCE/mcp",
+      hint: "Serveur MCP intégré à OpenMetadata",
+      icon: <Tags className="h-3.5 w-3.5 text-cyan-700" />,
+    },
+    {
+      label: "Fetch (universel)",
+      name: "Fetch",
+      url: "https://YOUR-TUNNEL/fetch/mcp",
+      hint: "Pour APIs sans serveur MCP dédié (ex. Hyperplanning)",
+      icon: <Globe className="h-3.5 w-3.5 text-green-700" />,
+    },
+  ];
 
 function getServerIcon(name: string): ReactNode {
   const key = name.trim().toLowerCase();
@@ -65,14 +239,18 @@ function getServerIcon(name: string): ReactNode {
   if (key.includes("notion")) return <Notebook className="h-3.5 w-3.5" />;
   if (key.includes("slack")) return <MessageSquare className="h-3.5 w-3.5 text-fuchsia-600" />;
   if (key.includes("discord")) return <Gamepad2 className="h-3.5 w-3.5 text-indigo-600" />;
-  if (key.includes("aws") || key.includes("azure") || key.includes("gcp")) return <Cloud className="h-3.5 w-3.5 text-sky-600" />;
-  if (key.includes("github") || key.includes("gitlab")) return <GitBranch className="h-3.5 w-3.5" />;
+  if (key.includes("aws") || key.includes("azure") || key.includes("gcp"))
+    return <Cloud className="h-3.5 w-3.5 text-sky-600" />;
+  if (key.includes("github") || key.includes("gitlab"))
+    return <GitBranch className="h-3.5 w-3.5" />;
   if (key.includes("elastic")) return <Search className="h-3.5 w-3.5 text-teal-600" />;
   if (key.includes("grafana")) return <BarChart3 className="h-3.5 w-3.5 text-orange-600" />;
   if (key.includes("prometheus")) return <Activity className="h-3.5 w-3.5 text-red-600" />;
   if (key.includes("datadog")) return <LineChart className="h-3.5 w-3.5 text-violet-600" />;
-  if (key.includes("filesystem") || key.includes("file")) return <Folder className="h-3.5 w-3.5 text-amber-600" />;
-  if (key.includes("email") || key.includes("smtp")) return <Mail className="h-3.5 w-3.5 text-purple-600" />;
+  if (key.includes("filesystem") || key.includes("file"))
+    return <Folder className="h-3.5 w-3.5 text-amber-600" />;
+  if (key.includes("email") || key.includes("smtp"))
+    return <Mail className="h-3.5 w-3.5 text-purple-600" />;
   if (key.includes("gmail")) return <Mail className="h-3.5 w-3.5 text-red-500" />;
   if (key.includes("calendar")) return <CalendarDays className="h-3.5 w-3.5 text-blue-600" />;
   if (key.includes("moodle")) return <GraduationCap className="h-3.5 w-3.5 text-orange-600" />;
@@ -85,7 +263,9 @@ function getServerIcon(name: string): ReactNode {
 export function McpServersSettings() {
   const [servers, setServers] = useState<McpServer[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tools, setTools] = useState<Record<string, Array<{ name: string; description?: string }>>>({});
+  const [tools, setTools] = useState<Record<string, Array<{ name: string; description?: string }>>>(
+    {},
+  );
   const [testing, setTesting] = useState<Record<string, boolean>>({});
   const [pendingDelete, setPendingDelete] = useState<McpServer | null>(null);
 
@@ -138,7 +318,8 @@ export function McpServersSettings() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Chaque serveur MCP doit être accessible publiquement (HTTPS). Voir l'onglet "Démarrage rapide".
+          Chaque serveur MCP doit être accessible publiquement (HTTPS). Voir l'onglet "Démarrage
+          rapide".
         </p>
         <AddServerDialog onCreated={load} />
       </div>
@@ -157,7 +338,9 @@ export function McpServersSettings() {
             <Switch checked={s.enabled} onCheckedChange={(v) => toggle(s.id, v)} />
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-0.5">
-                <span className="inline-flex items-center justify-center">{getServerIcon(s.name)}</span>
+                <span className="inline-flex items-center justify-center">
+                  {getServerIcon(s.name)}
+                </span>
                 <h3 className="font-medium text-sm">{s.name}</h3>
                 {!s.enabled && (
                   <span className="text-[10px] uppercase tracking-wide text-red-700 bg-red-100 px-1.5 py-0.5 rounded">
@@ -186,8 +369,17 @@ export function McpServersSettings() {
               )}
             </div>
             <div className="flex gap-1 shrink-0">
-              <Button variant="ghost" size="icon" onClick={() => testServer(s)} disabled={testing[s.id]}>
-                {testing[s.id] ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => testServer(s)}
+                disabled={testing[s.id]}
+              >
+                {testing[s.id] ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="h-4 w-4" />
+                )}
               </Button>
               <Button variant="ghost" size="icon" onClick={() => setPendingDelete(s)}>
                 <Trash2 className="h-4 w-4 text-destructive" />
@@ -197,12 +389,16 @@ export function McpServersSettings() {
         </Card>
       ))}
 
-      <AlertDialog open={Boolean(pendingDelete)} onOpenChange={(open) => !open && setPendingDelete(null)}>
+      <AlertDialog
+        open={Boolean(pendingDelete)}
+        onOpenChange={(open) => !open && setPendingDelete(null)}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Supprimer ce serveur MCP ?</AlertDialogTitle>
             <AlertDialogDescription>
-              Le serveur {pendingDelete ? `"${pendingDelete.name}"` : ""} sera retire de la configuration.
+              Le serveur {pendingDelete ? `"${pendingDelete.name}"` : ""} sera retire de la
+              configuration.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -245,7 +441,7 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
     try {
       return JSON.parse(headersText);
     } catch {
-      throw new Error("Headers invalides : JSON attendu (ex. {\"Authorization\": \"Bearer xxx\"})");
+      throw new Error('Headers invalides : JSON attendu (ex. {"Authorization": "Bearer xxx"})');
     }
   };
 
@@ -262,7 +458,9 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
       const data = await res.json();
       setTestResult({
         ok: data.ok,
-        message: data.ok ? `✓ Connexion OK. ${data.tools?.length ?? 0} outil(s) trouvé(s).` : data.error,
+        message: data.ok
+          ? `✓ Connexion OK. ${data.tools?.length ?? 0} outil(s) trouvé(s).`
+          : data.error,
       });
     } catch (e) {
       setTestResult({ ok: false, message: e instanceof Error ? e.message : "Erreur" });
@@ -275,7 +473,9 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
     setSaving(true);
     try {
       const headers = parseHeaders();
-      const { error } = await supabase.from("mcp_servers").insert({ name, url, headers, enabled: true });
+      const { error } = await supabase
+        .from("mcp_servers")
+        .insert({ name, url, headers, enabled: true });
       if (error) throw error;
       toast.success("Serveur ajouté");
       reset();
@@ -288,14 +488,20 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
     }
   };
 
-  const usePreset = (p: (typeof PRESETS)[number]) => {
+  const applyPreset = (p: (typeof PRESETS)[number]) => {
     setName(p.name);
     setUrl(p.url);
     setTestResult(null);
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v);
+        if (!v) reset();
+      }}
+    >
       <DialogTrigger asChild>
         <Button size="sm">
           <Plus className="h-4 w-4 mr-1" /> Ajouter un serveur
@@ -312,7 +518,7 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
               {PRESETS.map((p) => (
                 <button
                   key={p.label}
-                  onClick={() => usePreset(p)}
+                  onClick={() => applyPreset(p)}
                   className="text-xs border border-border rounded px-2 py-1 hover:bg-muted transition inline-flex items-center gap-1"
                   title={p.hint}
                 >
@@ -324,11 +530,21 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="srv-name">Nom</Label>
-            <Input id="srv-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Postgres prod" />
+            <Input
+              id="srv-name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Postgres prod"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="srv-url">URL Streamable HTTP</Label>
-            <Input id="srv-url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://mcp.example.com/postgres" />
+            <Input
+              id="srv-url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="https://mcp.example.com/postgres"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="srv-headers">Headers (JSON, optionnel)</Label>
@@ -347,7 +563,11 @@ function AddServerDialog({ onCreated }: { onCreated: () => void }) {
                 testResult.ok ? "text-green-600" : "text-destructive"
               }`}
             >
-              {testResult.ok ? <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 shrink-0" /> : <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />}
+              {testResult.ok ? (
+                <CheckCircle2 className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              ) : (
+                <AlertCircle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+              )}
               <span>{testResult.message}</span>
             </div>
           )}

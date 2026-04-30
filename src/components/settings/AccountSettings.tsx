@@ -16,7 +16,12 @@ export function AccountSettings({
     last_name?: string;
     avatar_url?: string | null;
   };
-  onProfileUpdated: (next: { email: string; first_name?: string; last_name?: string; avatar_url?: string | null }) => void;
+  onProfileUpdated: (next: {
+    email: string;
+    first_name?: string;
+    last_name?: string;
+    avatar_url?: string | null;
+  }) => void;
 }) {
   const [email, setEmail] = useState(currentProfile.email);
   const [firstName, setFirstName] = useState(currentProfile.first_name ?? "");
@@ -69,11 +74,19 @@ export function AccountSettings({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="account-first-name">Prenom</Label>
-          <Input id="account-first-name" value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+          <Input
+            id="account-first-name"
+            value={firstName}
+            onChange={(e) => setFirstName(e.target.value)}
+          />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="account-last-name">Nom</Label>
-          <Input id="account-last-name" value={lastName} onChange={(e) => setLastName(e.target.value)} />
+          <Input
+            id="account-last-name"
+            value={lastName}
+            onChange={(e) => setLastName(e.target.value)}
+          />
         </div>
       </div>
       <div className="space-y-1.5">

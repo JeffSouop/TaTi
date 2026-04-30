@@ -73,7 +73,8 @@ export function AuthLoginCard({ onSuccess }: { onSuccess: () => void }) {
           </div>
           <h2 className="text-lg font-semibold">Connexion</h2>
           <p className="text-sm text-muted-foreground max-w-[280px]">
-            TaTi centralise tes outils data, ops et delivery dans une interface unique avec connecteurs MCP.
+            TaTi centralise tes outils data, ops et delivery dans une interface unique avec
+            connecteurs MCP.
           </p>
         </div>
 
@@ -110,7 +111,6 @@ export function AuthLoginCard({ onSuccess }: { onSuccess: () => void }) {
             </Button>
           </div>
         </div>
-
       </div>
 
       <div className="hidden lg:block relative overflow-hidden">
@@ -127,7 +127,9 @@ export function AuthLoginCard({ onSuccess }: { onSuccess: () => void }) {
           />
         ))}
         <div className="absolute inset-0 flex flex-col items-center justify-end pb-14 px-8 text-center">
-          <h3 className="text-3xl font-semibold text-white drop-shadow">{DATA_SLIDES[slide].title}</h3>
+          <h3 className="text-3xl font-semibold text-white drop-shadow">
+            {DATA_SLIDES[slide].title}
+          </h3>
           <p className="text-sm text-white/90 mt-2 max-w-xl">{DATA_SLIDES[slide].subtitle}</p>
           <div className="flex items-center gap-2 mt-6">
             {DATA_SLIDES.map((_, i) => (

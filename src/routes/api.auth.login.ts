@@ -25,10 +25,15 @@ export const Route = createFileRoute("/api/auth/login")({
           return Response.json({ ok: false, error: "Invalid JSON" }, { status: 400 });
         }
 
-        const email = String(body.email ?? "").trim().toLowerCase();
+        const email = String(body.email ?? "")
+          .trim()
+          .toLowerCase();
         const password = String(body.password ?? "");
         if (!email || !password) {
-          return Response.json({ ok: false, error: "email and password are required" }, { status: 400 });
+          return Response.json(
+            { ok: false, error: "email and password are required" },
+            { status: 400 },
+          );
         }
 
         if (isAuthRequired()) {
