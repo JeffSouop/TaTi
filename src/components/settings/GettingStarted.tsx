@@ -31,11 +31,12 @@ export function GettingStarted() {
   return (
     <div className="space-y-6">
       <Card className="p-5">
-        <h2 className="font-semibold mb-2">1. Installer Ollama et un modèle</h2>
+        <h2 className="font-semibold mb-2">1. Choisir un moteur IA open source (pas seulement Ollama)</h2>
         <p className="text-sm text-muted-foreground mb-3">
-          Ollama est l'outil standard pour faire tourner des LLM en local. Choisis un modèle qui supporte
-          le <em>function calling</em> (Llama 3.1, Qwen 2.5, Mistral).
+          TaTi peut se connecter a n'importe quelle API LLM compatible OpenAI. Tu peux utiliser Ollama,
+          LM Studio, vLLM, TGI, OpenRouter (modeles OSS), etc.
         </p>
+        <p className="text-xs font-medium mb-1.5 mt-3">Option A — Ollama (le plus simple en local)</p>
         <CodeBlock
           code={`# Installer Ollama (macOS / Linux)
 curl -fsSL https://ollama.com/install.sh | sh
@@ -48,22 +49,51 @@ ollama pull qwen2.5
 # Lancer le serveur (par défaut sur :11434)
 ollama serve`}
         />
+        <p className="text-xs font-medium mb-1.5 mt-3">Option B — LM Studio (UI desktop)</p>
+        <CodeBlock
+          code={`# Dans LM Studio:
+# 1) Télécharge un modèle instruct (ex: Llama/Qwen/Mistral)
+# 2) Active "Local Server" (OpenAI compatible)
+# 3) Port par défaut: 1234
+# Endpoint: http://localhost:1234/v1`}
+        />
+        <p className="text-xs font-medium mb-1.5 mt-3">Option C — vLLM ou TGI (serveur GPU)</p>
+        <CodeBlock
+          code={`# Exemple vLLM (OpenAI compatible)
+python -m vllm.entrypoints.openai.api_server \
+  --model Qwen/Qwen2.5-7B-Instruct \
+  --port 8000
+
+# Endpoint: http://localhost:8000/v1`}
+        />
       </Card>
 
       <Card className="p-5">
-        <h2 className="font-semibold mb-2">2. Exposer Ollama via un tunnel HTTPS</h2>
+        <h2 className="font-semibold mb-2">2. Exposer ton moteur IA via un tunnel HTTPS</h2>
         <p className="text-sm text-muted-foreground mb-3">
           Cette app tourne dans le cloud — elle ne peut pas joindre <code className="text-xs bg-muted px-1 rounded">localhost</code>.
-          Choisis ngrok (rapide) ou cloudflared (gratuit, pas de session limitée).
+          Choisis ngrok (rapide) ou cloudflared (gratuit, pas de session limitée). Remplace le port selon ton moteur:
+          Ollama <code className="text-xs bg-muted px-1 rounded">11434</code>, LM Studio <code className="text-xs bg-muted px-1 rounded">1234</code>,
+          vLLM/TGI <code className="text-xs bg-muted px-1 rounded">8000</code>.
         </p>
         <p className="text-xs font-medium mb-1.5 mt-3">Option A — ngrok</p>
         <CodeBlock
-          code={`ngrok http 11434
+          code={`# Exemple Ollama
+ngrok http 11434
+# Exemple LM Studio
+# ngrok http 1234
+# Exemple vLLM/TGI
+# ngrok http 8000
 # Copie l'URL https://xxxx.ngrok-free.app et colle-la dans l'onglet "Endpoint IA"`}
         />
         <p className="text-xs font-medium mb-1.5 mt-3">Option B — Cloudflare Tunnel (gratuit, illimité)</p>
         <CodeBlock
-          code={`cloudflared tunnel --url http://localhost:11434
+          code={`# Exemple Ollama
+cloudflared tunnel --url http://localhost:11434
+# Exemple LM Studio
+# cloudflared tunnel --url http://localhost:1234
+# Exemple vLLM/TGI
+# cloudflared tunnel --url http://localhost:8000
 # Copie l'URL https://xxx.trycloudflare.com et colle-la dans "Endpoint IA"`}
         />
         <div className="mt-3 text-xs text-yellow-700 dark:text-yellow-400 bg-yellow-50 dark:bg-yellow-950/40 border border-yellow-200 dark:border-yellow-900 rounded p-2.5">
@@ -143,12 +173,12 @@ services:
       </Card>
 
       <Card className="p-5">
-        <h2 className="font-semibold mb-2">5. Limites assumées</h2>
+        <h2 className="font-semibold mb-2">5. Limites assumees</h2>
         <ul className="text-sm text-muted-foreground space-y-1.5 list-disc pl-5">
           <li>Chaque appel passe par le cloud → ton tunnel → ta machine. Compte 200-500 ms de latence supplémentaire.</li>
           <li>Si ton PC s'éteint ou ton tunnel coupe, le chat ne marche plus — c'est inhérent au self-hosted via tunnel.</li>
           <li>Cette V1 n'a pas d'authentification. Reste sur un usage personnel ou ajoute du Basic Auth via Caddy/Cloudflare Access.</li>
-          <li>Tous les modèles ne supportent pas les outils. Préfère <code className="bg-muted px-1 rounded">llama3.1</code>, <code className="bg-muted px-1 rounded">qwen2.5</code>, <code className="bg-muted px-1 rounded">mistral</code>.</li>
+          <li>Tous les modèles ne supportent pas les outils. Préfère <code className="bg-muted px-1 rounded">llama3.1</code>, <code className="bg-muted px-1 rounded">qwen2.5</code>, <code className="bg-muted px-1 rounded">mistral</code> avec mode instruct/function-calling.</li>
         </ul>
       </Card>
     </div>
