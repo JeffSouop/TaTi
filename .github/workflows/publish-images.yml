@@ -107,7 +107,7 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          target: prod
+          target: dev
           push: true
           tags: ${{ steps.tl.outputs.tags }}
           labels: |
