@@ -42,7 +42,7 @@ E2E smoke :
 Release :
 
 - une **release GitHub** est créée automatiquement lorsque la **CI** réussit sur `main` (workflow `Release` : bump patch SemVer, tag, notes générées).
-- les **images Docker** sont construites et publiées sur **GHCR** à chaque **publication de release** (workflow `Publish container images`). Pense à rendre les paquets `ghcr.io/...` **publics** dans les paramètres du compte ou de l’organisation si tu veux que tout le monde puisse les tirer sans authentification.
+- les **images Docker** sont construites et publiées sur **GHCR** après chaque release automatique : le workflow `Publish container images` se déclenche aussi à la **fin du workflow `Release`** (car une release créée avec `GITHUB_TOKEN` ne propage pas toujours l’événement `release` vers les autres workflows). Pense à rendre les paquets `ghcr.io/...` **publics** si tu veux des `docker pull` anonymes.
 
 ## Installation sans cloner le dépôt (compose + images)
 
