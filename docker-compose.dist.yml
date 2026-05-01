@@ -1,0 +1,258 @@
+# =============================================================================
+# TaTi — distribution « binaires Docker » (sans cloner le dépôt).
+#
+# Prérequis : uniquement ce fichier + un fichier .env (voir .env.example sur
+# le dépôt, ou la section README « Installation sans cloner le code »).
+#
+# Images : GitHub Container Registry (GHCR), publiées à chaque release.
+# Par défaut : ghcr.io/<propriétaire-github-en-minuscules>/tati-*:latest
+#
+# Usage :
+#   export TATI_IMAGE_REGISTRY=ghcr.io/jeffsouop   # adapter à ton fork
+#   export TATI_IMAGE_TAG=v0.1.0                   # tag de release GitHub
+#   docker compose -f docker-compose.dist.yml up -d
+#
+# L’app web écoute sur le port 3000 (équivalent profile prod du compose dev).
+# =============================================================================
+
+services:
+  postgres:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-postgres:${TATI_IMAGE_TAG:-latest}
+    container_name: tati-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-tati}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-tati_dev_password}
+      POSTGRES_DB: ${POSTGRES_DB:-tati}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-tati} -d ${POSTGRES_DB:-tati}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-app:${TATI_IMAGE_TAG:-latest}
+    container_name: tati-app
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}
+      NODE_ENV: production
+    ports:
+      - "${APP_PORT:-3000}:3000"
+
+  mcp-openmetadata:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-openmetadata:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-openmetadata
+    restart: unless-stopped
+    environment:
+      OPENMETADATA_URL: ${OPENMETADATA_URL}
+      OPENMETADATA_JWT: ${OPENMETADATA_JWT}
+      OPENMETADATA_ALLOW_MUTATIONS: ${OPENMETADATA_ALLOW_MUTATIONS:-false}
+      OPENMETADATA_WRITE_CONFIRM_TOKEN: ${OPENMETADATA_WRITE_CONFIRM_TOKEN:-}
+    ports:
+      - "8001:8001"
+
+  mcp-postgres:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-postgres:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-postgres
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: ${MCP_POSTGRES_DATABASE_URL:-postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}}
+      MCP_POSTGRES_READ_ONLY: ${MCP_POSTGRES_READ_ONLY:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${MCP_POSTGRES_PORT:-8002}:8002"
+
+  mcp-pdf:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-pdf:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-pdf
+    restart: unless-stopped
+    environment:
+      PDF_OUTPUT_DIR: /app/output
+      PDF_PUBLIC_BASE_URL: ${MCP_PDF_PUBLIC_BASE_URL:-http://localhost:8003}
+    ports:
+      - "${MCP_PDF_PORT:-8003}:8003"
+
+  mcp-notion:
+    image: mcp/notion:latest
+    container_name: mcp-notion
+    restart: unless-stopped
+    environment:
+      NOTION_TOKEN: ${MCP_NOTION_TOKEN}
+    command:
+      - --transport
+      - http
+      - --port
+      - "8004"
+      - --disable-auth
+    ports:
+      - "${MCP_NOTION_PORT:-8004}:8004"
+
+  mcp-slack:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-slack:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-slack
+    restart: unless-stopped
+    environment:
+      SLACK_BOT_TOKEN: ${MCP_SLACK_BOT_TOKEN}
+      SLACK_TEAM_ID: ${MCP_SLACK_TEAM_ID}
+      SLACK_CHANNEL_IDS: ${MCP_SLACK_CHANNEL_IDS:-}
+    ports:
+      - "${MCP_SLACK_PORT:-8006}:8006"
+
+  mcp-discord:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-discord:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-discord
+    restart: unless-stopped
+    environment:
+      DISCORD_BOT_TOKEN: ${MCP_DISCORD_BOT_TOKEN}
+      DISCORD_GUILD_ID: ${MCP_DISCORD_GUILD_ID}
+      DISCORD_CHANNEL_IDS: ${MCP_DISCORD_CHANNEL_IDS:-}
+    ports:
+      - "${MCP_DISCORD_PORT:-8010}:8010"
+
+  mcp-filesystem:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-filesystem:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-filesystem
+    restart: unless-stopped
+    environment:
+      FILESYSTEM_ROOT: ${MCP_FILESYSTEM_ROOT:-/workspace}
+    volumes:
+      - ${MCP_FILESYSTEM_HOST_PATH:-.}:/workspace
+    ports:
+      - "${MCP_FILESYSTEM_PORT:-8011}:8011"
+
+  mcp-aws:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-aws:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-aws
+    restart: unless-stopped
+    environment:
+      AWS_REGION: ${AWS_REGION:-eu-west-3}
+      AWS_PROFILE: ${AWS_PROFILE:-}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
+      AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
+    ports:
+      - "${MCP_AWS_PORT:-8012}:8012"
+
+  mcp-azure:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-azure:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-azure
+    restart: unless-stopped
+    environment:
+      AZURE_SUBSCRIPTION_ID: ${AZURE_SUBSCRIPTION_ID:-}
+      AZURE_TENANT_ID: ${AZURE_TENANT_ID:-}
+      AZURE_CLIENT_ID: ${AZURE_CLIENT_ID:-}
+      AZURE_CLIENT_SECRET: ${AZURE_CLIENT_SECRET:-}
+      AZURE_ACCESS_TOKEN: ${AZURE_ACCESS_TOKEN:-}
+    ports:
+      - "${MCP_AZURE_PORT:-8013}:8013"
+
+  mcp-gcp:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-gcp:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-gcp
+    restart: unless-stopped
+    environment:
+      GCP_PROJECT_ID: ${GCP_PROJECT_ID:-}
+      GCP_REGION: ${GCP_REGION:-europe-west1}
+      GCP_SERVICE_ACCOUNT_JSON: ${GCP_SERVICE_ACCOUNT_JSON:-}
+    ports:
+      - "${MCP_GCP_PORT:-8014}:8014"
+
+  mcp-email:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-email:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-email
+    restart: unless-stopped
+    environment:
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      SMTP_ALLOWED_RECIPIENTS: ${SMTP_ALLOWED_RECIPIENTS:-}
+    ports:
+      - "${MCP_EMAIL_PORT:-8015}:8015"
+
+  mcp-dagster:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-dagster:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-dagster
+    restart: unless-stopped
+    environment:
+      DAGSTER_GRAPHQL_URL: ${DAGSTER_GRAPHQL_URL:-http://host.docker.internal:3000/graphql}
+      DAGSTER_API_TOKEN: ${DAGSTER_API_TOKEN:-}
+      DAGSTER_ALLOW_MUTATIONS: ${DAGSTER_ALLOW_MUTATIONS:-false}
+    ports:
+      - "${MCP_DAGSTER_PORT:-8016}:8016"
+
+  mcp-github:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-github:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-github
+    restart: unless-stopped
+    environment:
+      GITHUB_TOKEN: ${MCP_GITHUB_TOKEN:-}
+    ports:
+      - "${MCP_GITHUB_PORT:-8007}:8007"
+
+  mcp-gitlab:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-gitlab:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-gitlab
+    restart: unless-stopped
+    environment:
+      GITLAB_TOKEN: ${MCP_GITLAB_TOKEN:-}
+      GITLAB_URL: ${MCP_GITLAB_URL:-https://gitlab.com}
+    ports:
+      - "${MCP_GITLAB_PORT:-8008}:8008"
+
+  mcp-elasticsearch:
+    image: ${MCP_ELASTICSEARCH_IMAGE:-docker.elastic.co/mcp/elasticsearch}
+    container_name: mcp-elasticsearch
+    restart: unless-stopped
+    environment:
+      ES_URL: ${MCP_ELASTICSEARCH_URL:-}
+      ES_API_KEY: ${MCP_ELASTICSEARCH_API_KEY:-}
+      ES_USERNAME: ${MCP_ELASTICSEARCH_USERNAME:-}
+      ES_PASSWORD: ${MCP_ELASTICSEARCH_PASSWORD:-}
+      ES_SSL_SKIP_VERIFY: ${MCP_ELASTICSEARCH_SSL_SKIP_VERIFY:-false}
+    command: ["http"]
+    ports:
+      - "${MCP_ELASTICSEARCH_PORT:-8009}:8080"
+
+  mcp-grafana:
+    image: grafana/mcp-grafana:latest
+    container_name: mcp-grafana
+    restart: unless-stopped
+    environment:
+      GRAFANA_URL: ${MCP_GRAFANA_URL:-}
+      GRAFANA_SERVICE_ACCOUNT_TOKEN: ${MCP_GRAFANA_SERVICE_ACCOUNT_TOKEN:-}
+      GRAFANA_ORG_ID: ${MCP_GRAFANA_ORG_ID:-}
+    command: ["-t", "streamable-http", "--address", "0.0.0.0:8020"]
+    ports:
+      - "${MCP_GRAFANA_PORT:-8020}:8020"
+
+  mcp-prometheus:
+    image: ghcr.io/pab1it0/prometheus-mcp-server:latest
+    container_name: mcp-prometheus
+    restart: unless-stopped
+    environment:
+      PROMETHEUS_URL: ${MCP_PROMETHEUS_URL:-}
+      PROMETHEUS_URL_SSL_VERIFY: ${MCP_PROMETHEUS_SSL_VERIFY:-true}
+      PROMETHEUS_USERNAME: ${MCP_PROMETHEUS_USERNAME:-}
+      PROMETHEUS_PASSWORD: ${MCP_PROMETHEUS_PASSWORD:-}
+      PROMETHEUS_TOKEN: ${MCP_PROMETHEUS_TOKEN:-}
+      PROMETHEUS_MCP_SERVER_TRANSPORT: http
+      PROMETHEUS_MCP_BIND_HOST: 0.0.0.0
+      PROMETHEUS_MCP_BIND_PORT: 8021
+    ports:
+      - "${MCP_PROMETHEUS_PORT:-8021}:8021"
+
+volumes:
+  postgres_data:
