@@ -20,6 +20,10 @@ playwright-report
 *.local
 .env
 
+# VitePress (docs)
+docs/.vitepress/cache
+docs/.vitepress/dist
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars

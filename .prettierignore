@@ -8,3 +8,5 @@ routeTree.gen.ts
 coverage
 test-results
 playwright-report
+docs/.vitepress/cache
+docs/.vitepress/dist
