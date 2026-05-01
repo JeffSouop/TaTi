@@ -44,6 +44,8 @@ services:
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}
       NODE_ENV: development
+      TATI_AUTH_REQUIRED: ${TATI_AUTH_REQUIRED:-true}
+      TATI_SESSION_TTL_DAYS: ${TATI_SESSION_TTL_DAYS:-30}
     ports:
       - "${APP_PORT:-3000}:8080"
 
