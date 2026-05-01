@@ -1,0 +1,166 @@
+name: Publish container images
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag des images (ex. v1.2.3 ou latest)"
+        required: true
+        default: "latest"
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: publish-images-${{ github.repository }}
+  cancel-in-progress: false
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  meta:
+    name: Registry metadata
+    runs-on: ubuntu-latest
+    outputs:
+      owner_lc: ${{ steps.o.outputs.owner_lc }}
+      tag: ${{ steps.o.outputs.tag }}
+    steps:
+      - id: o
+        run: |
+          OWNER_LC="$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')"
+          echo "owner_lc=$OWNER_LC" >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${{ inputs.tag }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${{ github.event.release.tag_name }}" >> "$GITHUB_OUTPUT"
+          fi
+
+  push-app:
+    name: Image tati-app
+    needs: [meta]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag list
+        id: tl
+        run: |
+          REG="${{ env.REGISTRY }}/${{ needs.meta.outputs.owner_lc }}/tati-app"
+          TAG="${{ needs.meta.outputs.tag }}"
+          {
+            echo "tags<<EOF"
+            echo "${REG}:${TAG}"
+            if [ "${{ github.event_name }}" = "release" ]; then
+              echo "${REG}:latest"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          target: prod
+          push: true
+          tags: ${{ steps.tl.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+  push-images:
+    name: Image ${{ matrix.image }}
+    needs: [meta]
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - image: tati-postgres
+            context: .
+            dockerfile: deploy/postgres/Dockerfile
+          - image: tati-mcp-openmetadata
+            context: ./mcp-openmetadata
+            dockerfile: ./mcp-openmetadata/Dockerfile
+          - image: tati-mcp-postgres
+            context: ./mcp-postgres
+            dockerfile: ./mcp-postgres/Dockerfile
+          - image: tati-mcp-pdf
+            context: ./mcp-pdf
+            dockerfile: ./mcp-pdf/Dockerfile
+          - image: tati-mcp-slack
+            context: ./mcp-slack
+            dockerfile: ./mcp-slack/Dockerfile
+          - image: tati-mcp-discord
+            context: ./mcp-discord
+            dockerfile: ./mcp-discord/Dockerfile
+          - image: tati-mcp-filesystem
+            context: ./mcp-filesystem
+            dockerfile: ./mcp-filesystem/Dockerfile
+          - image: tati-mcp-aws
+            context: ./mcp-aws
+            dockerfile: ./mcp-aws/Dockerfile
+          - image: tati-mcp-azure
+            context: ./mcp-azure
+            dockerfile: ./mcp-azure/Dockerfile
+          - image: tati-mcp-gcp
+            context: ./mcp-gcp
+            dockerfile: ./mcp-gcp/Dockerfile
+          - image: tati-mcp-email
+            context: ./mcp-email
+            dockerfile: ./mcp-email/Dockerfile
+          - image: tati-mcp-dagster
+            context: ./mcp-dagster
+            dockerfile: ./mcp-dagster/Dockerfile
+          - image: tati-mcp-github
+            context: ./mcp-github
+            dockerfile: ./mcp-github/Dockerfile
+          - image: tati-mcp-gitlab
+            context: ./mcp-gitlab
+            dockerfile: ./mcp-gitlab/Dockerfile
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'release' && github.event.release.tag_name || github.ref }}
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Tag list
+        id: tl
+        run: |
+          REG="${{ env.REGISTRY }}/${{ needs.meta.outputs.owner_lc }}/${{ matrix.image }}"
+          TAG="${{ needs.meta.outputs.tag }}"
+          {
+            echo "tags<<EOF"
+            echo "${REG}:${TAG}"
+            if [ "${{ github.event_name }}" = "release" ]; then
+              echo "${REG}:latest"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          push: true
+          tags: ${{ steps.tl.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}

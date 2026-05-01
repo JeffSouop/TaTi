@@ -41,15 +41,49 @@ E2E smoke :
 
 Release :
 
-- un release GitHub est créé automatiquement quand tu pousses un tag SemVer `vX.Y.Z`.
-- exemple :
+- une **release GitHub** est créée automatiquement lorsque la **CI** réussit sur `main` (workflow `Release` : bump patch SemVer, tag, notes générées).
+- les **images Docker** sont construites et publiées sur **GHCR** à chaque **publication de release** (workflow `Publish container images`). Pense à rendre les paquets `ghcr.io/...` **publics** dans les paramètres du compte ou de l’organisation si tu veux que tout le monde puisse les tirer sans authentification.
+
+## Installation sans cloner le dépôt (compose + images)
+
+Tu peux te limiter à un répertoire contenant un `.env` et le fichier `docker-compose.dist.yml`, sur le modèle d’OpenMetadata (images préconstruites + compose).
+
+1. Télécharge le compose pour la version souhaitée (remplace `vX.Y.Z` par un [tag de release](https://github.com/JeffSouop/TaTi/releases) réel) :
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+mkdir tati && cd tati
+curl -fsSL -o docker-compose.yml \
+  https://raw.githubusercontent.com/JeffSouop/TaTi/vX.Y.Z/docker-compose.dist.yml
 ```
 
-## Démarrage rapide
+2. Copie les variables d’environnement depuis le dépôt (même version) et adapte-les :
+
+```bash
+curl -fsSL -o .env.example https://raw.githubusercontent.com/JeffSouop/TaTi/vX.Y.Z/.env.example
+cp .env.example .env
+# éditer .env — au minimum Postgres, secrets MCP utilisés, etc.
+```
+
+3. Fixe le registre et le tag d’images (propriétaire GitHub en **minuscules** pour GHCR) :
+
+```bash
+export TATI_IMAGE_REGISTRY=ghcr.io/jeffsouop
+export TATI_IMAGE_TAG=vX.Y.Z
+docker compose -f docker-compose.yml pull
+docker compose -f docker-compose.yml up -d
+```
+
+4. Ouvre l’app sur **http://localhost:3000** (port configurable via `APP_PORT` dans `.env`).
+
+Si `docker compose pull` échoue avec « denied » ou « unauthorized », les paquets GHCR sont encore **privés** : dans GitHub → **Packages** → chaque image `tati-*` → **Package settings** → **Change visibility** → **Public**. Alternative : `docker login ghcr.io` avec un token ayant le scope `read:packages`.
+
+**Remarques :**
+
+- Les services MCP « amont » (Notion, Elasticsearch, Grafana, Prometheus, …) utilisent déjà des images publiques ; les ponts TaTi viennent de `ghcr.io`.
+- Pour **mcp-filesystem**, en mode dist le volume hôte est `MCP_FILESYSTEM_HOST_PATH` (défaut `.` = répertoire courant du compose).
+- Un run manuel du workflow **Publish container images** (`workflow_dispatch`) pousse uniquement le tag demandé (pas de mise à jour de `latest`, pour éviter les surprises).
+
+## Démarrage rapide (développement, clone du dépôt)
 
 ```bash
 # 1. Récupère le code
