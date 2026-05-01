@@ -36,5 +36,5 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
 EXPOSE 3000
-# Serveur prod : `vite preview` sert le build statique + SSR TanStack Start.
-CMD ["bun", "run", "preview", "--host", "0.0.0.0", "--port", "3000"]
+# Build cible Cloudflare Worker : demarrer le runtime wrangler local en prod self-hosted.
+CMD ["bunx", "wrangler", "dev", "--config", "dist/server/wrangler.json", "--ip", "0.0.0.0", "--port", "3000"]
