@@ -32,17 +32,6 @@ CREATE TABLE IF NOT EXISTS public.user_sessions (
 CREATE INDEX IF NOT EXISTS idx_user_sessions_user ON public.user_sessions(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_sessions_exp ON public.user_sessions(expires_at);
 
--- Acces aux serveurs MCP par utilisateur (si aucune ligne pour un user => acces complet)
-CREATE TABLE IF NOT EXISTS public.user_mcp_access (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id       UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
-  mcp_server_id UUID NOT NULL REFERENCES public.mcp_servers(id) ON DELETE CASCADE,
-  allowed       BOOLEAN NOT NULL DEFAULT true,
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (user_id, mcp_server_id)
-);
-CREATE INDEX IF NOT EXISTS idx_user_mcp_access_user ON public.user_mcp_access(user_id);
-
 -- ---------------------------------------------------------------------------
 -- app_settings
 -- ---------------------------------------------------------------------------
@@ -89,6 +78,18 @@ CREATE TABLE IF NOT EXISTS public.mcp_servers (
 );
 ALTER TABLE public.mcp_servers ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES public.users(id) ON DELETE CASCADE;
 CREATE INDEX IF NOT EXISTS idx_mcp_servers_user_id ON public.mcp_servers(user_id);
+
+-- Acces aux serveurs MCP par utilisateur (si aucune ligne pour un user => acces complet)
+-- Doit etre cree APRES mcp_servers (FK mcp_server_id -> mcp_servers.id).
+CREATE TABLE IF NOT EXISTS public.user_mcp_access (
+  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id       UUID NOT NULL REFERENCES public.users(id) ON DELETE CASCADE,
+  mcp_server_id UUID NOT NULL REFERENCES public.mcp_servers(id) ON DELETE CASCADE,
+  allowed       BOOLEAN NOT NULL DEFAULT true,
+  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, mcp_server_id)
+);
+CREATE INDEX IF NOT EXISTS idx_user_mcp_access_user ON public.user_mcp_access(user_id);
 
 -- ---------------------------------------------------------------------------
 -- conversations
