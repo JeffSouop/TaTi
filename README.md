@@ -5,6 +5,7 @@ TaTi est une plateforme open source de copilote IA orientee delivery/ops, connec
 ## Lancer rapidement (self-hosted)
 
 Prerequis:
+
 - Docker + Docker Compose v2
 
 Installation minimale:
@@ -20,6 +21,7 @@ docker compose up -d
 ```
 
 Application:
+
 - http://localhost:3000
 
 ## Documentation
@@ -27,6 +29,7 @@ Application:
 La documentation complete (architecture, connecteurs MCP, administration, CI/CD, securite, troubleshooting, etc.) est maintenue dans la documentation web du projet.
 
 En attendant la version finale du portail docs:
+
 - [Releases](https://github.com/JeffSouop/TaTi/releases)
 - [Actions](https://github.com/JeffSouop/TaTi/actions)
 - [Issues](https://github.com/JeffSouop/TaTi/issues)
