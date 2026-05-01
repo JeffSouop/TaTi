@@ -1,9 +1,8 @@
 # =============================================================================
 # docker-compose pour faire tourner le projet en self-hosted local.
 #
-# Modes :
-#   - défaut : `docker compose up` -> postgres + app-dev + MCP
-#   - prod   : `docker compose --profile prod up` -> postgres + app-prod + MCP
+# Mode :
+#   - `docker compose up` -> postgres + app + MCP
 #
 # Le service mcp-openmetadata est toujours lancé (profil par défaut).
 # Adapte les variables d'env dans .env (cf. .env.example).
@@ -33,13 +32,13 @@ services:
       retries: 10
 
   # ---------------------------------------------------------------------------
-  # App TanStack Start - mode DEV (hot reload)
+  # App TanStack Start - runtime unique (dev)
   # ---------------------------------------------------------------------------
-  app-dev:
+  app:
     build:
       context: .
       target: dev
-    container_name: tati-app-dev
+    container_name: tati-app
     depends_on:
       postgres:
         condition: service_healthy
@@ -52,24 +51,6 @@ services:
       - ./:/app
       - /app/node_modules
     command: ["bun", "run", "dev", "--host", "0.0.0.0"]
-
-  # ---------------------------------------------------------------------------
-  # App TanStack Start - mode PROD (build + preview SSR)
-  # ---------------------------------------------------------------------------
-  app-prod:
-    build:
-      context: .
-      target: prod
-    container_name: tati-app-prod
-    profiles: ["prod"]
-    depends_on:
-      postgres:
-        condition: service_healthy
-    environment:
-      DATABASE_URL: postgres://${POSTGRES_USER:-tati}:${POSTGRES_PASSWORD:-tati_dev_password}@postgres:5432/${POSTGRES_DB:-tati}
-      NODE_ENV: production
-    ports:
-      - "3000:3000"
 
   # ---------------------------------------------------------------------------
   # Pont MCP -> OpenMetadata (toujours lancé)
