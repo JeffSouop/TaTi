@@ -32,11 +32,9 @@ RUN bun run build
 FROM base AS prod
 ENV NODE_ENV=production
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=builder /app/.output ./.output
+# `vite build` produit `dist/` (client + serveur) ; pas de répertoire `.output` avec la config actuelle.
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/package.json ./package.json
 EXPOSE 3000
-# Le bundle Cloudflare Worker n'est pas exécutable directement par node/bun.
-# Pour un vrai serveur prod hors Workers, on utilise `vite preview` qui sert
-# le build statique + SSR de TanStack Start.
+# Serveur prod : `vite preview` sert le build statique + SSR TanStack Start.
 CMD ["bun", "run", "preview", "--host", "0.0.0.0", "--port", "3000"]
