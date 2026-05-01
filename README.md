@@ -26,9 +26,7 @@ Application:
 
 ## Documentation
 
-La documentation complete (architecture, connecteurs MCP, administration, CI/CD, securite, troubleshooting, etc.) est maintenue dans la documentation web du projet.
-
-En attendant la version finale du portail docs:
+Sources du site de documentation : dossier `docs/` du dépôt (publication GitHub Pages via Actions si activée).
 
 - [Releases](https://github.com/JeffSouop/TaTi/releases)
 - [Actions](https://github.com/JeffSouop/TaTi/actions)

@@ -1,0 +1,257 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+/**
+ * Thème inspiré des docs produit type OpenMetadata :
+ * tons froids, cartes arrondies, hiérarchie claire, accent cyan/teal.
+ */
+:root {
+  --vp-c-brand-1: #0e7490;
+  --vp-c-brand-2: #06b6d4;
+  --vp-c-brand-3: #67e8f9;
+  --vp-c-brand-soft: rgba(6, 182, 212, 0.14);
+  --vp-c-bg-soft: #f4f8fb;
+  --vp-c-bg-elv: #ffffff;
+  --vp-font-family-base:
+    "Inter", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --vp-nav-height: 76px;
+  /* Utilisé par le thème par défaut pour le logo cliquable */
+  --vp-nav-logo-height: 42px;
+  /* Largeur minimale de la zone recherche (~×3 vs champ compact type ~12rem) */
+  --vp-nav-search-min-width: min(36rem, calc(100vw - 14rem));
+  --vp-layout-max-width: 1320px;
+  --om-radius-lg: 16px;
+  --om-radius-md: 12px;
+  --om-shadow-card: 0 1px 2px rgba(15, 23, 42, 0.06), 0 8px 24px rgba(15, 23, 42, 0.06);
+  /* Motion (partagé avec les composants Vue de la home) */
+  --om-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --om-ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+  --om-duration: 0.22s;
+  --om-duration-relaxed: 0.4s;
+}
+
+html.dark {
+  --vp-c-bg-soft: #0f172a;
+  --vp-c-bg-elv: #1e293b;
+  --om-shadow-card: 0 1px 2px rgba(0, 0, 0, 0.2), 0 12px 32px rgba(0, 0, 0, 0.35);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --om-duration: 0.01ms;
+    --om-duration-relaxed: 0.01ms;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+.VPNav {
+  border-bottom: 1px solid var(--vp-c-divider);
+  backdrop-filter: blur(10px);
+  transition:
+    border-color var(--om-duration) var(--om-ease),
+    background-color var(--om-duration-relaxed) var(--om-ease);
+}
+
+/* Barre du haut : padding latéral équilibré, zone principale centrée (sans sidebar). */
+.VPNavBar .wrapper {
+  padding-left: clamp(1rem, 4vw, 2.75rem);
+  padding-right: clamp(1rem, 4vw, 2.75rem);
+}
+
+@media (min-width: 960px) {
+  .VPNavBar:not(.has-sidebar) .container {
+    justify-content: center;
+    gap: clamp(1.5rem, 4vw, 3rem);
+    max-width: min(var(--vp-layout-max-width), 100%);
+  }
+
+  .VPNavBar:not(.has-sidebar) .content {
+    flex-grow: 0;
+  }
+}
+
+/* Titre « TaTi » à côté du logo */
+.VPNavBarTitle .logo + span {
+  font-size: 1.375rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--vp-c-text-1);
+}
+
+.VPSidebar {
+  background: var(--vp-c-bg-soft) !important;
+}
+
+.VPSidebarItem.level-0 > .item > .text {
+  font-weight: 600;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--vp-c-text-2);
+}
+
+.VPContent .content-container {
+  max-width: 920px;
+  padding-left: clamp(1.25rem, 4vw, 2.25rem);
+  padding-right: clamp(1.25rem, 4vw, 2.25rem);
+  box-sizing: border-box;
+}
+
+/* Liens & boutons primaires */
+.VPLink.link.active {
+  color: var(--vp-c-brand-1);
+}
+
+/* Hero page d'accueil : pas de container étroit */
+.VPContent.om-home .content-container {
+  max-width: 1160px;
+  padding-left: clamp(1.25rem, 5vw, 2.75rem);
+  padding-right: clamp(1.25rem, 5vw, 2.75rem);
+}
+
+/* Logo navbar : taille stable + base path OK */
+.VPNavBar .logo,
+.VPNavBarTitle .logo {
+  display: inline-flex;
+  align-items: center;
+}
+
+.VPNavBar .logo img,
+.VPNavBarTitle .logo img,
+.VPNavBar .VPImage.logo img {
+  display: block;
+  height: 42px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+}
+
+/* Barre de recherche : longueur (largeur) nettement augmentée (~×3), hauteur inchangée. */
+@media (min-width: 768px) {
+  .VPNavBarSearch {
+    flex: 1 1 var(--vp-nav-search-min-width);
+    min-width: var(--vp-nav-search-min-width);
+    max-width: 100%;
+  }
+
+  .VPNavBarSearch #local-search,
+  .VPNavBarSearch #docsearch {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .VPNavBarSearch .DocSearch-Button {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+/* —— Transitions : navigation, recherche, doc —— */
+.VPNavBarTitle a,
+.VPNavBar .logo {
+  transition: opacity var(--om-duration) var(--om-ease);
+}
+
+.VPNavBarTitle a:hover,
+.VPNavBar .logo:hover {
+  opacity: 0.88;
+}
+
+.VPNavBarSearch .DocSearch.DocSearch-Button {
+  transition:
+    border-color var(--om-duration) var(--om-ease),
+    background-color var(--om-duration) var(--om-ease),
+    color var(--om-duration) var(--om-ease),
+    box-shadow var(--om-duration-relaxed) var(--om-ease),
+    transform var(--om-duration) var(--om-ease);
+}
+
+@media (min-width: 768px) {
+  .VPNavBarSearch .DocSearch.DocSearch-Button:hover {
+    box-shadow: 0 6px 24px rgba(6, 182, 212, 0.14);
+    transform: translateY(-1px);
+  }
+}
+
+/* Liens du menu principal : soulignement animé */
+nav.VPNavBarMenu .VPNavBarMenuLink {
+  position: relative;
+  transition: color var(--om-duration) var(--om-ease);
+}
+
+nav.VPNavBarMenu .VPNavBarMenuLink::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--vp-c-brand-1), var(--vp-c-brand-2));
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--om-duration-relaxed) var(--om-ease);
+}
+
+nav.VPNavBarMenu .VPNavBarMenuLink:hover::after,
+nav.VPNavBarMenu .VPNavBarMenuLink.active::after {
+  transform: scaleX(1);
+}
+
+/* Sidebar : survol plus lisible */
+.VPSidebar .VPSidebarItem.is-link > .item {
+  border-radius: 8px;
+  transition: background-color var(--om-duration) var(--om-ease);
+}
+
+.VPSidebar .VPSidebarItem.is-link > .item:hover {
+  background-color: color-mix(in srgb, var(--vp-c-bg-alt) 88%, transparent);
+}
+
+.VPSidebar .VPSidebarItem .caret-icon {
+  transition: transform var(--om-duration-relaxed) var(--om-ease);
+}
+
+/* Contenu markdown (complète la transition du thème par défaut) */
+.vp-doc a:not(.header-anchor) {
+  transition:
+    color var(--om-duration) var(--om-ease),
+    opacity var(--om-duration) var(--om-ease),
+    text-decoration-color var(--om-duration) var(--om-ease);
+}
+
+.vp-doc a:not(.header-anchor):hover {
+  text-decoration-color: color-mix(in srgb, var(--vp-c-brand-2) 65%, transparent);
+}
+
+/* Blocs (info, tip, etc.) : léger relief au survol */
+.vp-doc .custom-block {
+  transition:
+    border-color var(--om-duration) var(--om-ease),
+    box-shadow var(--om-duration-relaxed) var(--om-ease);
+}
+
+.vp-doc .custom-block:hover {
+  box-shadow: 0 4px 20px rgba(15, 23, 42, 0.06);
+}
+
+html.dark .vp-doc .custom-block:hover {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* Boutons / liens de pagination doc */
+.VPDocFooter .pager-link {
+  transition:
+    border-color var(--om-duration) var(--om-ease),
+    box-shadow var(--om-duration-relaxed) var(--om-ease),
+    transform var(--om-duration) var(--om-ease);
+}
+
+.VPDocFooter .pager-link:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--om-shadow-card);
+}
