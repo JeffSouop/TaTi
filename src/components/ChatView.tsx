@@ -5,7 +5,7 @@ import { ToolCallBubble, type ToolCallDisplay } from "@/components/ToolCallBubbl
 import { ConversationProviderSelector } from "@/components/ConversationProviderSelector";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, User, Bot, AlertTriangle } from "lucide-react";
+import { Send, User, Bot, AlertTriangle, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -56,9 +56,23 @@ export function ChatView({ conversationId }: { conversationId: string }) {
   const [input, setInput] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showScrollToBottom, setShowScrollToBottom] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const streamingMsgRef = useRef<{ id: string; text: string } | null>(null);
   const auth = useAuth();
+
+  const isNearBottom = () => {
+    const el = scrollRef.current;
+    if (!el) return true;
+    const distanceFromBottom = el.scrollHeight - (el.scrollTop + el.clientHeight);
+    return distanceFromBottom < 140;
+  };
+
+  const scrollToBottom = (behavior: ScrollBehavior = "smooth") => {
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+  };
 
   // Load existing messages
   useEffect(() => {
@@ -80,8 +94,14 @@ export function ChatView({ conversationId }: { conversationId: string }) {
 
   // Auto-scroll
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
+    if (!showScrollToBottom) {
+      scrollToBottom("smooth");
+    }
   }, [items]);
+
+  const onScroll = () => {
+    setShowScrollToBottom(!isNearBottom());
+  };
 
   const send = async () => {
     const text = input.trim();
@@ -234,7 +254,7 @@ export function ChatView({ conversationId }: { conversationId: string }) {
           <ConversationProviderSelector conversationId={conversationId} />
         </div>
       </div>
-      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} onScroll={onScroll} className="relative flex-1 overflow-y-auto">
         <div className="max-w-6xl mx-auto px-4 py-6 space-y-4">
           {items.length === 0 && (
             <div className="text-center text-muted-foreground py-20">
@@ -272,6 +292,17 @@ export function ChatView({ conversationId }: { conversationId: string }) {
             </div>
           )}
         </div>
+        {showScrollToBottom && (
+          <Button
+            type="button"
+            size="icon"
+            className="absolute bottom-4 right-4 h-10 w-10 rounded-full shadow-lg"
+            onClick={() => scrollToBottom("smooth")}
+            aria-label="Aller en bas de la conversation"
+          >
+            <ArrowDown className="h-4 w-4" />
+          </Button>
+        )}
       </div>
 
       <div className="border-t border-border bg-background/80 backdrop-blur">
