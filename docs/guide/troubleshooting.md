@@ -40,6 +40,18 @@ Vérifiez `MCP_ELASTICSEARCH_URL` et les credentials ; l’image officielle peut
 - Jeton expiré ou révoqué — régénérez dans la console du fournisseur.
   -Scopes insuffisants — augmentez les permissions **minimalement** nécessaires.
 
+## CI « Docs » : échec sur `deploy-pages` (404 Not Found)
+
+Après un merge sur `main`, le job **deploy** peut échouer avec : `Creating Pages deployment failed` / `HttpError: Not Found`, souvent accompagné du message : _Ensure GitHub Pages has been enabled_.
+
+À faire **une fois** sur le dépôt (droits **Admin**) :
+
+1. **Settings** → **Pages** (`https://github.com/<org>/<repo>/settings/pages`).
+2. Sous **Build and deployment**, **Source** : choisir **GitHub Actions** (pas « Deploy from a branch »).
+3. Enregistrer, puis relancer le workflow **Docs** manuellement (**Actions** → workflow **Docs** → **Run workflow**) si besoin.
+
+Sans cette activation, l’artefact est bien produit, mais l’API de déploiement Pages renvoie 404.
+
 ## Besoin d’aide communautaire
 
 - [Issues GitHub](https://github.com/JeffSouop/TaTi/issues) — joignez version / tag d’image, extrait de logs **sans secrets**.
