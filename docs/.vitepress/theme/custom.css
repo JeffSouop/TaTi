@@ -94,6 +94,18 @@ html.dark {
   color: var(--vp-c-text-2);
 }
 
+/* Diagramme d’architecture (guide) */
+.vp-doc img[src*="tati_architecture_diagram"],
+.vp-doc img[src*="architecture-overview"] {
+  display: block;
+  max-width: min(920px, 100%);
+  height: auto;
+  margin: 1.25rem auto;
+  border-radius: var(--om-radius-md);
+  border: 1px solid var(--vp-c-divider);
+  box-shadow: var(--om-shadow-card);
+}
+
 .VPContent .content-container {
   max-width: 920px;
   padding-left: clamp(1.25rem, 4vw, 2.25rem);

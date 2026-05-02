@@ -4,24 +4,9 @@ Ce document décrit **comment TaTi est structuré** quand vous le faites tourner
 
 ## Vue d’ensemble
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│  Navigateur (UI TaTi)                                        │
-└───────────────────────────────┬───────────────────────────────┘
-                                │ HTTP
-┌───────────────────────────────▼───────────────────────────────┐
-│  Application (TanStack Start / Vite, SSR)                     │
-│  • Routes API (chat, auth, admin…)                             │
-│  • Lecture des serveurs MCP configurés (stockage Postgres)    │
-└───────┬─────────────────────────────┬─────────────────────────┘
-        │                             │
-        │ SQL                         │ Streamable HTTP (MCP)
-        ▼                             ▼
-┌───────────────┐           ┌─────────────────────────────────┐
-│  PostgreSQL   │           │  Ponts MCP (conteneurs ou SaaS) │
-│  (données app)│           │  Slack, Postgres, GitHub, OM…   │
-└───────────────┘           └─────────────────────────────────┘
-```
+![Architecture TaTi — navigateur, application TanStack / Vite SSR, PostgreSQL, ponts MCP](/tati_architecture_diagram.svg)
+
+_Légende : flux HTTP vers l’application ; SQL vers Postgres (données applicatives) ; MCP en HTTP streamable vers les ponts (Slack, Postgres, GitHub, OM…). La légende du schéma distingue présentation, logique métier, données et MCP._
 
 ## Couche applicative
 
