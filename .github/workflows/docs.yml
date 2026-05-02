@@ -1,5 +1,7 @@
 name: Docs
 
+# Déclenchement manuel / merge : publie le site (GitHub Pages, source = GitHub Actions).
+
 on:
   push:
     branches: ["main"]
