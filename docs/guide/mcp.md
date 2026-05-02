@@ -41,7 +41,7 @@ Les sections suivantes détaillent **rôle**, **cas d’usage**, **ce que le pon
 
 **Cas d’usage avec TaTi**
 
-- Répondre à « quelle table alimente ce rapport ? », « qui est propriétaire de ce dataset ? », « montre le lignage autour de *customers* ».
+- Répondre à « quelle table alimente ce rapport ? », « qui est propriétaire de ce dataset ? », « montre le lignage autour de _customers_ ».
 - Préparer une revue de conformité ou un onboarding data en s’appuyant sur le catalogue plutôt que sur des exports manuels.
 
 **Capacités typiques du pont**
@@ -245,7 +245,7 @@ En production, utilisez un volume dédié et des permissions OS strictes : ce MC
 
 **Cas d’usage avec TaTi**
 
-- Investiguer des logs ou événements indexés (« erreurs contenant *timeout* dans les 24 h »).
+- Investiguer des logs ou événements indexés (« erreurs contenant _timeout_ dans les 24 h »).
 - Comprendre la cartographie des indices avant une migration ou une purge.
 
 **Capacités typiques**
@@ -349,7 +349,7 @@ En production, utilisez un volume dédié et des permissions OS strictes : ce MC
 
 **Cas d’usage avec TaTi**
 
-- « Quel est le dernier run du job *daily_sales* ? », « liste les assets en échec ».
+- « Quel est le dernier run du job _daily_sales_ ? », « liste les assets en échec ».
 - Préparer une relance ou une investigation sur un partitionnement après un incident data.
 
 **Capacités typiques**
@@ -391,7 +391,7 @@ En production, utilisez un volume dédié et des permissions OS strictes : ce MC
 
 **Cas d’usage avec TaTi**
 
-- « Quelle est la latence p95 sur *http_requests* depuis 1 h ? »
+- « Quelle est la latence p95 sur _http_requests_ depuis 1 h ? »
 - Vérifier si un scrape target est `DOWN` avant de creuser dans les logs.
 
 **Capacités typiques**
