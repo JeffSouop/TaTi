@@ -162,6 +162,12 @@ jobs:
           - image: tati-mcp-airflow
             context: ./mcp-airflow
             dockerfile: ./mcp-airflow/Dockerfile
+          - image: tati-mcp-dbt
+            context: ./mcp-dbt
+            dockerfile: ./mcp-dbt/Dockerfile
+          - image: tati-mcp-dbt-core
+            context: ./mcp-dbt-core
+            dockerfile: ./mcp-dbt-core/Dockerfile
           - image: tati-mcp-github
             context: ./mcp-github
             dockerfile: ./mcp-github/Dockerfile
