@@ -26,7 +26,7 @@ Les **ports** ci‑dessous sont les **ports hôte par défaut** du fichier `.env
 | Dagster               | 8016                | `http://mcp-dagster:8016/mcp`       | `DAGSTER_GRAPHQL_URL`, `DAGSTER_API_TOKEN`                               |
 | Apache Airflow        | 8017                | `http://mcp-airflow:8017/mcp`       | `AIRFLOW_BASE_URL`, `AIRFLOW_USERNAME` / `AIRFLOW_PASSWORD`              |
 | dbt Cloud             | 8018                | `http://mcp-dbt:8018/mcp`           | `DBT_CLOUD_DISCOVERY_URL`, `DBT_CLOUD_TOKEN`, `DBT_CLOUD_ENVIRONMENT_ID` |
-| dbt Core              | 8019                | `http://mcp-dbt-core:8019/mcp`      | `DBT_CORE_HOST_PROJECT`, `DBT_PROFILES_DIR`, `DBT_ALLOW_MUTATIONS`     |
+| dbt Core              | 8019                | `http://mcp-dbt-core:8019/mcp`      | `DBT_CORE_HOST_PROJECT`, `DBT_PROFILES_DIR`, `DBT_ALLOW_MUTATIONS`       |
 | Slack                 | 8006                | `http://mcp-slack:8006/mcp`         | `MCP_SLACK_*`                                                            |
 | Grafana               | 8020                | `http://mcp-grafana:8020/mcp`       | `MCP_GRAFANA_*`                                                          |
 | Prometheus            | 8021                | `http://mcp-prometheus:8021/mcp`    | `MCP_PROMETHEUS_*`                                                       |
