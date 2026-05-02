@@ -2,12 +2,7 @@
 import { computed, ref } from "vue";
 import { useData, withBase } from "vitepress";
 import { useLocalePath } from "../composables/useLocalePath";
-import {
-  MCP_CAT_LABELS,
-  MCP_FILTER_ARIA,
-  mcpLangFromVp,
-  type CatKey,
-} from "../i18n/mcpUiLocale";
+import { MCP_CAT_LABELS, MCP_FILTER_ARIA, mcpLangFromVp, type CatKey } from "../i18n/mcpUiLocale";
 
 const { lang } = useData();
 const { localePath } = useLocalePath();

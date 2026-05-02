@@ -4,7 +4,9 @@ import { defineConfig } from "vitepress";
 const base = process.env.VITEPRESS_BASE ?? "/";
 const baseTrailing = base.endsWith("/") ? base : `${base}/`;
 
-const headIcon = [["link", { rel: "icon", href: `${baseTrailing}tati-logo.png`, type: "image/png" }]];
+const headIcon = [
+  ["link", { rel: "icon", href: `${baseTrailing}tati-logo.png`, type: "image/png" }],
+];
 
 export default defineConfig({
   base,

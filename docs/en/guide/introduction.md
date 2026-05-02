@@ -15,11 +15,11 @@ TaTi is an **orchestration layer**: a single UI where you configure **MCP server
 
 ## Main components
 
-| Item                | Role                                                                                 |
-| ------------------- | ------------------------------------------------------------------------------------ |
-| **Web app**         | Chat, user settings, MCP list, optional local auth.                                 |
-| **PostgreSQL**      | App persistence (sessions, MCP server config in the product).                      |
-| **MCP services**    | One process (or container) per tool family: see [MCP connectors](./mcp.md).         |
+| Item             | Role                                                                        |
+| ---------------- | --------------------------------------------------------------------------- |
+| **Web app**      | Chat, user settings, MCP list, optional local auth.                         |
+| **PostgreSQL**   | App persistence (sessions, MCP server config in the product).               |
+| **MCP services** | One process (or container) per tool family: see [MCP connectors](./mcp.md). |
 
 It is not a closed “app store”: everything in the repo’s `docker-compose.yml` can be **enabled or not** depending on your `.env` and token availability.
 

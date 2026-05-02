@@ -23,11 +23,11 @@ cp .env.example .env
 
 ### Minimum edits in `.env`
 
-| Variable                                 | Why                                                                  |
-| ---------------------------------------- | -------------------------------------------------------------------- |
-| `POSTGRES_PASSWORD`                      | Secure the DB; must match `DATABASE_URL`.                            |
-| `TATI_IMAGE_REGISTRY` / `TATI_IMAGE_TAG` | Point to published images (`ghcr.io/<owner>/…`, release tag).      |
-| `APP_PORT`                               | Port where you reach the UI in the browser.                         |
+| Variable                                 | Why                                                           |
+| ---------------------------------------- | ------------------------------------------------------------- |
+| `POSTGRES_PASSWORD`                      | Secure the DB; must match `DATABASE_URL`.                     |
+| `TATI_IMAGE_REGISTRY` / `TATI_IMAGE_TAG` | Point to published images (`ghcr.io/<owner>/…`, release tag). |
+| `APP_PORT`                               | Port where you reach the UI in the browser.                   |
 
 Then enable the MCPs you have tokens for (Slack, GitHub, etc.) — without tokens, some containers may restart or stay unusable.
 

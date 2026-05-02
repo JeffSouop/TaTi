@@ -125,7 +125,12 @@ const logoSrc = withBase("/tati-logo.png");
         </h2>
         <p class="om-section-desc">{{ t.guidesDesc }}</p>
         <div class="om-guide-grid">
-          <a v-for="g in t.guideTiles" :key="g.title" class="om-guide-card" :href="localePath(g.href)">
+          <a
+            v-for="g in t.guideTiles"
+            :key="g.title"
+            class="om-guide-card"
+            :href="localePath(g.href)"
+          >
             <span class="om-guide-icon-wrap" aria-hidden="true">
               <img
                 class="om-guide-icon-img"
@@ -625,11 +630,7 @@ const logoSrc = withBase("/tati-logo.png");
   width: 3rem;
   height: 3rem;
   border-radius: 12px;
-  background: linear-gradient(
-    145deg,
-    rgba(6, 182, 212, 0.14) 0%,
-    rgba(99, 102, 241, 0.1) 100%
-  );
+  background: linear-gradient(145deg, rgba(6, 182, 212, 0.14) 0%, rgba(99, 102, 241, 0.1) 100%);
   border: 1px solid rgba(6, 182, 212, 0.22);
   box-sizing: border-box;
 }

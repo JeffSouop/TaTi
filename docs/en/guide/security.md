@@ -11,11 +11,11 @@ Local auth **does not secure MCPs by itself**: if an attacker reaches the networ
 
 ## 2. Secrets and tokens
 
-| Practice           | Detail                                                                                 |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| Never in Git       | `.env` stays ignored; use CI secrets for pipelines.                                      |
-| Least privilege    | GitHub/GitLab tokens with minimal scopes; Slack bots limited to required channels.      |
-| Rotation           | Rotate tokens after someone leaves or a suspected leak.                                |
+| Practice        | Detail                                                                             |
+| --------------- | ---------------------------------------------------------------------------------- |
+| Never in Git    | `.env` stays ignored; use CI secrets for pipelines.                                |
+| Least privilege | GitHub/GitLab tokens with minimal scopes; Slack bots limited to required channels. |
+| Rotation        | Rotate tokens after someone leaves or a suspected leak.                            |
 
 ## 3. Write safeguards
 

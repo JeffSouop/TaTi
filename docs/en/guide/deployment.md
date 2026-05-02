@@ -4,10 +4,10 @@ This guide summarizes moving from a **local trial** to a **more durable** setup:
 
 ## Deployment modes
 
-| Mode        | File                         | Typical use                                      |
-| ----------- | ---------------------------- | ------------------------------------------------ |
-| Development | `docker-compose.yml` (clone) | Build `app` image, code volume, port 5173.       |
-| Distribution | `docker-compose.dist.yml` | No clone: YAML + `.env`, pull GHCR images.      |
+| Mode         | File                         | Typical use                                |
+| ------------ | ---------------------------- | ------------------------------------------ |
+| Development  | `docker-compose.yml` (clone) | Build `app` image, code volume, port 5173. |
+| Distribution | `docker-compose.dist.yml`    | No clone: YAML + `.env`, pull GHCR images. |
 
 Both inject `TATI_AUTH_REQUIRED` and `TATI_SESSION_TTL_DAYS` into the app service so auth follows your `.env`.
 
