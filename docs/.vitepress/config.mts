@@ -17,7 +17,8 @@ export default defineConfig({
   cleanUrls: true,
   head: [["link", { rel: "icon", href: `${baseTrailing}tati-logo.png`, type: "image/png" }]],
   themeConfig: {
-    logo: `${baseTrailing}tati-logo.png`,
+    /** Chemin depuis la racine pub ; VitePress préfixe automatiquement `base` (éviter `/TaTi/` + base doublé). */
+    logo: { src: "/tati-logo.png", alt: "TaTi" },
     siteTitle: "TaTi",
     outline: { label: "Sur cette page", level: [2, 3] },
     search: { provider: "local" },
