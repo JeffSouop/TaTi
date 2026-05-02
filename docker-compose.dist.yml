@@ -195,6 +195,20 @@ services:
     ports:
       - "${MCP_DAGSTER_PORT:-8016}:8016"
 
+  mcp-airflow:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-airflow:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-airflow
+    restart: unless-stopped
+    environment:
+      AIRFLOW_BASE_URL: ${AIRFLOW_BASE_URL:-http://host.docker.internal:8080}
+      AIRFLOW_USERNAME: ${AIRFLOW_USERNAME:-}
+      AIRFLOW_PASSWORD: ${AIRFLOW_PASSWORD:-}
+      AIRFLOW_API_TOKEN: ${AIRFLOW_API_TOKEN:-}
+      AIRFLOW_ALLOW_MUTATIONS: ${AIRFLOW_ALLOW_MUTATIONS:-false}
+      AIRFLOW_SSL_VERIFY: ${AIRFLOW_SSL_VERIFY:-true}
+    ports:
+      - "${MCP_AIRFLOW_PORT:-8017}:8017"
+
   mcp-github:
     image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-github:${TATI_IMAGE_TAG:-latest}
     container_name: mcp-github

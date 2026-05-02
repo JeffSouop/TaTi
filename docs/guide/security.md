@@ -30,7 +30,7 @@ Documentez en interne **qui** a le droit de passer ces garde-fous.
 ## 4. Réseau et exposition
 
 - N’exposez **pas** les ports MCP sur Internet sans TLS ni ACL.
-- Pour OpenMetadata ou Dagster sur `host.docker.internal`, comprenez que le conteneur MCP parle à votre machine hôte — ce chemin doit être maîtrisé.
+- Pour OpenMetadata, Dagster ou Airflow sur `host.docker.internal`, comprenez que le conteneur MCP parle à votre machine hôte — ce chemin doit être maîtrisé.
 
 ## 5. Données personnelles et conformité
 

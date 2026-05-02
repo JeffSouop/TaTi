@@ -8,28 +8,29 @@ Les **ports** ci‑dessous sont les **ports hôte par défaut** du fichier `.env
 
 ## Tableau récapitulatif
 
-| Connecteur            | Port hôte (défaut)  | URL type (dans le réseau Compose)   | Variables clés                                        |
-| --------------------- | ------------------- | ----------------------------------- | ----------------------------------------------------- |
-| OpenMetadata          | 8001                | `http://mcp-openmetadata:8001/mcp`  | `OPENMETADATA_URL`, `OPENMETADATA_JWT`                |
-| PostgreSQL            | 8002                | `http://mcp-postgres:8002/mcp`      | `MCP_POSTGRES_DATABASE_URL`, `MCP_POSTGRES_READ_ONLY` |
-| PDF                   | 8003                | `http://mcp-pdf:8003/mcp`           | `MCP_PDF_PUBLIC_BASE_URL`                             |
-| Notion                | 8004                | `http://mcp-notion:8004/mcp`        | `MCP_NOTION_TOKEN`                                    |
-| GitHub                | 8007                | `http://mcp-github:8007/mcp`        | `MCP_GITHUB_TOKEN`                                    |
-| GitLab                | 8008                | `http://mcp-gitlab:8008/mcp`        | `MCP_GITLAB_TOKEN`, `MCP_GITLAB_URL`                  |
-| Elasticsearch         | 8009 → 8080 interne | `http://mcp-elasticsearch:8080/mcp` | `MCP_ELASTICSEARCH_*`                                 |
-| Discord               | 8010                | `http://mcp-discord:8010/mcp`       | `MCP_DISCORD_*`                                       |
-| Filesystem            | 8011                | `http://mcp-filesystem:8011/mcp`    | `MCP_FILESYSTEM_ROOT`                                 |
-| AWS                   | 8012                | `http://mcp-aws:8012/mcp`           | `AWS_*`                                               |
-| Azure                 | 8013                | `http://mcp-azure:8013/mcp`         | `AZURE_*`                                             |
-| GCP                   | 8014                | `http://mcp-gcp:8014/mcp`           | `GCP_*`                                               |
-| Email SMTP            | 8015                | `http://mcp-email:8015/mcp`         | `SMTP_*`                                              |
-| Dagster               | 8016                | `http://mcp-dagster:8016/mcp`       | `DAGSTER_GRAPHQL_URL`, `DAGSTER_API_TOKEN`            |
-| Slack                 | 8006                | `http://mcp-slack:8006/mcp`         | `MCP_SLACK_*`                                         |
-| Grafana               | 8020                | `http://mcp-grafana:8020/mcp`       | `MCP_GRAFANA_*`                                       |
-| Prometheus            | 8021                | `http://mcp-prometheus:8021/mcp`    | `MCP_PROMETHEUS_*`                                    |
-| Datadog               | — (HTTPS)           | Voir section Datadog                | `MCP_DATADOG_*` + headers                             |
-| Google Gmail / Agenda | — (HTTPS)           | Endpoints Google MCP                | `GOOGLE_*`, OAuth                                     |
-| Moodle                | — (HTTPS)           | URL du plugin Moodle                | `MCP_MOODLE_*`                                        |
+| Connecteur            | Port hôte (défaut)  | URL type (dans le réseau Compose)   | Variables clés                                              |
+| --------------------- | ------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| OpenMetadata          | 8001                | `http://mcp-openmetadata:8001/mcp`  | `OPENMETADATA_URL`, `OPENMETADATA_JWT`                      |
+| PostgreSQL            | 8002                | `http://mcp-postgres:8002/mcp`      | `MCP_POSTGRES_DATABASE_URL`, `MCP_POSTGRES_READ_ONLY`       |
+| PDF                   | 8003                | `http://mcp-pdf:8003/mcp`           | `MCP_PDF_PUBLIC_BASE_URL`                                   |
+| Notion                | 8004                | `http://mcp-notion:8004/mcp`        | `MCP_NOTION_TOKEN`                                          |
+| GitHub                | 8007                | `http://mcp-github:8007/mcp`        | `MCP_GITHUB_TOKEN`                                          |
+| GitLab                | 8008                | `http://mcp-gitlab:8008/mcp`        | `MCP_GITLAB_TOKEN`, `MCP_GITLAB_URL`                        |
+| Elasticsearch         | 8009 → 8080 interne | `http://mcp-elasticsearch:8080/mcp` | `MCP_ELASTICSEARCH_*`                                       |
+| Discord               | 8010                | `http://mcp-discord:8010/mcp`       | `MCP_DISCORD_*`                                             |
+| Filesystem            | 8011                | `http://mcp-filesystem:8011/mcp`    | `MCP_FILESYSTEM_ROOT`                                       |
+| AWS                   | 8012                | `http://mcp-aws:8012/mcp`           | `AWS_*`                                                     |
+| Azure                 | 8013                | `http://mcp-azure:8013/mcp`         | `AZURE_*`                                                   |
+| GCP                   | 8014                | `http://mcp-gcp:8014/mcp`           | `GCP_*`                                                     |
+| Email SMTP            | 8015                | `http://mcp-email:8015/mcp`         | `SMTP_*`                                                    |
+| Dagster               | 8016                | `http://mcp-dagster:8016/mcp`       | `DAGSTER_GRAPHQL_URL`, `DAGSTER_API_TOKEN`                  |
+| Apache Airflow        | 8017                | `http://mcp-airflow:8017/mcp`       | `AIRFLOW_BASE_URL`, `AIRFLOW_USERNAME` / `AIRFLOW_PASSWORD` |
+| Slack                 | 8006                | `http://mcp-slack:8006/mcp`         | `MCP_SLACK_*`                                               |
+| Grafana               | 8020                | `http://mcp-grafana:8020/mcp`       | `MCP_GRAFANA_*`                                             |
+| Prometheus            | 8021                | `http://mcp-prometheus:8021/mcp`    | `MCP_PROMETHEUS_*`                                          |
+| Datadog               | — (HTTPS)           | Voir section Datadog                | `MCP_DATADOG_*` + headers                                   |
+| Google Gmail / Agenda | — (HTTPS)           | Endpoints Google MCP                | `GOOGLE_*`, OAuth                                           |
+| Moodle                | — (HTTPS)           | URL du plugin Moodle                | `MCP_MOODLE_*`                                              |
 
 Les sections suivantes détaillent **rôle**, **cas d’usage**, **ce que le pont expose en général**, puis **configuration** et **pièges courants**.
 
@@ -361,6 +362,36 @@ En production, utilisez un volume dédié et des permissions OS strictes : ce MC
 - **Port** : **8016**.
 - **URL** : `http://mcp-dagster:8016/mcp`.
 - **Variables** : `DAGSTER_GRAPHQL_URL`, `DAGSTER_API_TOKEN`, `DAGSTER_ALLOW_MUTATIONS`.
+
+---
+
+## MCP Apache Airflow {#mcp-airflow}
+
+**Rôle** : interroger et piloter **Apache Airflow** via l’**API REST stable** (`/api/v1`) : DAGs, exécutions (dag runs), tâches ; déclenchement ou pause selon configuration.
+
+**Cas d’usage avec TaTi**
+
+- « Liste les DAGs actifs », « quel est l’état du dernier run de `daily_etl` ? », « déclenche une run avec ce `conf` » (si mutations activées).
+
+**Capacités typiques du pont**
+
+- Lecture : liste des DAGs, détail d’un DAG, liste des dag runs, détail d’un run, liste des tâches d’un DAG.
+- Écriture (**optionnelle**) : déclencher une run (`AIRFLOW_ALLOW_MUTATIONS=true`), mettre un DAG en pause / le réactiver — uniquement si vous activez explicitement le garde-fou et que le compte Airflow le permet.
+
+**Configuration**
+
+- **Port** : **8017** (`MCP_AIRFLOW_PORT` dans `.env`).
+- **URL dans TaTi** : `http://mcp-airflow:8017/mcp` (Compose) ou `http://localhost:8017/mcp` depuis la machine hôte.
+- **Variables** :
+  - **`AIRFLOW_BASE_URL`** : URL de base du serveur web Airflow (_sans_ `/api/v1`), par ex. `http://host.docker.internal:8080` si Airflow tourne sur la machine hôte, ou `http://airflow-webserver:8080` si le scheduler/webserver est sur le même réseau Docker étendu.
+  - **Auth** : **`AIRFLOW_USERNAME`** et **`AIRFLOW_PASSWORD`** (HTTP Basic, recommandé avec un compte dédié lecture / ops selon le besoin). Alternative **`AIRFLOW_API_TOKEN`** si votre déploiement expose un jeton Bearer compatible avec l’API REST.
+  - **`AIRFLOW_SSL_VERIFY`** : `true` par défaut ; passez à `false` seulement pour du HTTPS avec certificat auto-signé en environnement de test.
+  - **`AIRFLOW_ALLOW_MUTATIONS`** : `false` par défaut (lecture seule). Passez à `true` pour autoriser trigger et pause/unpause via le pont.
+
+**Pièges courants**
+
+- Confondre l’URL du **bridge MCP** (TaTi → `…:8017/mcp`) avec **`AIRFLOW_BASE_URL`** (bridge → API Airflow). Les deux sont nécessaires.
+- Droits RBAC Airflow : un utilisateur « lecture seule » ne pourra pas déclencher de runs même si `AIRFLOW_ALLOW_MUTATIONS=true`.
 
 ---
 

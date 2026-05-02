@@ -206,6 +206,13 @@ const PRESETS: Array<{ label: string; name: string; url: string; hint: string; i
       icon: <Workflow className="h-3.5 w-3.5 text-violet-700" />,
     },
     {
+      label: "Apache Airflow",
+      name: "Airflow",
+      url: "http://mcp-airflow:8017/mcp",
+      hint: "Bridge local Airflow MCP (REST /api/v1 DAGs, runs, trigger)",
+      icon: <Workflow className="h-3.5 w-3.5 text-sky-600" />,
+    },
+    {
       label: "Moodle",
       name: "Moodle",
       url: "https://YOUR-MOODLE-SITE/webservice/mcp/server.php",
@@ -255,6 +262,7 @@ function getServerIcon(name: string): ReactNode {
   if (key.includes("calendar")) return <CalendarDays className="h-3.5 w-3.5 text-blue-600" />;
   if (key.includes("moodle")) return <GraduationCap className="h-3.5 w-3.5 text-orange-600" />;
   if (key.includes("openmetadata")) return <Tags className="h-3.5 w-3.5 text-cyan-700" />;
+  if (key.includes("airflow")) return <Workflow className="h-3.5 w-3.5 text-sky-600" />;
   if (key.includes("fetch")) return <Globe className="h-3.5 w-3.5 text-green-700" />;
 
   return <Server className="h-3.5 w-3.5 text-muted-foreground" />;

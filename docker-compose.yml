@@ -255,6 +255,24 @@ services:
       - "${MCP_DAGSTER_PORT:-8016}:8016"
 
   # ---------------------------------------------------------------------------
+  # MCP Airflow (bridge REST vers l’API stable Airflow /api/v1)
+  # ---------------------------------------------------------------------------
+  mcp-airflow:
+    build:
+      context: ./mcp-airflow
+    container_name: mcp-airflow
+    restart: unless-stopped
+    environment:
+      AIRFLOW_BASE_URL: ${AIRFLOW_BASE_URL:-http://host.docker.internal:8080}
+      AIRFLOW_USERNAME: ${AIRFLOW_USERNAME:-}
+      AIRFLOW_PASSWORD: ${AIRFLOW_PASSWORD:-}
+      AIRFLOW_API_TOKEN: ${AIRFLOW_API_TOKEN:-}
+      AIRFLOW_ALLOW_MUTATIONS: ${AIRFLOW_ALLOW_MUTATIONS:-false}
+      AIRFLOW_SSL_VERIFY: ${AIRFLOW_SSL_VERIFY:-true}
+    ports:
+      - "${MCP_AIRFLOW_PORT:-8017}:8017"
+
+  # ---------------------------------------------------------------------------
   # MCP GitHub (optionnel)
   # ---------------------------------------------------------------------------
   mcp-github:
