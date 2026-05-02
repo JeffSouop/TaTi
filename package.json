@@ -16,7 +16,10 @@
     "test:e2e": "playwright test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "ci:quality": "npm run lint && npm run typecheck && npm run test:coverage && npm run format:check && npm run build"
+    "ci:quality": "npm run lint && npm run typecheck && npm run test:coverage && npm run format:check && npm run build",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "dependencies": {
     "@cloudflare/vite-plugin": "^1.25.5",
@@ -81,8 +84,8 @@
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@lovable.dev/vite-tanstack-config": "^1.4.0",
-    "@types/node": "^22.16.5",
     "@playwright/test": "^1.56.1",
+    "@types/node": "^22.16.5",
     "@types/pg": "^8.20.0",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
@@ -98,6 +101,14 @@
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.56.1",
     "vite": "^7.3.1",
+    "vitepress": "^1.6.4",
     "vitest": "^4.1.5"
+  },
+  "overrides": {
+    "@docsearch/react": {
+      "react": "$react",
+      "react-dom": "$react-dom",
+      "@types/react": "$@types/react"
+    }
   }
 }
