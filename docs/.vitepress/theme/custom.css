@@ -94,6 +94,17 @@ html.dark {
   color: var(--vp-c-text-2);
 }
 
+/* Captures d’écran (guides) */
+.vp-doc img[src*="/screenshots/"] {
+  display: block;
+  max-width: min(960px, 100%);
+  height: auto;
+  margin: 1.25rem auto;
+  border-radius: var(--om-radius-md);
+  border: 1px solid var(--vp-c-divider);
+  box-shadow: var(--om-shadow-card);
+}
+
 /* Diagramme d’architecture (guide) */
 .vp-doc img[src*="tati_architecture_diagram"],
 .vp-doc img[src*="architecture-overview"] {

@@ -38,7 +38,7 @@ docker compose pull
 docker compose up -d
 ```
 
-Ouvrez `http://localhost:${APP_PORT:-3000}` (ou la valeur que vous avez mise dans `APP_PORT`).
+Ouvrez `http://localhost:${APP_PORT:-3000}` (ou la valeur que vous avez mise dans `APP_PORT`). Une fois connecté, vous arrivez sur l’accueil de l’application — voir un **aperçu visuel** dans [Introduction — Aperçu de l’interface](./introduction.md#interface-apercu).
 
 ---
 
