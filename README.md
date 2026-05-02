@@ -24,14 +24,6 @@ Application:
 
 - http://localhost:3000
 
-## Documentation
-
-Sources du site de documentation : dossier `docs/` du dépôt (publication GitHub Pages via Actions si activée).
-
-- [Releases](https://github.com/JeffSouop/TaTi/releases)
-- [Actions](https://github.com/JeffSouop/TaTi/actions)
-- [Issues](https://github.com/JeffSouop/TaTi/issues)
-
 ## Licence
 
 Voir le fichier de licence du depot.
