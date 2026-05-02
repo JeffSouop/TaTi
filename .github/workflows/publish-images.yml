@@ -159,6 +159,9 @@ jobs:
           - image: tati-mcp-dagster
             context: ./mcp-dagster
             dockerfile: ./mcp-dagster/Dockerfile
+          - image: tati-mcp-airflow
+            context: ./mcp-airflow
+            dockerfile: ./mcp-airflow/Dockerfile
           - image: tati-mcp-github
             context: ./mcp-github
             dockerfile: ./mcp-github/Dockerfile

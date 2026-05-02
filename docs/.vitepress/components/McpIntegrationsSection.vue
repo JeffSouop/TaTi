@@ -30,6 +30,7 @@ const BRAND_BY_ANCHOR: Record<string, string> = {
   "mcp-github": "github.svg",
   "mcp-gitlab": "gitlab.svg",
   "mcp-dagster": "dagster.svg",
+  "mcp-airflow": "airflow.svg",
   "mcp-aws": "aws.svg",
   "mcp-azure": "azure.svg",
   "mcp-gcp": "gcp.svg",
@@ -136,6 +137,13 @@ const services: Svc[] = [
     anchor: "mcp-dagster",
     hint: "GraphQL Dagster",
     detail: "Runs, assets, partitions ; mutations selon flag.",
+  },
+  {
+    cat: "forge",
+    name: "Apache Airflow",
+    anchor: "mcp-airflow",
+    hint: "REST Airflow",
+    detail: "DAGs, tâches, runs ; trigger / pause si AIRFLOW_ALLOW_MUTATIONS.",
   },
   {
     cat: "cloud",

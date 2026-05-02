@@ -30,7 +30,7 @@ Document internally **who** may bypass these safeguards.
 ## 4. Network and exposure
 
 - Do **not** expose MCP ports on the internet without TLS and ACLs.
-- For OpenMetadata or Dagster on `host.docker.internal`, the MCP container talks to your host — that path must be controlled.
+- For OpenMetadata, Dagster, or Airflow on `host.docker.internal`, the MCP container talks to your host — that path must be controlled.
 
 ## 5. Personal data and compliance
 

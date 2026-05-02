@@ -85,6 +85,7 @@ Groupes principaux dans `.env.example` :
 - **GCP** — `GCP_PROJECT_ID`, JSON de compte de service.
 - **Email SMTP** — `SMTP_*`, liste autorisée des destinataires.
 - **Dagster** — URL GraphQL Dagster, jeton API, `DAGSTER_ALLOW_MUTATIONS`.
+- **Apache Airflow** — `AIRFLOW_BASE_URL`, identifiants ou `AIRFLOW_API_TOKEN`, `AIRFLOW_ALLOW_MUTATIONS`, `AIRFLOW_SSL_VERIFY`.
 - **Elasticsearch** — URL cluster, clé API ou login/mot de passe.
 - **Grafana / Prometheus** — URL du stack monitoring + jetons si besoin.
 - **Datadog** — URL MCP Datadog + clés API / application (souvent dans les headers côté UI TaTi).
