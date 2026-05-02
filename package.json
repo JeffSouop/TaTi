@@ -103,5 +103,12 @@
     "vite": "^7.3.1",
     "vitepress": "^1.6.4",
     "vitest": "^4.1.5"
+  },
+  "overrides": {
+    "@docsearch/react": {
+      "react": "$react",
+      "react-dom": "$react-dom",
+      "@types/react": "$@types/react"
+    }
   }
 }
