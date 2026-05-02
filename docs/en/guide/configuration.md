@@ -86,6 +86,8 @@ Main groups in `.env.example`:
 - **Email SMTP** — `SMTP_*`, allowlisted recipients.
 - **Dagster** — Dagster GraphQL URL, API token, `DAGSTER_ALLOW_MUTATIONS`.
 - **Apache Airflow** — `AIRFLOW_BASE_URL`, credentials or `AIRFLOW_API_TOKEN`, `AIRFLOW_ALLOW_MUTATIONS`, `AIRFLOW_SSL_VERIFY`.
+- **dbt Cloud** — `DBT_CLOUD_DISCOVERY_URL`, `DBT_CLOUD_TOKEN`, `DBT_CLOUD_ENVIRONMENT_ID`, `DBT_SSL_VERIFY`.
+- **dbt Core (CLI bridge)** — `DBT_CORE_HOST_PROJECT`, `DBT_CORE_PROJECT_DIR`, `DBT_PROFILES_DIR`, `DBT_CORE_TARGET`, `DBT_ALLOW_MUTATIONS`.
 - **Elasticsearch** — cluster URL, API key or login/password.
 - **Grafana / Prometheus** — monitoring stack URL + tokens if needed.
 - **Datadog** — Datadog MCP URL + API / application keys (often as headers in TaTi UI).

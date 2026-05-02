@@ -52,6 +52,7 @@ import {
   BarChart3,
   Activity,
   LineChart,
+  Boxes,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -213,6 +214,20 @@ const PRESETS: Array<{ label: string; name: string; url: string; hint: string; i
       icon: <Workflow className="h-3.5 w-3.5 text-sky-600" />,
     },
     {
+      label: "dbt Cloud",
+      name: "dbt",
+      url: "http://mcp-dbt:8018/mcp",
+      hint: "Bridge dbt Cloud Discovery API (GraphQL metadata, models/sources)",
+      icon: <Boxes className="h-3.5 w-3.5 text-orange-500" />,
+    },
+    {
+      label: "dbt Core",
+      name: "dbt Core",
+      url: "http://mcp-dbt-core:8019/mcp",
+      hint: "Bridge dbt Core CLI (mounted project: parse, ls, compile, manifest)",
+      icon: <Boxes className="h-3.5 w-3.5 text-amber-600" />,
+    },
+    {
       label: "Moodle",
       name: "Moodle",
       url: "https://YOUR-MOODLE-SITE/webservice/mcp/server.php",
@@ -263,6 +278,8 @@ function getServerIcon(name: string): ReactNode {
   if (key.includes("moodle")) return <GraduationCap className="h-3.5 w-3.5 text-orange-600" />;
   if (key.includes("openmetadata")) return <Tags className="h-3.5 w-3.5 text-cyan-700" />;
   if (key.includes("airflow")) return <Workflow className="h-3.5 w-3.5 text-sky-600" />;
+  if (key.includes("dbt core")) return <Boxes className="h-3.5 w-3.5 text-amber-600" />;
+  if (key.includes("dbt")) return <Boxes className="h-3.5 w-3.5 text-orange-500" />;
   if (key.includes("fetch")) return <Globe className="h-3.5 w-3.5 text-green-700" />;
 
   return <Server className="h-3.5 w-3.5 text-muted-foreground" />;

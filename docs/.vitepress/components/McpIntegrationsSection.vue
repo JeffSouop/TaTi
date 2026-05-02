@@ -19,6 +19,8 @@ const categories = computed(() => {
 /** Fichiers dans `docs/public/icons/brands/` (référence marques / Simple Icons). */
 const BRAND_BY_ANCHOR: Record<string, string> = {
   "mcp-openmetadata": "openmetadata.svg",
+  "mcp-dbt": "dbt.svg",
+  "mcp-dbt-core": "dbt.svg",
   "mcp-postgresql": "postgresql.svg",
   "mcp-elasticsearch": "elasticsearch.svg",
   "mcp-pdf": "pdf.svg",
@@ -60,6 +62,20 @@ const services: Svc[] = [
     anchor: "mcp-openmetadata",
     hint: "Catalogue, métadonnées",
     detail: "Lignage, glossaires, recherche d’entités ; mutations optionnelles.",
+  },
+  {
+    cat: "data",
+    name: "dbt Cloud",
+    anchor: "mcp-dbt",
+    hint: "Discovery API",
+    detail: "Modèles, sources, GraphQL ; jeton service Cloud.",
+  },
+  {
+    cat: "data",
+    name: "dbt Core",
+    anchor: "mcp-dbt-core",
+    hint: "CLI projet local",
+    detail: "parse, ls, compile, manifest ; run/test si mutations activées.",
   },
   {
     cat: "data",

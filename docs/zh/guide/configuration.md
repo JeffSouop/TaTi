@@ -86,6 +86,8 @@ Slack、Discord、PDF、Notion、filesystem：见 `.env.example` 中 `MCP_SLACK_
 - **SMTP** — `SMTP_*`、收件人白名单。
 - **Dagster** — GraphQL URL、API 令牌、`DAGSTER_ALLOW_MUTATIONS`。
 - **Apache Airflow** — `AIRFLOW_BASE_URL`、账号或 `AIRFLOW_API_TOKEN`、`AIRFLOW_ALLOW_MUTATIONS`、`AIRFLOW_SSL_VERIFY`。
+- **dbt Cloud** — `DBT_CLOUD_DISCOVERY_URL`、`DBT_CLOUD_TOKEN`、`DBT_CLOUD_ENVIRONMENT_ID`、`DBT_SSL_VERIFY`。
+- **dbt Core（CLI 桥）** — `DBT_CORE_HOST_PROJECT`、`DBT_CORE_PROJECT_DIR`、`DBT_PROFILES_DIR`、`DBT_CORE_TARGET`、`DBT_ALLOW_MUTATIONS`。
 - **Elasticsearch** — 集群 URL、API 密钥或账号密码。
 - **Grafana / Prometheus** — 监控栈 URL 与令牌。
 - **Datadog** — Datadog MCP URL + API / 应用密钥（常在 TaTi UI 配头）。

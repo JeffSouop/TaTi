@@ -1,0 +1,4 @@
+fastapi==0.115.5
+uvicorn==0.32.1
+dbt-core>=1.8,<2
+dbt-postgres>=1.8,<2

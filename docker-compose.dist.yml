@@ -209,6 +209,32 @@ services:
     ports:
       - "${MCP_AIRFLOW_PORT:-8017}:8017"
 
+  mcp-dbt:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-dbt:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-dbt
+    restart: unless-stopped
+    environment:
+      DBT_CLOUD_DISCOVERY_URL: ${DBT_CLOUD_DISCOVERY_URL:-}
+      DBT_CLOUD_TOKEN: ${DBT_CLOUD_TOKEN:-}
+      DBT_CLOUD_ENVIRONMENT_ID: ${DBT_CLOUD_ENVIRONMENT_ID:-}
+      DBT_SSL_VERIFY: ${DBT_SSL_VERIFY:-true}
+    ports:
+      - "${MCP_DBT_PORT:-8018}:8018"
+
+  mcp-dbt-core:
+    image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-dbt-core:${TATI_IMAGE_TAG:-latest}
+    container_name: mcp-dbt-core
+    restart: unless-stopped
+    environment:
+      DBT_CORE_PROJECT_DIR: ${DBT_CORE_PROJECT_DIR:-/workspace}
+      DBT_PROFILES_DIR: ${DBT_PROFILES_DIR:-}
+      DBT_TARGET: ${DBT_CORE_TARGET:-}
+      DBT_ALLOW_MUTATIONS: ${DBT_ALLOW_MUTATIONS:-false}
+    volumes:
+      - "${DBT_CORE_HOST_PROJECT:-./dbt-core-project}:/workspace"
+    ports:
+      - "${MCP_DBT_CORE_PORT:-8019}:8019"
+
   mcp-github:
     image: ${TATI_IMAGE_REGISTRY:-ghcr.io/jeffsouop}/tati-mcp-github:${TATI_IMAGE_TAG:-latest}
     container_name: mcp-github
