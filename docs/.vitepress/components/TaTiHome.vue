@@ -33,6 +33,7 @@ const chips = [
   { label: "GitHub", href: "/guide/mcp#mcp-github" },
   { label: "OpenMetadata", href: "/guide/mcp#mcp-openmetadata" },
   { label: "Grafana", href: "/guide/mcp#mcp-grafana" },
+  { label: "Dagster", href: "/guide/mcp#mcp-dagster" },
   { label: "Auth", href: "/guide/security" },
 ];
 
