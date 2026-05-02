@@ -87,8 +87,9 @@ jobs:
           # Collect all changed files in a null-delimited file.
           git diff --name-only -z "$BASE_SHA" "$HEAD_SHA" > /tmp/all_changed_files
 
-          # Filter only files that matter for lint/format checks.
+          # Prettier: JS/TS/JSON/YAML/Markdown. ESLint n’a de config que pour TS/JS (pas les .md : sinon « no matching configuration »).
           : > /tmp/changed_files_for_checks
+          : > /tmp/changed_files_for_lint
           while IFS= read -r -d '' file; do
             case "$file" in
               coverage/*|test-results/*|playwright-report/*|dist/*|.output/*|.vinxi/*)
@@ -100,6 +101,11 @@ jobs:
                 printf '%s\0' "$file" >> /tmp/changed_files_for_checks
                 ;;
             esac
+            case "$file" in
+              *.js|*.jsx|*.ts|*.tsx|*.json|*.yml|*.yaml)
+                printf '%s\0' "$file" >> /tmp/changed_files_for_lint
+                ;;
+            esac
           done < /tmp/all_changed_files
 
           if [ -s /tmp/changed_files_for_checks ]; then
@@ -107,11 +113,16 @@ jobs:
           else
             echo "any_changed=false" >> "$GITHUB_OUTPUT"
           fi
+          if [ -s /tmp/changed_files_for_lint ]; then
+            echo "any_lint=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "any_lint=false" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Lint changed files
-        if: steps.changed-files.outputs.any_changed == 'true'
+        if: steps.changed-files.outputs.any_lint == 'true'
         shell: bash
-        run: xargs -0 -a /tmp/changed_files_for_checks npx eslint --
+        run: xargs -0 -a /tmp/changed_files_for_lint npx eslint --
 
       - name: Typecheck
         run: npm run typecheck

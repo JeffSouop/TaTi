@@ -1,9 +1,15 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { withBase } from "vitepress";
 import McpIntegrationsSection from "./McpIntegrationsSection.vue";
+import { useLocalePath } from "../composables/useLocalePath";
+import { HOME_LOCALE, homeLocaleFromLang } from "../i18n/homeLocale";
 
 const searchKbd = ref("Ctrl K");
+
+const { localePath, lang } = useLocalePath();
+
+const t = computed(() => HOME_LOCALE[homeLocaleFromLang(lang.value)]);
 
 onMounted(() => {
   if (typeof navigator !== "undefined" && navigator.platform.includes("Mac")) {
@@ -26,175 +32,6 @@ function openSearch(e?: MouseEvent) {
 }
 
 const logoSrc = withBase("/tati-logo.png");
-
-const chips = [
-  { label: "PostgreSQL", href: "/guide/mcp#mcp-postgresql" },
-  { label: "Slack", href: "/guide/mcp#mcp-slack" },
-  { label: "GitHub", href: "/guide/mcp#mcp-github" },
-  { label: "OpenMetadata", href: "/guide/mcp#mcp-openmetadata" },
-  { label: "Grafana", href: "/guide/mcp#mcp-grafana" },
-  { label: "Dagster", href: "/guide/mcp#mcp-dagster" },
-  { label: "Auth", href: "/guide/security" },
-];
-
-const deploy = [
-  {
-    tag: "PoC & essai",
-    title: "Démarrage rapide",
-    desc: "Docker Compose, fichier `.env`, premier `docker compose up` et accès à l’UI. Idéal pour valider les connecteurs.",
-    href: "/guide/quick-start",
-    cta: "Lire le guide",
-  },
-  {
-    tag: "Équipes & prod",
-    title: "Déploiement",
-    desc: "Images GHCR (`TATI_IMAGE_*`), réseau, ports MCP, sauvegardes Postgres et bonnes pratiques de secrets.",
-    href: "/guide/deployment",
-    cta: "Guide déploiement",
-  },
-  {
-    tag: "Déjà en place",
-    title: "Mise à niveau",
-    desc: "Changer de tag d’image, vérifier les nouvelles clés dans `.env.example`, redémarrer proprement les services.",
-    href: "/guide/deployment#mise-a-niveau",
-    cta: "Procédure",
-  },
-  {
-    tag: "Code & PR",
-    title: "Développer TaTi",
-    desc: "Cloner le repo, lancer l’app en dev (Vite), exécuter les tests et ouvrir une PR sur GitHub.",
-    href: "https://github.com/JeffSouop/TaTi",
-    cta: "Dépôt GitHub",
-    external: true,
-  },
-];
-
-/** Étiquettes courtes : pas de numérotation — chaque entrée a son « angle ». */
-const guideTiles = [
-  {
-    badge: "Horizon",
-    title: "Introduction",
-    href: "/guide/introduction",
-    sub: "Vision produit & architecture",
-  },
-  {
-    badge: "Allumage",
-    title: "Démarrage rapide",
-    href: "/guide/quick-start",
-    sub: "Docker Compose & premier lancement",
-  },
-  {
-    badge: "Réglages",
-    title: "Configuration",
-    href: "/guide/configuration",
-    sub: "Variables `.env` expliquées",
-  },
-  {
-    badge: "Ponts",
-    title: "Connecteurs MCP",
-    href: "/guide/mcp",
-    sub: "Ports, URL et sécurité",
-  },
-  {
-    badge: "Circulation",
-    title: "Architecture",
-    href: "/guide/architecture",
-    sub: "Flux requêtes & services",
-  },
-  {
-    badge: "Verrous",
-    title: "Sécurité",
-    href: "/guide/security",
-    sub: "Auth, jetons, garde-fous",
-  },
-  {
-    badge: "Diagnostic",
-    title: "Dépannage",
-    href: "/guide/troubleshooting",
-    sub: "Logs & erreurs fréquentes",
-  },
-  {
-    badge: "Cartographie",
-    title: "Index guides",
-    href: "/guide/introduction",
-    sub: "Vue d’ensemble",
-  },
-];
-
-const highlights = [
-  {
-    title: "MCP partout",
-    body: "TaTi orchestre des dizaines de ponts MCP : messagerie, bases, cloud, observabilité — une URL par service dans les réglages.",
-    href: "/guide/mcp",
-    cta: "Référence MCP",
-  },
-  {
-    title: "Auth locale",
-    body: "Sessions configurables (`TATI_SESSION_TTL_DAYS`), login activable pour les équipes qui exposent l’instance.",
-    href: "/guide/security",
-    cta: "Voir la sécurité",
-  },
-  {
-    title: "Compose complet",
-    body: "Un `docker-compose.yml` pour Postgres, l’application et les ponts MCP avec ports documentés dans `.env.example`.",
-    href: "/guide/quick-start",
-    cta: "Démarrage rapide",
-  },
-  {
-    title: "Open source",
-    body: "Issues, releases et CI publics sur GitHub — vous pouvez forker, adapter les images et contribuer aux connecteurs.",
-    href: "https://github.com/JeffSouop/TaTi/releases",
-    cta: "Releases",
-    external: true,
-  },
-];
-
-const quickCols = [
-  {
-    title: "Installer & lancer",
-    links: [
-      { l: "Démarrage rapide", h: "/guide/quick-start" },
-      { l: "Déploiement (GHCR)", h: "/guide/deployment" },
-      { l: "Fichier `.env`", h: "/guide/configuration" },
-      { l: "Architecture", h: "/guide/architecture" },
-    ],
-  },
-  {
-    title: "Exploitation",
-    links: [
-      { l: "Liste des connecteurs", h: "/guide/mcp" },
-      { l: "Auth & sessions", h: "/guide/security" },
-      { l: "Dépannage", h: "/guide/troubleshooting" },
-      { l: "CI GitHub Actions", h: "https://github.com/JeffSouop/TaTi/actions", ext: true },
-    ],
-  },
-  {
-    title: "Communauté",
-    links: [
-      { l: "Signaler un bug", h: "https://github.com/JeffSouop/TaTi/issues", ext: true },
-      { l: "Code source", h: "https://github.com/JeffSouop/TaTi", ext: true },
-      { l: "README projet", h: "https://github.com/JeffSouop/TaTi#readme", ext: true },
-    ],
-  },
-];
-
-const exploreCards = [
-  {
-    title: "Issues",
-    desc: "Demandes de fonctionnalités et bugs — recherchez avant d’ouvrir un doublon.",
-    href: "https://github.com/JeffSouop/TaTi/issues",
-  },
-  {
-    title: "Releases",
-    desc: "Notes de version et artefacts pour aligner `TATI_IMAGE_TAG`.",
-    href: "https://github.com/JeffSouop/TaTi/releases",
-  },
-  {
-    title: "CI",
-    desc: "État des pipelines sur la branche principale et les PR.",
-    href: "https://github.com/JeffSouop/TaTi/actions",
-  },
-];
 </script>
 
 <template>
@@ -214,25 +51,15 @@ const exploreCards = [
             />
           </div>
         </div>
-        <p class="om-eyebrow">Documentation TaTi</p>
+        <p class="om-eyebrow">{{ t.eyebrow }}</p>
         <h1 class="om-title">
-          Libérez la
-          <span class="om-gradient"> puissance </span>
-          <span class="om-title-rest">du copilote delivery &amp; ops</span>
+          {{ t.heroBefore }}
+          <span class="om-gradient"> {{ t.heroGradient }} </span>
+          <span class="om-title-rest">{{ t.heroAfter }}</span>
         </h1>
-        <p class="om-lead">
-          Une plateforme open source qui relie vos outils réels (Slack, Postgres, OpenMetadata,
-          clouds, observabilité…) au travers du <strong>Model Context Protocol</strong>. Installez
-          avec Docker, configurez les jetons, puis laissez vos équipes chatter avec un contexte
-          métier à jour.
-        </p>
+        <p class="om-lead" v-html="t.leadHtml"></p>
 
-        <button
-          type="button"
-          class="om-search"
-          aria-label="Rechercher dans la documentation"
-          @click="openSearch"
-        >
+        <button type="button" class="om-search" :aria-label="t.searchAria" @click="openSearch">
           <span class="om-search-icon" aria-hidden="true">
             <svg
               width="18"
@@ -246,17 +73,17 @@ const exploreCards = [
               <path d="M20 20l-3-3" stroke-linecap="round" />
             </svg>
           </span>
-          <span class="om-search-placeholder">Rechercher guides, variables, connecteurs…</span>
+          <span class="om-search-placeholder">{{ t.searchPlaceholder }}</span>
           <kbd class="om-kbd">{{ searchKbd }}</kbd>
         </button>
 
         <div class="om-chips" role="list">
           <a
-            v-for="c in chips"
+            v-for="c in t.chips"
             :key="c.label"
             class="om-chip"
             role="listitem"
-            :href="withBase(c.href)"
+            :href="localePath(c.href)"
           >
             {{ c.label }}
           </a>
@@ -265,23 +92,20 @@ const exploreCards = [
 
       <section class="om-section">
         <div class="om-kicker-row">
-          <span class="om-pill">Déploiement</span>
+          <span class="om-pill">{{ t.pillDeploy }}</span>
         </div>
         <h2 class="om-section-head">
-          <span class="om-section-title-lg">Comment lancer TaTi ?</span>
+          <span class="om-section-title-lg">{{ t.deployTitle }}</span>
         </h2>
-        <p class="om-section-desc">
-          Choisissez un parcours : essai express avec Compose, montée en charge avec images
-          registry, ou bien mise à niveau d’une instance existante.
-        </p>
+        <p class="om-section-desc">{{ t.deployDesc }}</p>
         <div class="om-grid om-grid--4">
-          <article v-for="card in deploy" :key="card.title" class="om-card">
+          <article v-for="card in t.deployCards" :key="card.title" class="om-card">
             <span class="om-card-tag">{{ card.tag }}</span>
             <h3 class="om-card-title">{{ card.title }}</h3>
             <p class="om-card-desc">{{ card.desc }}</p>
             <a
               class="om-card-link"
-              :href="card.external ? card.href : withBase(card.href)"
+              :href="card.external ? card.href : localePath(card.href)"
               :target="card.external ? '_blank' : undefined"
               :rel="card.external ? 'noreferrer' : undefined"
             >
@@ -294,18 +118,30 @@ const exploreCards = [
 
       <section class="om-section om-section--soft">
         <div class="om-kicker-row">
-          <span class="om-pill">Guides</span>
+          <span class="om-pill">{{ t.pillGuides }}</span>
         </div>
         <h2 class="om-section-head">
-          <span class="om-section-title-lg">Par où commencer la lecture ?</span>
+          <span class="om-section-title-lg">{{ t.guidesTitle }}</span>
         </h2>
-        <p class="om-section-desc">
-          Aucun ordre imposé : chaque carte ouvre un volet — naviguez comme dans une carte,
-          pas comme dans une liste numérotée.
-        </p>
+        <p class="om-section-desc">{{ t.guidesDesc }}</p>
         <div class="om-guide-grid">
-          <a v-for="g in guideTiles" :key="g.title" class="om-guide-card" :href="withBase(g.href)">
-            <span class="om-guide-badge" aria-hidden="true">{{ g.badge }}</span>
+          <a
+            v-for="g in t.guideTiles"
+            :key="g.title"
+            class="om-guide-card"
+            :href="localePath(g.href)"
+          >
+            <span class="om-guide-icon-wrap" aria-hidden="true">
+              <img
+                class="om-guide-icon-img"
+                :src="withBase(`/home/guide-icons/${g.icon}.svg`)"
+                width="40"
+                height="40"
+                alt=""
+                decoding="async"
+                loading="lazy"
+              />
+            </span>
             <span class="om-guide-title">{{ g.title }}</span>
             <span class="om-guide-sub">{{ g.sub }}</span>
           </a>
@@ -314,36 +150,34 @@ const exploreCards = [
 
       <section class="om-section">
         <div class="om-kicker-row">
-          <span class="om-pill">Connecteurs</span>
+          <span class="om-pill">{{ t.pillConnectors }}</span>
         </div>
         <h2 class="om-section-head">
-          <span class="om-section-title-lg">Intégrations MCP</span>
+          <span class="om-section-title-lg">{{ t.integrationsTitle }}</span>
         </h2>
         <div class="om-integrations-grid">
           <McpIntegrationsSection />
         </div>
         <div class="om-center om-center--pad">
-          <a class="om-btn-secondary" :href="withBase('/guide/mcp')"
-            >Documentation détaillée des connecteurs</a
-          >
+          <a class="om-btn-secondary" :href="localePath('/guide/mcp')">{{ t.connectorsDocCta }}</a>
         </div>
       </section>
 
       <section class="om-section om-section--soft">
         <div class="om-kicker-row">
-          <span class="om-pill">À retenir</span>
+          <span class="om-pill">{{ t.pillHighlights }}</span>
         </div>
         <h2 class="om-section-head">
-          <span class="om-section-title-lg">Pourquoi TaTi ?</span>
+          <span class="om-section-title-lg">{{ t.whyTitle }}</span>
         </h2>
-        <p class="om-section-desc">Quelques points clés avant de plonger dans les guides longs.</p>
+        <p class="om-section-desc">{{ t.whyDesc }}</p>
         <div class="om-grid om-grid--2">
-          <article v-for="h in highlights" :key="h.title" class="om-highlight-block">
+          <article v-for="h in t.highlights" :key="h.title" class="om-highlight-block">
             <h3 class="om-card-title">{{ h.title }}</h3>
             <p class="om-card-desc">{{ h.body }}</p>
             <a
               class="om-card-link"
-              :href="h.external ? h.href : withBase(h.href)"
+              :href="h.external ? h.href : localePath(h.href)"
               :target="h.external ? '_blank' : undefined"
               :rel="h.external ? 'noreferrer' : undefined"
             >
@@ -355,18 +189,18 @@ const exploreCards = [
 
       <section class="om-section">
         <div class="om-kicker-row">
-          <span class="om-pill">Liens rapides</span>
+          <span class="om-pill">{{ t.pillQuick }}</span>
         </div>
         <h2 class="om-section-head">
-          <span class="om-section-title-lg">Navigation utile</span>
+          <span class="om-section-title-lg">{{ t.quickNavTitle }}</span>
         </h2>
         <div class="om-triple">
-          <div v-for="col in quickCols" :key="col.title" class="om-triple-col">
+          <div v-for="col in t.quickCols" :key="col.title" class="om-triple-col">
             <h3 class="om-triple-head">{{ col.title }}</h3>
             <ul class="om-triple-list">
               <li v-for="lk in col.links" :key="lk.l">
                 <a
-                  :href="lk.ext ? lk.h : withBase(lk.h)"
+                  :href="lk.ext ? lk.h : localePath(lk.h)"
                   :target="lk.ext ? '_blank' : undefined"
                   :rel="lk.ext ? 'noreferrer' : undefined"
                 >
@@ -379,13 +213,11 @@ const exploreCards = [
       </section>
 
       <section class="om-section om-explore">
-        <h2 class="om-explore-title">Aller plus loin</h2>
-        <p class="om-section-desc">
-          Suivez le projet sur GitHub pour les annonces et la roadmap implicite (issues).
-        </p>
+        <h2 class="om-explore-title">{{ t.exploreTitle }}</h2>
+        <p class="om-section-desc">{{ t.exploreDesc }}</p>
         <div class="om-explore-grid">
           <a
-            v-for="ex in exploreCards"
+            v-for="ex in t.exploreCards"
             :key="ex.title"
             class="om-explore-card"
             :href="ex.href"
@@ -400,7 +232,7 @@ const exploreCards = [
 
       <section class="om-footer-strip">
         <div class="om-footer-inner">
-          <div><strong>TaTi</strong> — documentation versionnée avec le code.</div>
+          <div>{{ t.footerTagline }}</div>
           <div class="om-footer-links">
             <a href="https://github.com/JeffSouop/TaTi/issues">Issues</a>
             <a href="https://github.com/JeffSouop/TaTi/releases">Releases</a>
@@ -790,26 +622,29 @@ const exploreCards = [
   transform: translateY(-2px);
 }
 
-.om-guide-badge {
+.om-guide-icon-wrap {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   margin-bottom: 0.55rem;
-  padding: 0.35rem 0.65rem;
-  max-width: 100%;
-  border-radius: 999px;
-  background: linear-gradient(
-    135deg,
-    rgba(6, 182, 212, 0.18) 0%,
-    rgba(99, 102, 241, 0.12) 100%
-  );
-  border: 1px solid rgba(6, 182, 212, 0.28);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  line-height: 1.25;
-  color: var(--vp-c-brand-1);
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(6, 182, 212, 0.14) 0%, rgba(99, 102, 241, 0.1) 100%);
+  border: 1px solid rgba(6, 182, 212, 0.22);
   box-sizing: border-box;
+}
+
+.dark .om-guide-icon-wrap {
+  background: rgba(30, 41, 59, 0.5);
+  border-color: rgba(6, 182, 212, 0.22);
+}
+
+.om-guide-icon-img {
+  display: block;
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
 }
 
 .om-guide-title {

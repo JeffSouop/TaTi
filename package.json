@@ -110,5 +110,8 @@
       "react-dom": "$react-dom",
       "@types/react": "$@types/react"
     }
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.60.2"
   }
 }

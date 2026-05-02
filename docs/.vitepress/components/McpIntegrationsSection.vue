@@ -1,6 +1,20 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { withBase } from "vitepress";
+import { useData, withBase } from "vitepress";
+import { useLocalePath } from "../composables/useLocalePath";
+import { MCP_CAT_LABELS, MCP_FILTER_ARIA, mcpLangFromVp, type CatKey } from "../i18n/mcpUiLocale";
+
+const { lang } = useData();
+const { localePath } = useLocalePath();
+
+const mcpUiLang = computed(() => mcpLangFromVp(lang.value));
+const filterAriaLabel = computed(() => MCP_FILTER_ARIA[mcpUiLang.value]);
+
+const categories = computed(() => {
+  const L = MCP_CAT_LABELS[mcpUiLang.value];
+  const keys: CatKey[] = ["all", "data", "collab", "comms", "forge", "cloud", "observe", "google"];
+  return keys.map((id) => ({ id, label: L[id] }));
+});
 
 /** Fichiers dans `docs/public/icons/brands/` (référence marques / Simple Icons). */
 const BRAND_BY_ANCHOR: Record<string, string> = {
@@ -26,18 +40,7 @@ const BRAND_BY_ANCHOR: Record<string, string> = {
   "mcp-moodle": "moodle.svg",
 };
 
-type CatId = "all" | "data" | "collab" | "comms" | "forge" | "cloud" | "observe" | "google";
-
-const categories: { id: CatId; label: string }[] = [
-  { id: "all", label: "Tous" },
-  { id: "data", label: "Données & catalogue" },
-  { id: "collab", label: "Docs & fichiers" },
-  { id: "comms", label: "Messagerie" },
-  { id: "forge", label: "Forge & pipelines" },
-  { id: "cloud", label: "Cloud" },
-  { id: "observe", label: "Observabilité" },
-  { id: "google", label: "Google & autres" },
-];
+type CatId = CatKey;
 
 type Svc = {
   cat: Exclude<CatId, "all">;
@@ -203,7 +206,7 @@ const filtered = computed(() => {
 });
 
 function hrefFor(s: Svc) {
-  return withBase(`/guide/mcp#${s.anchor}`);
+  return localePath(`/guide/mcp#${s.anchor}`);
 }
 
 function brandIconUrl(s: Svc): string {
@@ -251,7 +254,7 @@ function glyphHue(name: string): number {
 
 <template>
   <div class="mint-int">
-    <aside class="mint-int__sidebar" aria-label="Filtrer par catégorie">
+    <aside class="mint-int__sidebar" :aria-label="filterAriaLabel">
       <button
         v-for="c in categories"
         :key="c.id"

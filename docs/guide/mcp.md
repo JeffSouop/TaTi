@@ -1,6 +1,6 @@
 # Connecteurs MCP (référence) {#mcp-top}
 
-TaTi ne « embarque » pas toute la logique des intégrations dans le binaire web : chaque domaine (Slack, cloud, base de données…) est servi par un **pont MCP** — petit service HTTP compatible **Model Context Protocol**. Vous les lancez via Docker Compose (ou à la main), puis vous déclarez leur **URL** dans l’interface : **Paramètres → Serveurs MCP** (les préréglages du dépôt reprennent les noms de service et chemins `/mcp`).
+TaTi ne « embarque » pas toute la logique des intégrations dans le binaire web : chaque domaine (Slack, cloud, base de données…) est servi par un **pont MCP** — petit service HTTP compatible **Model Context Protocol**. Vous les lancez via Docker Compose (ou à la main), puis vous déclarez leur **URL** dans l’interface : **Paramètres → Serveurs MCP** (les préréglages du dépôt reprennent les noms de service et chemins `/mcp`). La grille **presets** de l’UI est illustrée dans [Introduction — Nouveau serveur MCP](./introduction.md#interface-presets-mcp).
 
 ::: tip Rappel
 Les **ports** ci‑dessous sont les **ports hôte par défaut** du fichier `.env.example`. Ils sont modifiables : gardez la cohérence entre `.env`, `docker compose` et l’URL enregistrée dans TaTi (ex. si vous changez `MCP_SLACK_PORT`, l’URL `http://localhost:…/mcp` change aussi).
